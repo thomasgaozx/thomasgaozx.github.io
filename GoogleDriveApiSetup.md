@@ -1,19 +1,22 @@
 # Setting Up Google Drive Api Python Client Library on a Debian Linux Machine
 
-## Install pip/pip3
+## Overview
+Below are essentailly all you need to create a working google drive project:
+* **google-api-python-client** python package
+* **oauth2client** python package
+* **credentials.json** or **client_secret.json** (same thing)
+
+## Preliminary Step: Install pip/pip3
 Run `sudo apt-get install pip` (and later in the script use `#!/usr/bin/python`).
 
 Alternatively, run `sudo apt-get install pip3` (and later in the script use `#!/usr/bin/python3`)
 
-## Install Google Api Client Library and OAuth 2 Client
+## Step 1: Install Google Api Client Library and OAuth 2 Client
 Run `pip install --upgrade google-api-python-client oauth2client`.
 
-## Enable Google Drive Api and Run Test Script
-[Enable the Drive Api and Download the Sample Script](https://developers.google.com/drive/api/v3/quickstart/python).
-
+## Step 2: Enable Google Drive Api and Run Test Script
+[Enable the Drive Api and Download the Sample Script](https://developers.google.com/drive/api/v3/quickstart/python). By now you should be getting a _credential.json_ file (or _client_secret.json_, they have the exact same content, just different names);
 Run the script on the linux machine and you should be expecting a one-time authentication, and a list of drive files printed out on the console.
-
-These are preliminary steps to ensure a working client library.
 
 # Uploading Any Files to Google Drive
 
@@ -56,10 +59,10 @@ for filename, mimeType in FILES:
         print('Uploaded "%s" (%s)' % (filename, res['mimeType']))
 ```
 
-There are a few more setups to complete before the script can be successfully run.
+You might be getting an error telling you that _client_secret.json_ doesnt exists. You can just replace the `'client_secret.json'` from the code with `'credential.json'`. This is the json that tells Google endpoint that you are a permitted user of its API. 
 
-1. Notice in the script that client_secret.json is required, this is the json that tells Google endpoint that you are a permitted user of its API. To obtain the json file, go to Developer Console, create project, and find a way to create client id. Once you created client id, you should find a button somewhere that says '_Download Json_'. Click that button, and '_client_secret_xxxxxxx.json_' should be downloaded.
-1. Rename the client_secret_xxxxxxx.json to client_secret.json, and place it in the directory where the above script is run. (The easiest way to make the script work). Alternatively, you may change `'client_secret.json'` in the script to the path to the client secret. If the '_client_secret.json_' file is missing, the above script will throw NoSuchFiles exception.
-1. The first time you run the script, you may be required to authenticate again for more drive permission (e.g. read-write permission). You may also notice on the console that there is some warning about a file called '_Storage.json_'. Don't worry about it, it is just the file where your authentication token is stored so that you won't be prompted to authenticate again.
+One way to obtain the json file: go to Developer Console, create project, and find a way to create client id. Once you created client id, you should find a button somewhere that says '_Download Json_'. Click that button, and '_client_secretxxxxxxx.json_' should be downloaded.
+
+The first time you run the script, you may be required to authenticate again for more drive permission (e.g. read-write permission). You may also notice on the console that there is some warning about a file called '_Storage.json_'. Don't worry about it, it is just the file where your authentication token is stored so that you won't be prompted to authenticate again.
 
 From the above script, change the file names in the tuple, and now you should be expecting the files to appear on your drive!
