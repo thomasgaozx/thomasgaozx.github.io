@@ -85,10 +85,33 @@ Remove all stashes:
 ```bash
 git stash clear
 ```
+
+# Git Reset
+The default reset mode is `--mixed`
+```bash
+git reset [$MODE] [$COMMIT_ID] # discard all changes
+```
+`$MODE` could be `--soft`, `--mixed`, or `--hard`.
+
+In the simplest terms:
+* `--soft`: **uncommit** changes, changes are left staged (index).
+* `--mixed` (default): **uncommit** + **unstage** changes, changes are left in working tree.
+* `--hard`: **uncommit** + **unstage** + **delete** changes, nothing left.
+
+## Reverting a Commit
+Reverting a commit is generally safer than resetting.
+```bash
+git revert [$COMMIT_ID] 
+```
+In case of conflict, resolve the conflict on the fly, and:
+```
+git revert --continue
+git revert --abort
+```
+
 # Hunk Manipulations
 
 The `-p` option will allow you to interactively select hunks. 
-
 
 ## Selectively Reverse Hunks
 ```
@@ -122,8 +145,16 @@ git reset -p
 1. https://www.atlassian.com/git/tutorials/rewriting-history/git-rebase
 2. https://git-scm.com/docs/git-rebase
 3. https://linux.die.net/man/1/git-rebase
+
+#### Git Stash
+https://git-scm.com/book/en/v1/Git-Tools-Stashing
+
+#### Git Reset
+1. https://git-scm.com/docs/git-reset
+2. https://git-scm.com/docs/git-revert
+3. https://stackoverflow.com/questions/3528245/whats-the-difference-between-git-reset-mixed-soft-and-hard#answer-50022436
+
 #### Manipulating Hunks
 1. https://git-scm.com/book/en/v2/Git-Tools-Interactive-Staging
 2. https://stackoverflow.com/questions/4248237/how-do-i-reverse-a-specific-hunk-of-a-commit-in-git
 3. https://stackoverflow.com/questions/7336966/git-interactive-unstage 
-
