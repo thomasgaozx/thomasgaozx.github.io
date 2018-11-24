@@ -1,3 +1,12 @@
+# Git Workflow
+**Repository** is the "container" that tracks the changes to your project files. It holds all the commits.
+
+**Working Tree**, or working directory, consists of files that you are currently working on. 
+
+**Index**, or **staging area** compares the files in the working tree to the files in the repo. 
+
+Knowing these terms are essential to understand the typical _modify -> stage -> commit_ git flow.
+
 # Git Commit Symbols
 
 ```bash
@@ -139,6 +148,9 @@ git reset -p
 ```
 
 # Additional Readings
+#### Git Workflow
+1. https://backlog.com/git-tutorial/git-workflow/
+
 #### Git Commit Symbols
 1. https://git-scm.com/docs/gittutorial
 #### Git Rebase
