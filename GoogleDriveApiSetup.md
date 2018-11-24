@@ -7,12 +7,12 @@ Below are essentailly all you need to create a working google drive project:
 * **credentials.json** or **client_secret.json** (same thing)
 
 ## Preliminary Step: Install pip/pip3
-Run `sudo apt-get install pip` (and later in the script use `#!/usr/bin/python`).
+`sudo apt-get install pip` (and later in the script use `#!/usr/bin/python`).
 
-Alternatively, run `sudo apt-get install pip3` (and later in the script use `#!/usr/bin/python3`)
+Alternatively, `sudo apt-get install pip3` (and later in the script use `#!/usr/bin/python3`)
 
 ## Step 1: Install Google Api Client Library and OAuth 2 Client
-Run `pip install --upgrade google-api-python-client oauth2client`.
+`pip install --upgrade google-api-python-client oauth2client`.
 
 ## Step 2: Enable Google Drive Api and Run Test Script
 [Enable the Drive Api and Download the Sample Script](https://developers.google.com/drive/api/v3/quickstart/python). By now you should be getting a _credential.json_ file (or _client_secret.json_, they have the exact same content, just different names);
