@@ -1,21 +1,21 @@
 # Advanced Git Techniques
 
 - [Advanced Git Techniques](#advanced-git-techniques)
-    - [Git Workflow](#git-workflow)
-    - [Git Commit Symbols](#git-commit-symbols)
-    - [Git Rebase](#git-rebase)
-            - [Elementary Git Rebase](#elementary-git-rebase)
-            - [Using Git Rebase to Delete Commit](#using-git-rebase-to-delete-commit)
-            - [Multiple People Collaborate on the Same Branch](#multiple-people-collaborate-on-the-same-branch)
-            - [Git Rebase Conflict Resolution](#git-rebase-conflict-resolution)
-    - [Git Stash](#git-stash)
-    - [Git Reset](#git-reset)
-            - [Reverting a Commit](#reverting-a-commit)
-    - [Hunk Manipulations](#hunk-manipulations)
-            - [Selectively Reverse Hunks](#selectively-reverse-hunks)
-            - [Selectively Stage Hunks](#selectively-stage-hunks)
-            - [Selectively Unstage Hunks](#selectively-unstage-hunks)
-    - [Additional Readings](#additional-readings)
+        - [Git Workflow](#git-workflow)
+        - [Git Commit Symbols](#git-commit-symbols)
+        - [Git Rebase](#git-rebase)
+                - [Elementary Git Rebase](#elementary-git-rebase)
+                - [Using Git Rebase to Delete Commit](#using-git-rebase-to-delete-commit)
+                - [Multiple People Collaborate on the Same Branch](#multiple-people-collaborate-on-the-same-branch)
+                - [Git Rebase Conflict Resolution](#git-rebase-conflict-resolution)
+        - [Git Stash](#git-stash)
+        - [Git Reset](#git-reset)
+                - [Reverting a Commit](#reverting-a-commit)
+        - [Hunk Manipulations](#hunk-manipulations)
+                - [Selectively Reverse Hunks](#selectively-reverse-hunks)
+                - [Selectively Stage Hunks](#selectively-stage-hunks)
+                - [Selectively Unstage Hunks](#selectively-unstage-hunks)
+        - [Additional Readings](#additional-readings)
 
 ## Git Workflow
 
@@ -56,7 +56,7 @@ Normally git rebase is not needed, knowing git rebase and how it works could mak
 
 To learn more about git rebase, see Additional Readings.
 
-#### Elementary Git Rebase
+### Elementary Git Rebase
 
 Assume you're on feature branch, you want to _rebase_ to the latest commit of the develop branch.
 
@@ -71,11 +71,11 @@ Assume you want to _rebase_ the feature branch from the develop branch onto mast
 git rebase --onto master develop feature
 ```
 
-#### Using Git Rebase to Delete Commit
+### Using Git Rebase to Delete Commit
 
 If you are on a feature branch and you wish to remove commit F and G from the below diagram
 
-```
+```demo
 E---F---G---H---I---J  feature (before rebase)
 E---H---I---J  feature (after rebase)
 ```
@@ -86,7 +86,7 @@ You could do:
 git rebase --onto feature~5 feature~3 feature
 ```
 
-#### Multiple People Collaborate on the Same Branch
+### Multiple People Collaborate on the Same Branch
 
 Fetching works the same as if you're on an individual branch, but before you push anything, do:
 
@@ -95,7 +95,7 @@ git pull --rebase
 git push
 ```
 
-#### Git Rebase Conflict Resolution
+### Git Rebase Conflict Resolution
 
 The commits are rewinded and collected in a stack. These commits are then popped one by one onto the new upstream. When a conflict occurs, resolve the conflict on the spot, then do:
 
@@ -155,7 +155,7 @@ In the simplest terms:
 * `--mixed` (default): **uncommit** + **unstage** changes, changes are left in working tree.
 * `--hard`: **uncommit** + **unstage** + **delete** changes, nothing left.
 
-#### Reverting a Commit
+### Reverting a Commit
 
 Reverting a commit is generally safer than resetting.
 
@@ -174,7 +174,7 @@ git revert --abort
 
 The `-p` option will allow you to interactively select hunks. 
 
-#### Selectively Reverse Hunks
+### Selectively Reverse Hunks
 
 ```bash
 git checkout -p $COMMIT_ID -- $FILE_PATH
@@ -187,7 +187,7 @@ You are usually given these options `[y,n,q,a,d,s,e,?]`? The details are in the 
 * `s` - split the current hunk into smaller hunks
 * `e` - manually edit the current hunk
 
-#### Selectively Stage Hunks
+### Selectively Stage Hunks
 
 ```bash
 git add -p
@@ -200,7 +200,7 @@ git add -i
 ```
 In the interactive prompt, type `5` or `p` for patch. 
 
-#### Selectively Unstage Hunks
+### Selectively Unstage Hunks
 
 ```bash
 git reset -p
