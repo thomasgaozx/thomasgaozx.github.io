@@ -46,3 +46,6 @@ git rebase --abort
 1. https://www.atlassian.com/git/tutorials/rewriting-history/git-rebase
 2. https://git-scm.com/docs/git-rebase
 3. https://linux.die.net/man/1/git-rebase
+
+# Manipulating Hunks
+## Reverse Hunks
