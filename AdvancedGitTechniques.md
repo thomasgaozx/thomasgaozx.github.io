@@ -1,21 +1,21 @@
 # Advanced Git Techniques
 
 - [Advanced Git Techniques](#advanced-git-techniques)
-        - [Git Workflow](#git-workflow)
-        - [Git Commit Symbols](#git-commit-symbols)
-        - [Git Rebase](#git-rebase)
-                - [Elementary Git Rebase](#elementary-git-rebase)
-                - [Using Git Rebase to Delete Commit](#using-git-rebase-to-delete-commit)
-                - [Multiple People Collaborate on the Same Branch](#multiple-people-collaborate-on-the-same-branch)
-                - [Git Rebase Conflict Resolution](#git-rebase-conflict-resolution)
-        - [Git Stash](#git-stash)
-        - [Git Reset](#git-reset)
-                - [Reverting a Commit](#reverting-a-commit)
-        - [Hunk Manipulations](#hunk-manipulations)
-                - [Selectively Reverse Hunks](#selectively-reverse-hunks)
-                - [Selectively Stage Hunks](#selectively-stage-hunks)
-                - [Selectively Unstage Hunks](#selectively-unstage-hunks)
-        - [Additional Readings](#additional-readings)
+  - [Git Workflow](#git-workflow)
+  - [Git Commit Symbols](#git-commit-symbols)
+  - [Git Rebase](#git-rebase)
+    - [Elementary Git Rebase](#elementary-git-rebase)
+    - [Using Git Rebase to Delete Commit](#using-git-rebase-to-delete-commit)
+    - [Multiple People Collaborate on the Same Branch](#multiple-people-collaborate-on-the-same-branch)
+    - [Git Rebase Conflict Resolution](#git-rebase-conflict-resolution)
+  - [Git Stash](#git-stash)
+  - [Git Reset](#git-reset)
+    - [Reverting a Commit](#reverting-a-commit)
+  - [Hunk Manipulations](#hunk-manipulations)
+    - [Selectively Reverse Hunks](#selectively-reverse-hunks)
+    - [Selectively Stage Hunks](#selectively-stage-hunks)
+    - [Selectively Unstage Hunks](#selectively-unstage-hunks)
+  - [Additional Readings](#additional-readings)
 
 ## Git Workflow
 
@@ -208,31 +208,31 @@ git reset -p
 
 ## Additional Readings
 
-Git Workflow
+Git Workflow:
 
 1. https://backlog.com/git-tutorial/git-workflow/
 
-Git Commit Symbols
+Git Commit Symbols:
 
 1. https://git-scm.com/docs/gittutorial
 
-Git Rebase
+Git Rebase:
 
 1. https://www.atlassian.com/git/tutorials/rewriting-history/git-rebase
 2. https://git-scm.com/docs/git-rebase
 3. https://linux.die.net/man/1/git-rebase
 
-Git Stash
+Git Stash:
 
 https://git-scm.com/book/en/v1/Git-Tools-Stashing
 
-Git Reset
+Git Reset:
 
 1. https://git-scm.com/docs/git-reset
 2. https://git-scm.com/docs/git-revert
 3. https://stackoverflow.com/questions/3528245/whats-the-difference-between-git-reset-mixed-soft-and-hard#answer-50022436
 
-Manipulating Hunks
+Manipulating Hunks:
 
 1. https://git-scm.com/book/en/v2/Git-Tools-Interactive-Staging
 2. https://stackoverflow.com/questions/4248237/how-do-i-reverse-a-specific-hunk-of-a-commit-in-git

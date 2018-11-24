@@ -59,7 +59,7 @@ for filename, mimeType in FILES:
         print('Uploaded "%s" (%s)' % (filename, res['mimeType']))
 ```
 
-You might be getting an error telling you that _client_secret.json_ doesnt exists. You can just replace the `'client_secret.json'` from the code with `'credential.json'`. This is the json that tells Google endpoint that you are a permitted user of its API. 
+You might be getting an error telling you that _client_secret.json_ doesn't exists. You can just replace the `'client_secret.json'` from the code with `'credential.json'`. This is the json that tells Google endpoint that you are a permitted user of its API. 
 
 One way to obtain the json file: go to Developer Console, create project, and find a way to create client id. Once you created client id, you should find a button somewhere that says '_Download Json_'. Click that button, and '_client_secretxxxxxxx.json_' should be downloaded.
 
