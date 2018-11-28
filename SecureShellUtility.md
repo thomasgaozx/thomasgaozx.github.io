@@ -26,7 +26,7 @@ Then, on the target machine, paste the content of the public key to the ~/.ssh/a
 $ vi ~/.ssh/authorized_keys
 $ # paste the content
 ```
-After you are done, don't forget to change the permission file permission.
+After you are done, don't forget to change the file permission.
 ```
 $ chmod 755 authorized_keys
 ```
@@ -38,5 +38,5 @@ $ scp ~/.ssh/some_key.pub $TARGET_IP:~/.ssh/authorized_keys
 
 ## Related Readings
 1. https://www.ssh.com/ssh/config/
-1. https://www.ssh.com/ssh/keygen/
-1. https://confluence.atlassian.com/bitbucketserver/creating-ssh-keys-776639788.html
+2. https://www.ssh.com/ssh/keygen/
+3. https://confluence.atlassian.com/bitbucketserver/creating-ssh-keys-776639788.html

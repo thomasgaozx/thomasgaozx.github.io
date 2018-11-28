@@ -15,6 +15,10 @@
     - [Selectively Reverse Hunks](#selectively-reverse-hunks)
     - [Selectively Stage Hunks](#selectively-stage-hunks)
     - [Selectively Unstage Hunks](#selectively-unstage-hunks)
+  - [Conflict Resolution](#conflict-resolution)
+    - [Relavant Terminology](#relavant-terminology)
+    - [Configuring Merge Tool](#configuring-merge-tool)
+    - [kdiff3 Workflow](#kdiff3-workflow)
   - [Additional Readings](#additional-readings)
 
 ## Git Workflow
@@ -115,6 +119,7 @@ git rebase --abort
 ```bash
 git stash
 git stash apply
+git stash pop # discard stash after apply
 ```
 
 If you want to name a stash.
@@ -198,6 +203,7 @@ Alternatively, you can do:
 ```bash
 git add -i
 ```
+
 In the interactive prompt, type `5` or `p` for patch. 
 
 ### Selectively Unstage Hunks
@@ -205,6 +211,34 @@ In the interactive prompt, type `5` or `p` for patch.
 ```bash
 git reset -p
 ```
+
+## Conflict Resolution
+
+### Relavant Terminology
+
+* `LOCAL` is the head of the current branch
+* `REMOTE` is the head of the remote location that you are trying to merge into your `LOCAL` branch
+* `BASE` is the common ancestor of `LOCAL` and `BASE`
+
+### Configuring Merge Tool
+
+Visual Studio Code offers great support for on-the-fly conflict resolution. Simply choose the desired version, save, stage and commit.
+
+It also doesn't hurt to use kdiff3.
+
+```git
+sudo apt-get install kdiff3
+
+git config merge.tool kdiff3
+git config merge.conflictstyle diff3
+git config mergetool.prompt false
+```
+
+### kdiff3 Workflow
+
+1. On local branch feature, attempt `git merge develop` and expect a merge conflict (feature|MERGING). Then, run `git mergetool`.
+2. The kdiff3 window will then pop up. Pokes around the buttons in the navigation bar (don't click merge). Step through all the conflicts (even those that are automatically resolved) to ensure that the correct version (A|B|C) is chosen. Then save and close.
+3. `git rebase --continue` if you are using Git version 2.12 or later. Otherwise, stage and commit the changes and the merge will be complete (old fashioned way).
 
 ## Additional Readings
 
@@ -237,3 +271,6 @@ Manipulating Hunks:
 1. https://git-scm.com/book/en/v2/Git-Tools-Interactive-Staging
 2. https://stackoverflow.com/questions/4248237/how-do-i-reverse-a-specific-hunk-of-a-commit-in-git
 3. https://stackoverflow.com/questions/7336966/git-interactive-unstage 
+
+Conflict Resolution:
+1. https://gist.github.com/karenyyng/f19ff75c60f18b4b8149
