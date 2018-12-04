@@ -16,7 +16,7 @@ The regex does **not** consider the following numerical literals as magic number
 
 Now, item no.3 may be a magic number assignment, but most of them are not. Capturing these numerical value assignment will lead to way too many false positives.
 
-The numerical literals (both `float` and `int`) considered as magic number are:
+The numerical literals (both `float` and `int`) considered as magic numbers are:
 
 1. Numerical literals enclosed in brackets,  i.e. `()`, `[]`, `{}`, `<>`.
 2. Non-zero numerical literals used in numerical comparison.
