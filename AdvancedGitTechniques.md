@@ -11,6 +11,7 @@
   - [Git Stash](#git-stash)
   - [Git Reset](#git-reset)
     - [Reverting a Commit](#reverting-a-commit)
+    - [Removing a Commit From Remote](#removing-a-commit-from-remote)
   - [Hunk Manipulations](#hunk-manipulations)
     - [Selectively Reverse Hunks](#selectively-reverse-hunks)
     - [Selectively Stage Hunks](#selectively-stage-hunks)
@@ -173,6 +174,15 @@ In case of conflict, resolve the conflict on the fly, and:
 ```git
 git revert --continue
 git revert --abort
+```
+
+### Removing a Commit From Remote
+
+Warning: people may hate you for doing this.
+
+```bash
+git reset --hard $COMMIT_ID
+git push -F
 ```
 
 ## Hunk Manipulations
