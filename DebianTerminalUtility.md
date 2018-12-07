@@ -11,6 +11,8 @@
     - [Export Customized Settings](#export-customized-settings)
     - [Important Environment Variables](#important-environment-variables)
   - [Setting Static IP Address](#setting-static-ip-address)
+  - [Additional Useful Tricks](#additional-useful-tricks)
+    - [Go To Last Visited Directory](#go-to-last-visited-directory)
 
 ## Package Management
 
@@ -92,6 +94,14 @@ Export customized environment variables in `~/.bashrc` of `~/.profile`.
 
 ```bash
 ifconfig wm0 inet 192.168.0.20/24
+```
+
+## Additional Useful Tricks
+
+### Go To Last Visited Directory
+
+```bash
+cd -
 ```
 
 Put this line in `/etc/profile`, and the static ip address will init after the boot.
