@@ -5,6 +5,7 @@
     - [Search a Particular Package](#search-a-particular-package)
     - [List All Installed Packages](#list-all-installed-packages)
     - [Remove Packages](#remove-packages)
+    - [Switch Package Version](#switch-package-version)
     - [References](#references)
   - [File Searching](#file-searching)
   - [Environment Settings](#environment-settings)
@@ -51,6 +52,13 @@ To completely remove the dependencies after purging, do
 ```sh
 sudo apt-get autoremove
 sudo apt-get --purge autoremove
+```
+
+### Switch Package Version
+
+```sh
+sudo update-alternatives --config $PACKAGE_NAME
+# select version interactively
 ```
 
 The second command is more thorough as it deletes the systemwide configuration files too.
