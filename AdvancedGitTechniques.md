@@ -23,9 +23,9 @@
   - [Setting Up Git Server](#setting-up-git-server)
     - [Security Recommendation (Server)](#security-recommendation-server)
     - [Step 1. Adding Dedicated SSH Key (Client)](#step-1-adding-dedicated-ssh-key-client)
-      - [Step 2. Add Private Key to ssh-agent (Client)](#step-2-add-private-key-to-ssh-agent-client)
-        - [Version A](#version-a)
-        - [Version B](#version-b)
+    - [Step 2. Add Private Key to ssh-agent (Client)](#step-2-add-private-key-to-ssh-agent-client)
+      - [Version A](#version-a)
+      - [Version B](#version-b)
     - [Step 3. Initializing Repo and Add Server Remote Origin (Client)](#step-3-initializing-repo-and-add-server-remote-origin-client)
   - [Additional Readings](#additional-readings)
 
@@ -312,7 +312,7 @@ ssh-keygen -t rsa -b 4096 -C "github_email@example.com"
 # please leave the passphrase blank for goodness sake
 ```
 
-#### Step 2. Add Private Key to ssh-agent (Client)
+### Step 2. Add Private Key to ssh-agent (Client)
 
 In order to work with repo server without manual authentication, you must add the key to the ssh agent in addition to the auto-authentication setup.
 To do so:
@@ -329,7 +329,7 @@ Where `$PATH_TO_PRIVATE_KEY` is the private key generated in Step 1.
 Unfortunately, you **must** run these two commands everytime you start a new git bash shell which is extremely painful.
 To automatically run these command, you could add the following lines (version A and version B) to `~/.bashrc` or `~/.profile`,
 
-##### Version A
+#### Version A
 
 This is provided in the [GitHub Help](https://help.github.com/articles/working-with-ssh-key-passphrases/).
 
@@ -356,7 +356,7 @@ fi
 unset env
 ```
 
-##### Version B
+#### Version B
 
 This is my own version, instead of always letting the agent run in detached thread.
 I always kill all previous agent processes before starting a new one.
