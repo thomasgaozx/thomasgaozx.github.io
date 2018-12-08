@@ -26,7 +26,7 @@
     - [Step 2. Add Private Key to ssh-agent (Client)](#step-2-add-private-key-to-ssh-agent-client)
       - [Version A](#version-a)
       - [Version B](#version-b)
-    - [Step 3. Initializing Repo and Add Server Remote Origin (Client)](#step-3-initializing-repo-and-add-server-remote-origin-client)
+    - [Step 3. Initializing Repo and Point Remote Origin To Server (Client)](#step-3-initializing-repo-and-point-remote-origin-to-server-client)
   - [Additional Readings](#additional-readings)
 
 ## Git Workflow
@@ -369,7 +369,7 @@ ssh-add $PATH_TO_PRIVATE_KEY
 
 Do not blame me for cheating and using Windows cmd, git bash does not have `pkill` command! The double slashes are to escape the special '/' character.
 
-### Step 3. Initializing Repo and Add Server Remote Origin (Client)
+### Step 3. Initializing Repo and Point Remote Origin To Server (Client)
 
 Initializing repo:
 
@@ -399,40 +399,40 @@ git pull
 
 Git Workflow:
 
-1. https://backlog.com/git-tutorial/git-workflow/
+- [Main Reference](https://backlog.com/git-tutorial/git-workflow/)
 
 Git Commit Symbols:
 
-1. https://git-scm.com/docs/gittutorial
+- [Official SCM Documentation](https://git-scm.com/docs/gittutorial)
 
 Git Rebase:
 
-1. https://www.atlassian.com/git/tutorials/rewriting-history/git-rebase
-2. https://git-scm.com/docs/git-rebase
-3. https://linux.die.net/man/1/git-rebase
+- [Atlassian Tutorial](https://www.atlassian.com/git/tutorials/rewriting-history/git-rebase)
+- [Official SCM Documentation](https://git-scm.com/docs/git-rebase)
+- [Other Tutorial](https://linux.die.net/man/1/git-rebase)
 
 Git Stash:
 
-https://git-scm.com/book/en/v1/Git-Tools-Stashing
+- [Official SCM Documentation](https://git-scm.com/book/en/v1/Git-Tools-Stashing)
 
 Git Reset:
 
-1. https://git-scm.com/docs/git-reset
-2. https://git-scm.com/docs/git-revert
-3. https://stackoverflow.com/questions/3528245/whats-the-difference-between-git-reset-mixed-soft-and-hard#answer-50022436
+- [Official SCM Documentation on Git Reset](https://git-scm.com/docs/git-reset)
+- [Official SCM Documentation on Git Revert](https://git-scm.com/docs/git-revert)
+- [Helpful Post Clarifying Reset Types](https://stackoverflow.com/questions/3528245/whats-the-difference-between-git-reset-mixed-soft-and-hard#answer-50022436)
 
 Manipulating Hunks:
 
-1. https://git-scm.com/book/en/v2/Git-Tools-Interactive-Staging
-2. https://stackoverflow.com/questions/4248237/how-do-i-reverse-a-specific-hunk-of-a-commit-in-git
-3. https://stackoverflow.com/questions/7336966/git-interactive-unstage 
+- [Official SCM Documentation](https://git-scm.com/book/en/v2/Git-Tools-Interactive-Staging)
+- [Helpful Post on Revert Hunks](https://stackoverflow.com/questions/4248237/how-do-i-reverse-a-specific-hunk-of-a-commit-in-git)
+- [Helpful Post on Interactive Unstage](https://stackoverflow.com/questions/7336966/git-interactive-unstage)
 
 Conflict Resolution:
 
-1. https://gist.github.com/karenyyng/f19ff75c60f18b4b8149
+- [Additional Reading](https://gist.github.com/karenyyng/f19ff75c60f18b4b8149)
 
 Setting Up Git Server:
 
-1. [Official SCM Documentation](https://git-scm.com/book/en/v2/Git-on-the-Server-Setting-Up-the-Server)
-2. [Adding Key to SSH Agent](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/)
-3. [Git SSH Agent Auto Authentication](https://help.github.com/articles/working-with-ssh-key-passphrases/)
+- [Official SCM Documentation](https://git-scm.com/book/en/v2/Git-on-the-Server-Setting-Up-the-Server)
+- [Adding Key to SSH Agent](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/)
+- [Git SSH Agent Auto Authentication](https://help.github.com/articles/working-with-ssh-key-passphrases/)
