@@ -2,7 +2,11 @@
 
 - [Advanced Git Techniques](#advanced-git-techniques)
   - [Git Workflow](#git-workflow)
-  - [Git Commit Symbols](#git-commit-symbols)
+    - [Basic Structure](#basic-structure)
+    - [Tagging](#tagging)
+    - [Git Objects](#git-objects)
+    - [Git References](#git-references)
+    - [Git Commit Symbols](#git-commit-symbols)
   - [Git Rebase](#git-rebase)
     - [Elementary Git Rebase](#elementary-git-rebase)
     - [Using Git Rebase to Delete Commit](#using-git-rebase-to-delete-commit)
@@ -28,21 +32,88 @@
       - [Version B](#version-b)
     - [Step 3. Initializing Repo and Point Remote Origin To Server (Client)](#step-3-initializing-repo-and-point-remote-origin-to-server-client)
   - [Git Hooks](#git-hooks)
-  - [Client-Side Hooks](#client-side-hooks)
-  - [Server-Side Hooks](#server-side-hooks)
+    - [Client-Side Hooks](#client-side-hooks)
+    - [Server-Side Hooks](#server-side-hooks)
   - [Additional Readings](#additional-readings)
 
 ## Git Workflow
 
+### Basic Structure
+
 **Repository** is the "container" that tracks the changes to your project files. It holds all the commits.
 
-**Working Tree**, or working directory, consists of files that you are currently working on.
+**HEAD** is the last commit snapshot.
 
-**Index**, or **staging area** compares the files in the working tree to the files in the repo.
+**Working Tree**, or working directory, is the sandbox consists of files that you are currently working on.
 
-Knowing these terms are essential to understand the typical _modify -> stage -> commit_ git flow.
+**Index**, or **staging area** is the proposed next-commit snapshot.
 
-## Git Commit Symbols
+### Tagging
+
+Git has the ability to tag specific points in history as being important.
+
+* **Lightweight Tags** are very much like branches that doesn't change, they're just pointer to a specific commit.
+* **Annotated Tags** are full objects in the Git database. They’re checksummed; contain the tagger name, email, and date; have a tagging message; and can be signed and verified with GNU Privacy Guard.
+
+To list all the tags:
+
+```bash
+git tag
+```
+
+To see detailed tag info:
+
+```bash
+git show v1.4
+```
+
+To create a _lightweight tag_:
+
+```bash
+git tag v1.4
+git tag -u $COMMIT_ID v1.4
+```
+
+To create an _annotated tag_:
+
+```bash
+git tag -a v1.4 -m "my version 1.4"
+git tag -a v1.4 -u $COMMIT_ID -m "my version 1.4"
+```
+
+To delete a tag:
+
+```bash
+git tag -d v1.4
+```
+
+To checkout a tag:
+
+```bash
+$ git checkout -b v1.4 experiment
+Switched to a new branch 'experiment'
+```
+
+To push a tag to origin:
+
+```bash
+git push origin --tags #all tags pushed
+git push origin v1.4 #a specific tag
+```
+
+### Git Objects
+
+Git is a content-addressable filesystem.
+The core of Git is a simple key-value data store.
+You can insert any kind of content into Git repository, for which Git will hand you back a unique key.
+
+### Git References
+
+Git commits are identified through a raw SHA-1 values.
+Git references are simple names that represents certain SHA-1 values.
+These certain names are stored in `$REPO_PATH/.git/refs`.
+
+### Git Commit Symbols
 
 ```bash
 git show $COMMIT_ID # a long hash
@@ -409,24 +480,32 @@ For example, I could set up Git Hooks on the git server to run the build and uni
 The obvious benifit of this is simply I could continuously focus on my repo on the cient machine while the git server is validating my changes.
 I do not have to SSH into the server, run the build and execute the test binaries manually.
 
-## Client-Side Hooks
+### Client-Side Hooks
 
-- **pre-commit**: runs before entering the interactive commit session.
-- **prepare-commit-msg**: runs before the commit message editor is fired up but after the default message is created.
-- **commit-msg**: runs before the commit message editor exits.
+- **pre-commit**: runs before Git asks for a commit message or generates a commit object.
+  - No arguments.
+  - Exiting with non-zero status aborts the commit.
 - **post-commit**: runs after a commit.
+  - No arguments.
+- **post-checkout**: runs after a successful `git checkout`.
+- **post-merge**: runs after a successful merge.
+- **pre-push**: runs after remote refs have been updated but before any objects have been transferred.
 
-## Server-Side Hooks
+### Server-Side Hooks
 
 - **pre-receive**: runs only once before receiving a push.
 - **update**: runs once for each branch the pusher is trying to update.
-- **post-receive**: runs after the push.
+- **post-receive**: runs after receiving the push.
 
 ## Additional Readings
 
 Git Workflow:
 
 - [Main Reference](https://backlog.com/git-tutorial/git-workflow/)
+- [Official SCM Doc on Basic Git Trees](https://git-scm.com/book/en/v2/Git-Tools-Reset-Demystified)
+- [Official SCM Git Reference Documentation](https://git-scm.com/book/en/v2/Git-Internals-Git-References)
+- [Official SCM Git Objects Documentation](https://git-scm.com/book/en/v2/Git-Internals-Git-References)
+- [Official SCM Git Tagging Documentation](https://git-scm.com/book/en/v2/Git-Basics-Tagging)
 
 Git Commit Symbols:
 
@@ -467,3 +546,4 @@ Setting Up Git Server:
 Git Hooks:
 
 - [Official SCM Documentation](https://git-scm.com/book/uz/v2/Customizing-Git-Git-Hooks)
+- [Atlassian Tutorial](https://www.atlassian.com/git/tutorials/git-hooks)
