@@ -27,6 +27,9 @@
       - [Version A](#version-a)
       - [Version B](#version-b)
     - [Step 3. Initializing Repo and Point Remote Origin To Server (Client)](#step-3-initializing-repo-and-point-remote-origin-to-server-client)
+  - [Git Hooks](#git-hooks)
+  - [Client-Side Hooks](#client-side-hooks)
+  - [Server-Side Hooks](#server-side-hooks)
   - [Additional Readings](#additional-readings)
 
 ## Git Workflow
@@ -298,7 +301,7 @@ This follows the usual SSH auto-authentication setup.
 
 1. Generate SSH key on client machine.
 2. Configure the `~/.ssh/authorized_keys` on server.
-3. Configure `~/.ssh/config` on client machine without.
+3. Configure `~/.ssh/config` on client machine.
 4. Test that the auto-authentication works by SSH into the server.
 
 If the client machine is windows, then the user has no choice but to add the key through **git bash**.
@@ -395,6 +398,30 @@ git checkout develop
 git pull
 ```
 
+## Git Hooks
+
+Git hooks are scripts triggered by git operations.
+They are stored in `$REPO_PATH/.git/hooks/` with designated names.
+Git hooks are particularly useful for Continuous Integration and Continuous Deployment.
+
+In my case introduced in _Git Server_ section, using Git Hooks could save a noticeable amount of time for each development cycle.
+For example, I could set up Git Hooks on the git server to run the build and unit tests on a feature branch as soon as I push from the git client machine, and notify me of the results.
+The obvious benifit of this is simply I could continuously focus on my repo on the cient machine while the git server is validating my changes.
+I do not have to SSH into the server, run the build and execute the test binaries manually.
+
+## Client-Side Hooks
+
+- **pre-commit**: runs before entering the interactive commit session.
+- **prepare-commit-msg**: runs before the commit message editor is fired up but after the default message is created.
+- **commit-msg**: runs before the commit message editor exits.
+- **post-commit**: runs after a commit.
+
+## Server-Side Hooks
+
+- **pre-receive**: runs only once before receiving a push.
+- **update**: runs once for each branch the pusher is trying to update.
+- **post-receive**: runs after the push.
+
 ## Additional Readings
 
 Git Workflow:
@@ -436,3 +463,7 @@ Setting Up Git Server:
 - [Official SCM Documentation](https://git-scm.com/book/en/v2/Git-on-the-Server-Setting-Up-the-Server)
 - [Adding Key to SSH Agent](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/)
 - [Git SSH Agent Auto Authentication](https://help.github.com/articles/working-with-ssh-key-passphrases/)
+
+Git Hooks:
+
+- [Official SCM Documentation](https://git-scm.com/book/uz/v2/Customizing-Git-Git-Hooks)
