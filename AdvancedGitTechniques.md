@@ -34,9 +34,15 @@
   - [Git Hooks](#git-hooks)
     - [Client-Side Hooks](#client-side-hooks)
     - [Server-Side Hooks](#server-side-hooks)
+    - [Triggering Build on the Server](#triggering-build-on-the-server)
+      - [Build Server Script](#build-server-script)
+      - [Client Signal Script](#client-signal-script)
   - [Additional Readings](#additional-readings)
 
 ## Git Workflow
+
+This section is terminology oriented.
+It is important to have an in-depth understanding of Git's internal structure and operating mechanism to use it more effectively.
 
 ### Basic Structure
 
@@ -52,8 +58,8 @@
 
 Git has the ability to tag specific points in history as being important.
 
-* **Lightweight Tags** are very much like branches that doesn't change, they're just pointer to a specific commit.
-* **Annotated Tags** are full objects in the Git database. They’re checksummed; contain the tagger name, email, and date; have a tagging message; and can be signed and verified with GNU Privacy Guard.
+**Lightweight Tags** are very much like branches that doesn't change, they're just pointer to a specific commit.
+**Annotated Tags** are full objects in the Git database. They’re checksummed; contain the tagger name, email, and date; have a tagging message; and can be signed and verified with GNU Privacy Guard.
 
 To list all the tags:
 
@@ -247,7 +253,7 @@ In the simplest terms:
 Reverting a commit is generally safer than resetting.
 
 ```bash
-git revert [$COMMIT_ID] 
+git revert [$COMMIT_ID]
 ```
 
 In case of conflict, resolve the conflict on the fly, and:
@@ -268,7 +274,7 @@ git push -F
 
 ## Hunk Manipulations
 
-The `-p` option will allow you to interactively select hunks. 
+The `-p` option will allow you to interactively select hunks.
 
 ### Selectively Reverse Hunks
 
@@ -295,7 +301,7 @@ Alternatively, you can do:
 git add -i
 ```
 
-In the interactive prompt, type `5` or `p` for patch. 
+In the interactive prompt, type `5` or `p` for patch.
 
 ### Selectively Unstage Hunks
 
@@ -475,10 +481,10 @@ Git hooks are scripts triggered by git operations.
 They are stored in `$REPO_PATH/.git/hooks/` with designated names.
 Git hooks are particularly useful for Continuous Integration and Continuous Deployment.
 
-In my case introduced in _Git Server_ section, using Git Hooks could save a noticeable amount of time for each development cycle.
-For example, I could set up Git Hooks on the git server to run the build and unit tests on a feature branch as soon as I push from the git client machine, and notify me of the results.
-The obvious benifit of this is simply I could continuously focus on my repo on the cient machine while the git server is validating my changes.
-I do not have to SSH into the server, run the build and execute the test binaries manually.
+In my case introduced in _Git Server_ section, using git hooks could save a noticeable amount of time for each development cycle.
+For example, I could set up git hooks on the git server to build the current branch and run the unit tests as soon as I push from the git client machine, and notify me of the results.
+The obvious benifit of this is that I could continue to focus on my repo after I have pushed, while the git server on the virtual machine is validating my changes.
+I do not have to SSH into the VM, run the build, execute the test binaries and validate manually.
 
 ### Client-Side Hooks
 
@@ -496,6 +502,100 @@ I do not have to SSH into the server, run the build and execute the test binarie
 - **pre-receive**: runs only once before receiving a push.
 - **update**: runs once for each branch the pusher is trying to update.
 - **post-receive**: runs after receiving the push.
+
+### Triggering Build on the Server
+
+#### Build Server Script
+
+First, set up a UDP server waiting to be triggered. The python script looks like this:
+
+```python
+#/usr/bin/python3
+
+import socket
+import subprocess
+
+## encoding and decoding using utf-8
+def serve_forever():
+    address = ('127.0.0.1', 2018) #AF_INET
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.bind(address)
+
+    while True:
+        try:
+            data, addr = sock.recvfrom(4096)
+            print('received %s bytes' % (len(data),))
+            if data:
+                items = data.decode("utf-8").split()
+                repo = items[0]
+                br = items[1]
+                if (repo == 'reponame'):
+                    checkout_latest(br)
+                    build_repo()
+        except Exception as e:
+            print(e)
+            pass
+
+## local build module:
+goto_root = "cd %s" %("repo_root",) #repo root
+setup_cmd = "source env_setup.sh" #customized setup (e.g. source before build)
+
+def checkout_latest(branch_name):
+    global goto_root
+    cmd = goto_root + " && git checkout " + branch_name + " && git reset --hard"
+    run(cmd)
+
+def build_repo():
+    global setup_cmd
+    cmd = setup_cmd + " && ./build_script.sh"
+    run(cmd)
+
+def run(cmd):
+    pr = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+    while True:
+        """ Aggressive buffering to achieve real-time output """
+        output = pr.stdout.readline()
+        if output == b'' and pr.poll() is not None:
+            break
+        if output:
+            print(output.strip())
+    rc = pr.poll()
+    if rc != 0:
+        print("FAILED!")
+    return rc
+
+if __name__ == "__main__":
+    print("Starts serving ...")
+    serve_forever()
+
+    print("Quitting ...")
+```
+
+Note that this script is only suitable for personal use, because the output will mess up if a push signal is received when the repo is still building.
+To handle signal racing, simply refactor the script to use queueing.
+
+#### Client Signal Script
+
+Inside .git/hooks, add `post-receive` that sends a signal to the build server:
+
+```python
+#!/usr/bin/python3
+import sys
+import socket
+
+repo_name = "repo msg"
+branch_name = sys.stdin.readlines()[0].split()[2].split('/')[2]
+
+address = ('127.0.0.1', 2018) #AF_INET
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+msg = repo_name + " " + branch_name
+print("Notifying build server to update "+branch_name+" ...")
+
+sock.sendto(msg.encode("utf-8"), address)
+print("Notified build server ... Done")
+```
 
 ## Additional Readings
 
