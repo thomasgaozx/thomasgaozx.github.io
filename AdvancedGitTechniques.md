@@ -61,18 +61,6 @@ Git has the ability to tag specific points in history as being important.
 **Lightweight Tags** are very much like branches that doesn't change, they're just pointer to a specific commit.
 **Annotated Tags** are full objects in the Git database. They’re checksummed; contain the tagger name, email, and date; have a tagging message; and can be signed and verified with GNU Privacy Guard.
 
-To list all the tags:
-
-```bash
-git tag
-```
-
-To see detailed tag info:
-
-```bash
-git show v1.4
-```
-
 To create a _lightweight tag_:
 
 ```bash
@@ -85,26 +73,6 @@ To create an _annotated tag_:
 ```bash
 git tag -a v1.4 -m "my version 1.4"
 git tag -a v1.4 -u $COMMIT_ID -m "my version 1.4"
-```
-
-To delete a tag:
-
-```bash
-git tag -d v1.4
-```
-
-To checkout a tag:
-
-```bash
-$ git checkout -b v1.4 experiment
-Switched to a new branch 'experiment'
-```
-
-To push a tag to origin:
-
-```bash
-git push origin --tags #all tags pushed
-git push origin v1.4 #a specific tag
 ```
 
 ### Git Objects
