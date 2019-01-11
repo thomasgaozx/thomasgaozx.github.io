@@ -197,13 +197,13 @@ def serve_forever():
     lsock.bind((HOST_IP, HOST_PORT))
     lsock.listen()
     lsock.setblocking(False)
-    sel.register(lsock, selectors.EVENT_READ, data="lsock")
+    sel.register(lsock, selectors.EVENT_READ)
 
     # event loop
     while True:
         event_tuples = sel.select(timeout=None)
         for key, mask in event_tuples:
-            if key.data == "lsock": # the listening socket
+            if key.fileobj is lsock: # the listening socket
                 accept_conn(key.fileobj)
                 # key.fileobj is the connected socket
             else: # the connected socket
@@ -331,7 +331,10 @@ def serve_forever(host_addr):
 
 ## Additional Reading
 
-- [Official Python Socket Doc](https://docs.python.org/3/library/socket.html#socket-timeouts)
+- [Official Python `socket` Doc](https://docs.python.org/3/library/socket.html#socket-timeouts)
+- [Official Python `selectors` Doc](https://docs.python.org/3/library/selectors.html)
+- [Official Python `concurrent.future` Doc](https://docs.python.org/3/library/concurrent.futures.html)
 - [Socket Programming HOWTO](https://docs.python.org/3/howto/sockets.html)
+- [RealPython Socket Programming Guide](https://realpython.com/python-sockets)
 - [Python Wiki UDP Communication](https://wiki.python.org/moin/UdpCommunication)
 - [Python Wiki TCP Communication](https://wiki.python.org/moin/TcpCommunication)
