@@ -1,3 +1,6 @@
+---
+---
+
 # Setting up Automatic SSH Authentication
 
 ## Step 1. Generating Key on Host Machine
