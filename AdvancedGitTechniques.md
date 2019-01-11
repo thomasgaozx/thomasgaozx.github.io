@@ -14,6 +14,7 @@ layout: default
   - [Git Rebase](#git-rebase)
     - [Elementary Git Rebase](#elementary-git-rebase)
     - [Using Git Rebase to Delete Commit](#using-git-rebase-to-delete-commit)
+    - [Interactive Squash Rebasing](#interactive-squash-rebasing)
     - [Multiple People Collaborate on the Same Branch](#multiple-people-collaborate-on-the-same-branch)
     - [Git Rebase Conflict Resolution](#git-rebase-conflict-resolution)
   - [Git Stash](#git-stash)
@@ -28,6 +29,7 @@ layout: default
     - [Relavant Terminology](#relavant-terminology)
     - [Configuring Merge Tool](#configuring-merge-tool)
     - [kdiff3 Workflow](#kdiff3-workflow)
+  - [Git Remote](#git-remote)
   - [Setting Up Git Server](#setting-up-git-server)
     - [Security Recommendation (Server)](#security-recommendation-server)
     - [Step 1. Adding Dedicated SSH Key (Client)](#step-1-adding-dedicated-ssh-key-client)
@@ -149,6 +151,16 @@ You could do:
 ```git
 git rebase --onto feature~5 feature~3 feature
 ```
+
+### Interactive Squash Rebasing
+
+If you are on a feature branch and you wish to **squash** rebase the feature branch onto develop:
+
+```git
+git rebase develop -i
+```
+
+This will enter an interactive window. Change `pick` into `f` and that specific commit will be squashed. This is handy when you have a lot of trivial fixup commits.
 
 ### Multiple People Collaborate on the Same Branch
 
@@ -308,6 +320,12 @@ git config mergetool.prompt false
 1. On local branch feature, attempt `git merge develop` and expect a merge conflict (feature|MERGING). Then, run `git mergetool`.
 2. The kdiff3 window will then pop up. Pokes around the buttons in the navigation bar (don't click merge). Step through all the conflicts (even those that are automatically resolved) to ensure that the correct version (A|B|C) is chosen. Then save and close.
 3. `git rebase --continue` if you are using Git version 2.12 or later. Otherwise, stage and commit the changes and the merge will be complete (old fashioned way).
+
+## Git Remote
+
+To add a remote, do `git remote add some-remote`.
+
+To list all remotes, do `git remote` or `git remote -v`
 
 ## Setting Up Git Server
 

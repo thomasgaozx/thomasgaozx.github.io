@@ -9,14 +9,15 @@
     - [List All Installed Packages](#list-all-installed-packages)
     - [Remove Packages](#remove-packages)
     - [Switch Package Version](#switch-package-version)
-    - [References](#references)
   - [File Searching](#file-searching)
+  - [Detach Programs From Shells/Sessions](#detach-programs-from-shellssessions)
   - [Environment Settings](#environment-settings)
     - [Export Customized Settings](#export-customized-settings)
     - [Important Environment Variables](#important-environment-variables)
   - [Setting Static IP Address](#setting-static-ip-address)
   - [Additional Useful Tricks](#additional-useful-tricks)
     - [Go To Last Visited Directory](#go-to-last-visited-directory)
+    - [References](#references)
 
 ## Package Management
 
@@ -66,11 +67,6 @@ sudo update-alternatives --config $PACKAGE_NAME
 
 The second command is more thorough as it deletes the systemwide configuration files too.
 
-### References
-
-1. https://askubuntu.com/questions/151941/how-can-you-completely-remove-a-package
-2. https://askubuntu.com/questions/160897/how-do-i-search-for-available-packages-from-the-command-line
-
 ## File Searching
 
 To search file names for `$FILE_NAME`, do:
@@ -84,6 +80,19 @@ To search file content for `$REGEX`, do:
 ```sh
 grep -r $REGEX
 ```
+
+## Detach Programs From Shells/Sessions
+
+A lot of the times, when you logout of a remote desktop session, or close a secure shell session, the program that is running in the background with `&` is also terminated. 
+To keep the program running, run:
+
+```bash
+nohup <COMMAND> &
+disown
+```
+
+With these, as long as the machine is running, the program will continue to run until it's naturally terminated or encountered exception.
+To check the output of the command/program, find `nohup.out`.
 
 ## Environment Settings
 
@@ -116,3 +125,9 @@ cd -
 ```
 
 Put this line in `/etc/profile`, and the static ip address will init after the boot.
+
+
+### References
+
+1. https://askubuntu.com/questions/151941/how-can-you-completely-remove-a-package
+2. https://askubuntu.com/questions/160897/how-do-i-search-for-available-packages-from-the-command-line

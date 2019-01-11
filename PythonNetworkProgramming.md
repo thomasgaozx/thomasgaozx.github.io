@@ -10,10 +10,11 @@
       - [Non-blocking Sockets](#non-blocking-sockets)
       - [TCP Operations](#tcp-operations)
       - [UDP Operations](#udp-operations)
-    - [UDP Server](#udp-server)
-    - [UDP Client](#udp-client)
-    - [TCP Server](#tcp-server)
-    - [TCP Client](#tcp-client)
+    - [Introductory Demos](#introductory-demos)
+      - [UDP Server](#udp-server)
+      - [UDP Client](#udp-client)
+      - [TCP Server](#tcp-server)
+      - [TCP Client](#tcp-client)
   - [TCP Message Delivery](#tcp-message-delivery)
     - [One Message Per Connection](#one-message-per-connection)
     - [Reusing Connected Socket](#reusing-connected-socket)
@@ -79,7 +80,9 @@ If `getdefaulttimeout()` is not None, sockets returned by the `accept()` method 
 - `socket.sendto(bytes, address)`: Send data to the socket. The socket should **not** be **connected** to a remote socket, since the destination socket is specified by address. Return the number of bytes sent.
 - `socket.recvfrom(bufsize)`: Receive data from the socket. The return value is a pair (bytes, address) where bytes is a bytes object representing the data received and address is the address of the socket sending the data.
 
-### UDP Server
+### Introductory Demos
+
+#### UDP Server
 
 ```python
 sock = socket.socket(AF_INET, SOCK_DGRAM)
@@ -90,14 +93,14 @@ while True:
     # process data ...
 ```
 
-### UDP Client
+#### UDP Client
 
 ```python
 sock = socket.socket(AF_INET, SOCK_DGRAM)
 sock.sendto("TEST_MESSAGE", (TARGET_IP, TARGET_PORT))
 ```
 
-### TCP Server
+#### TCP Server
 
 ```python
 sock = socket.socket(AF_INET, SOCK_STREAM)
@@ -109,7 +112,7 @@ while True:
     # handle conn using conn.recv(BUFFER_SIZE)
 ```
 
-### TCP Client
+#### TCP Client
 
 ```python
 sock = socket.socket(AF_INET, SOCK_STREAM)

@@ -6,7 +6,7 @@
 ## Capturing Magic Numbers in C++
 
 ```regex
-(.*(\(\d*\.?\d+F?\)|\[\d*\.?\d+F?\]|\{\d*\.?\d+F?\}|, \d*\.?\d+F?|\(\d*\.?\d+F?\,|"\d*\.?\d+F?"|'\d').*(\;|(?=\/\/))|(==|!=|<|>|<=|>=) ?([1-9]|0\.)\d*\.?\d*F?)
+(.*(\(-?\d*\.?\d+F?\)|\[-?\d*\.?\d+F?\]|\{-?\d*\.?\d+F?\}|, ?-?\d*\.?\d+F?|\(-?\d*\.?\d+F?\,|"-?\d*\.?\d+F?"|'\d'|return -?\d*\.?\d+).*(\;|(?=\/\/))|(==|!=|<|>|<=|>=) ?-?([1-9]|0?\.)\d*\.?\d*F?)|case -?\d*\.?\d+:
 ```
 
 First off, my apologies for the length and the repetitions in the expression, as I am in no way an expert at regex. Nonetheless, this expression is very reliable at catching obvious magic numbers. Now, there are some assumptions:
@@ -25,5 +25,5 @@ The numerical literals (both `float` and `int`) considered as magic numbers are:
 2. Non-zero numerical literals used in numerical comparison.
 3. Numerical literals used in argument list.
 
-The [online testing](https://regex101.com/r/BuGpeu/15/) of the regex is available.
+The [online testing](https://regex101.com/r/BuGpeu/29/) of the regex is available.
 You are welcome to test and optimize the regex yourself, and if you do, I would appreciate it if you could share the result.
