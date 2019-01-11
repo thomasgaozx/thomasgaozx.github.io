@@ -1,6 +1,3 @@
----
----
-
 # Thomas Gao's Wikis/Tutorials
 
 I am a second-year Mechatronics Engineering Undergrad at the University of Waterloo.
