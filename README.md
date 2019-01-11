@@ -1,6 +1,6 @@
-# Thomas Gao's Wikis/Tutorials
+# Welcome
 
-I am a second-year Mechatronics Engineering Undergrad at the University of Waterloo.
+My name is Thomas Gao. I am a second-year Mechatronics Engineering Undergrad at the University of Waterloo.
 
 ## [Advanced Git Techniques](AdvancedGitTechniques.md)
 

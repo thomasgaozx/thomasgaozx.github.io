@@ -9,7 +9,8 @@
 (.*(\(-?\d*\.?\d+F?\)|\[-?\d*\.?\d+F?\]|\{-?\d*\.?\d+F?\}|, ?-?\d*\.?\d+F?|\(-?\d*\.?\d+F?\,|"-?\d*\.?\d+F?"|'\d'|return -?\d*\.?\d+).*(\;|(?=\/\/))|(==|!=|<|>|<=|>=) ?-?([1-9]|0?\.)\d*\.?\d*F?)|case -?\d*\.?\d+:
 ```
 
-First off, my apologies for the length and the repetitions in the expression, as I am in no way an expert at regex. Nonetheless, this expression is very reliable at catching obvious magic numbers. Now, there are some assumptions:
+First off, my apologies for the length and the repetitions in the expression, as I am in no way an expert at regex.
+Nonetheless, this expression is very reliable at catching obvious magic numbers. The assumptions are listed below:
 
 The regex does **not** consider the following numerical literals as magic numbers:
 
