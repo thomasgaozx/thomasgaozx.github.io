@@ -1,3 +1,6 @@
+---
+---
+
 # Advanced Git Techniques
 
 - [Advanced Git Techniques](#advanced-git-techniques)
