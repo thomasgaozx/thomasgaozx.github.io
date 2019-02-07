@@ -9,3 +9,5 @@ This page contains the overviews of undergraduate mathematics fundamentals.
 - Calculus Preliminaries
 - Multivariable Calculus
 - Differential Equations
+
+## [Statistics](statistics.html)
