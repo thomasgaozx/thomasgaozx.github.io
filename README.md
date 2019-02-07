@@ -18,3 +18,8 @@ My name is Thomas Gao. I am a second-year Mechatronics Engineering Undergrad at 
 ## [Electrical Wiki](electrical)
 
 - Digital Logics
+
+## [Engineering Wiki](eng)
+
+- Classical Mechanics
+- Dynamics
