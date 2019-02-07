@@ -319,7 +319,7 @@ git config mergetool.prompt false
 
 1. On local branch feature, attempt `git merge develop` and expect a merge conflict (feature\|MERGING). Then, run `git mergetool`.
 2. The kdiff3 window will then pop up. Pokes around the buttons in the navigation bar (don't click merge). Step through all the conflicts (even those that are automatically resolved) to ensure that the correct version (A\|B\|C) is chosen. Then save and close.
-3. `git rebase --continue` if you are using Git version 2.12 or later. Otherwise, stage and commit the changes and the merge will be complete (old fashioned way).
+3. `git merge --continue` if you are using Git version 2.12 or later. Otherwise, stage and commit the changes and the merge will be complete (old fashioned way).
 
 ## Git Remote
 
