@@ -23,3 +23,7 @@ My name is Thomas Gao. I am a second-year Mechatronics Engineering Undergrad at 
 
 - Classical Mechanics
 - Dynamics
+
+## [Economics Wiki](econ)
+
+- Macroeconomics

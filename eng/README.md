@@ -1,3 +1,3 @@
-# Engineering
+# Mechanical Engineering
 
 ## [Mechanics of Deformable Solids](mods.html)
