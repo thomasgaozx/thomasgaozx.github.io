@@ -5,10 +5,10 @@
   - [Binary Indexed Tree*](#binary-indexed-tree)
     - [Least Significant Bit](#least-significant-bit)
     - [BIT Implementation](#bit-implementation)
-    - [Topological Sort](#topological-sort)
-      - [Kahn's Algorithm](#kahns-algorithm)
-      - [DFS Based Algorithm](#dfs-based-algorithm)
-    - [Backtracking](#backtracking)
+  - [Topological Sort](#topological-sort)
+    - [Kahn's Algorithm](#kahns-algorithm)
+    - [DFS Based Algorithm](#dfs-based-algorithm)
+  - [Backtracking](#backtracking)
     - [Minimax](#minimax)
     - [Permutation and Combinatorics](#permutation-and-combinatorics)
 
@@ -60,9 +60,9 @@ private:
 };
 ```
 
-### Topological Sort
+## Topological Sort
 
-#### Kahn's Algorithm
+### Kahn's Algorithm
 
 Procedure:
 
@@ -94,7 +94,7 @@ def top_sort(G):
                 Q.enqueue(v)
 ```
 
-#### DFS Based Algorithm
+### DFS Based Algorithm
 
 Recursive Process:
 
@@ -121,7 +121,7 @@ def reverse_top_sort_impl(u, L):
 
 Non recursive just use stack.
 
-### Backtracking
+## Backtracking
 
 **Backtracking** is the process of finding solutions by trying partial solutions and then abandoning them if they are not suitable. It is often implemented recursively.
 
@@ -130,6 +130,6 @@ Non recursive just use stack.
 Minimax is a kind of backtracking algorithm that is used in decision making and game theory to find the optimal move for a player, assuming that your opponent also plays optimally.
 It is widely used in two player turn-based games such as Tic-Tac-Toe, Backgammon, Mancala, Chess, etc.
 
-There is a **minimizer** and a **maximizer**, where _maximizer_ is self, and _minimizer_ is other.
+There is a **minimizer** and a **maximizer**, where _maximizer_ is self, and _minimizer_ is the opponent.
 
 ### Permutation and Combinatorics
