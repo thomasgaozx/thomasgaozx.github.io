@@ -8,6 +8,10 @@ My name is Thomas Gao. I am a second-year Mechatronics Engineering Undergrad at 
 - Computer Networks
 - Miscellaneous
 
+## [Computing](computing)
+
+- Data Strucure and Algorithms
+
 ## [Mathematics](math)
 
 - Linear Algebra
