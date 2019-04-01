@@ -16,7 +16,6 @@
 
                     // make table look better
                     document.querySelectorAll("table").forEach(function(e) { e.classList += "table table-sm table-bordered col-md-6" })
-                    document.querySelectorAll("blockquote").forEach(function(e) { e.classList.add("blockquote") })
                     document.querySelectorAll("img").forEach(function(e) { e.classList.add("img-fluid"); e.classList.add("img-thumbnail"); })
                 })
             </script>
@@ -29,6 +28,20 @@
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
             <link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
             <script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            <style>
+                @import url(https://fonts.googleapis.com/css?family=Open+Sans:400);
+                blockquote{
+                font-size: 1em;
+                margin:10px auto;
+                font-family:Open Sans;
+                color: #555555;
+                padding:.5em 15px .5em 15px;
+                border-left:8px solid #78C0A8 ;
+                line-height:1.6;
+                position: relative;
+                background:#EDEDED;
+                }
+            </style>
         </head>
     <body>
         <h1 id="ordinary-differential-equations">Ordinary Differential Equations</h1>
