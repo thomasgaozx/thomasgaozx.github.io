@@ -1,3 +1,0 @@
-# Economics
-
-## [Macroeconomics](macroeconomics)
