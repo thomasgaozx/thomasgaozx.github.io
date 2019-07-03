@@ -38,6 +38,14 @@ A comprehensive tutorial of python socket API and its advanced usage:
 * TCP Multicasting with `Selector` (Single-threaded)
 * TCP Multicasting with `ThreadPoolExecutor` (Multi-threaded)
 
+## [SQL Reference](sql.md)
+
+A quick overview of sql commands.
+
+## [XML DTD and Schema Wiki](xml.md)
+
+A look into XML DTD aiming at completeness, and a brief intro to schema concepts.
+
 ## [Regex Utility](regex.md)
 
 Documented some nasty regex I wrote, their scope of application, and assumptions:
