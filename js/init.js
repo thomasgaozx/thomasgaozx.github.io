@@ -7,7 +7,6 @@ $(document).ready(function() {
 
     // make table look better
     document.querySelectorAll("table").forEach(function(e) { e.classList += "table table-sm table-bordered col-md-6" })
-    document.querySelectorAll("blockquote").forEach(function(e) { e.classList.add("blockquote") })
     document.querySelectorAll("img").forEach(function(e) { e.classList.add("img-fluid"); e.classList.add("img-thumbnail"); })
 })
 
@@ -25,3 +24,21 @@ var libs = String.raw`
 
 // load libraries
 $('head').append(libs)
+
+// additional css
+var custom_style = document.createElement('style');
+custom_style.innerHTML = String.raw`
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400);
+blockquote{
+    font-size: 1em;
+    margin:10px auto;
+    font-family:Open Sans;
+    color: #555555;
+    padding:.5em 15px .5em 15px;
+    border-left:8px solid #78C0A8 ;
+    line-height:1.6;
+    position: relative;
+    background:#EDEDED;
+}
+`;
+document.getElementsByTagName('head')[0].appendChild(custom_style);
