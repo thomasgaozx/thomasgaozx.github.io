@@ -15,6 +15,14 @@ Summarized git techniques that often come in handy:
 * Setting Up Git Server
 * Using Git Hooks
 
+## [Real-Time Operating Systems](rtos.md)
+
+Coursework on RTOS.
+
+## [Task Asynchronous Programming](tap.md)
+
+Internal workings of `async` `await`.
+
 ## [Debian Terminal Utility](terminal.md)
 
 Outlined some occassional useful commands and tricks for Debian environment:

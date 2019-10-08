@@ -2,6 +2,8 @@
 
 This page contains the overviews of undergraduate mathematics fundamentals.
 
+## [Proof Techniques](proof.html)
+
 ## [Linear Algebra](linear_algebra.html)
 
 ## [Multivariable Calculus](multivariable_calculus.html)
