@@ -10,6 +10,8 @@ This page contains the overviews of undergraduate mathematics fundamentals.
 - Partial Derivatives
 - Gradient
 
+## [Numerical Methods](numerical_methods.html)
+
 ## [Differential Equations](differential_equations.html)
 
 ## [Laplace Transform](laplace.html)
