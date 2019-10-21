@@ -3,7 +3,8 @@
         <head>
             <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1">
-            <title>Elementary Circuits</title>
+
+            <title>Advanced Circuits</title>
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
             <script src="/js/init.js"></script>
         </head>
@@ -34,6 +35,7 @@
 <li><a href="#solve-circuits-with-laplace">Solve Circuits with Laplace</a></li>
 <li><a href="#impedance-model-with-laplace">Impedance Model with Laplace</a></li>
 <li><a href="#transfer-function-and-impedence">Transfer Function and Impedence</a></li>
+<li><a href="#laplace-application-examples">Laplace Application Examples</a></li>
 <li><a href="#time-constant">Time Constant</a></li>
 <li><a href="#stability">Stability</a></li>
 </ul>
@@ -320,6 +322,8 @@ This method will eliminate the need to write differential equations to represent
 </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord text"><span class="mord textbf">impulse response</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.1141079999999999em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord"><span class="mord mathcal">L</span></span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.864108em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">1</span></span></span></span></span></span></span></span></span><span class="mopen">[</span><span class="mord mathdefault" style="margin-right:0.08125em;">H</span><span class="mopen">(</span><span class="mord mathdefault">s</span><span class="mclose">)</span><span class="mclose">]</span></span></span></span></span></p>
 <p>Note that when input is a current and response is a voltage, the transfer frunction is called an admittance.
 When input is a voltage and response is a current, the transfer function is called an admittance.</p>
+<h3 id="laplace-application-examples">Laplace Application Examples</h3>
+<p><img src="https://i.imgur.com/rV9z5Tx.png" alt="laplace-application"></p>
 <h3 id="time-constant">Time Constant</h3>
 <p>We could represent the transfer function as:</p>
 <p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi mathvariant="bold">H</mi><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo><mo>=</mo><mi>A</mi><mo>∏</mo><mfrac><mrow><mo stretchy="false">(</mo><mi>s</mi><mo>−</mo><msub><mi>z</mi><mi>i</mi></msub><mo stretchy="false">)</mo></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo>−</mo><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">\mathbf{H}(s)=A\prod\frac{(s-z_i)}{(s-p_i)}
