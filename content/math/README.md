@@ -8,9 +8,7 @@ This page contains the overviews of undergraduate mathematics fundamentals.
 
 ## [Multivariable Calculus](multivariable_calculus.html)
 
-- Calculus Preliminaries
-- Partial Derivatives
-- Gradient
+## [Vector Calculus Applications](advcalc.html)
 
 ## [Numerical Methods](numerical_methods.html)
 
