@@ -40,9 +40,9 @@
     - [Bare Metal](#bare-metal)
     - [Foreground/Background Model](#foregroundbackground-model)
     - [RTOS](#rtos)
+  - [Scheduling](#scheduling)
     - [Concurrent Execution](#concurrent-execution)
     - [Context Switch](#context-switch)
-  - [Scheduling](#scheduling)
     - [Task State](#task-state)
     - [Task Characterization](#task-characterization)
     - [Scheduler Objectives](#scheduler-objectives)
@@ -122,7 +122,7 @@ Memory is ordered as an array of addressable bytes. Multi-byte data ordering:
 
 Multi-byte data ordering:
 
-![endian-ness](https://i.imgur.com/OTOePSG.png)
+![endian-ness](https://uwserver.github.io/image-server/endian_ness.png)
 
 #### Using Union to Test Endianness
 
@@ -145,7 +145,7 @@ int main(void) {
 
 #### Memory Size Prefixes
 
-![size-prefix](https://i.imgur.com/zKqfe6a.png)
+![size-prefix](https://uwserver.github.io/image-server/size_prefix.png)
 
 - memory is sized in powers of 2 but frequently and inaccurately with SI prefixes.
 - hard disk drive are sized in powers of 10 and accurately reported with SI prefixes.
@@ -167,7 +167,7 @@ Main memory is large but has high latency (~100s of processor cycles). **Caches*
 
 #### Temperal vs Spatial Locality
 
-![cache-memory](https://i.imgur.com/IkQhjiG.png)
+![cache-memory](https://uwserver.github.io/image-server/cache_memory.png)
 
 Based on the idea that if a processor needs data from memory:
 
@@ -181,7 +181,7 @@ There are multiple levels of cache e.g. L1, L2, L3 (level 1,2,3)
 - Smaler caches (e.g. L1) are faster
 - Larger caches (e.g. L3) have higher "hit rate" (already holds the requested data)
 
-![caches](https://i.imgur.com/dfbYcCL.png)
+![caches](https://uwserver.github.io/image-server/caches.png)
 
 - The L1 cache is split for parallel instruction adn data fetch
 - The L2 cache and L3 cache are unified caches (store instruction and data)
@@ -196,13 +196,13 @@ Overflow pages are swapped to the HDD (swap memory).
   
 A **page table** is the data structure used by a virtual memory system in a computer operating system to store the mapping between virtual addresses and physical addresses. Virtual addresses are used by the program executed by the accessing process, while physical addresses are used by the hardware, or more specifically, by the RAM subsystem. The page table is a key component of virtual address translation which is necessary to access data in memory.
 
-![virtual-memory-page](https://i.imgur.com/xomiEfa.png)
+![virtual-memory-page](https://uwserver.github.io/image-server/virtual_memory_page.png)
 
 #### Memory Management Unit (MMU)
 
 **MMU** translates virtual addresses to physical addresses for every memory access (instruction fetch or data load/store). Each process has a _page table_ that maps virtual page numbers to physical page numbers.
 
-![mmu](https://i.imgur.com/zcsk3cg.png)
+![mmu](https://uwserver.github.io/image-server/mmu.png)
 
 ### Microcontroller Unit (MCU)
 
@@ -227,7 +227,7 @@ typedef struct {
 } pair_t;
 ```
 
-![struct-padding](https://i.imgur.com/BKtWoDw.png)
+![struct-padding](https://uwserver.github.io/image-server/struct_padding.png)
 
 ### Dynamic Memory Allocation
 
@@ -445,7 +445,7 @@ LPC_UART_TypeDef *LPC_UART=
     (LPC_UART_TypeDef*)0x4000c000;
 ```
 
-![uart-struct](https://i.imgur.com/iwLQl5Y.png)
+![uart-struct](https://uwserver.github.io/image-server/uart_struct.png)
 
 #### __I, __O, and __IO Macro, Volatile Keyword
 
@@ -499,7 +499,7 @@ Average polling loop iteration per char = Polling rate / data rate = 4.03E6 loop
 
 It may be better to let the I/O device signal the processor whne it needs service (e.g. when the UART receives data).
 
-![interrupt](https://i.imgur.com/YOOsS37.png)
+![interrupt](https://uwserver.github.io/image-server/interrupt.png)
 
 - **IRQ** Interrupt ReQuest
 
@@ -511,7 +511,7 @@ It may be better to let the I/O device signal the processor whne it needs servic
 
 in all cases an exception causes a change in control flow, similar to a subroutine call, except that the hardware invokes the subroutine, not the software.
 
-![interrupt-flow](https://i.imgur.com/haQlB10.png)
+![interrupt-flow](https://uwserver.github.io/image-server/interrupt_flow.png)
 
 Application Code --> IRQ received --> suspended --> interrupt service routine --> resume execution
 
@@ -559,8 +559,6 @@ Procedure:
 1. Create a `IRQHandler` function
 2. Enable IRQ by setting certain bits
 3. Call function routine to allow IRQ at processor, providing vector number.
-
-
 
 #### Multiple Interrupts
 
@@ -715,6 +713,8 @@ RTOS v2 priorities:
 }
 ```
 
+## Scheduling
+
 ### Concurrent Execution
 
 Definition: task executions are interleaved on one or more processors with indeterminate ordering. E.g. 1 processor, 3 tasks of equal priority means round-robin scheduling, context switch changes the running thread (task).
@@ -768,11 +768,9 @@ e.g. switch from τ1 (running) to τ2 (ready)
 3. Update the stack pointer from τ2's TCB
 4. Pop stored context into general purpose registers, PC, and status register.
 
-## Scheduling
-
 ### Task State
 
-![task-state](https://i.imgur.com/c1wMPAB.png)
+![task-state](https://uwserver.github.io/image-server/task_state.png)
 
 The schedule runs when:
 
@@ -803,13 +801,13 @@ A task has parameters:
 
 Our schedule analysis will assume **Di=Ti** (it's easier)
 
-![scheduler](https://i.imgur.com/yabb5a8.png)
+![scheduler](https://uwserver.github.io/image-server/scheduler.png)
 
 ### Scheduler Objectives
 
 1. Minimize missed deadlines (or minimize lateness)
 2. Minimize processor utilization (percentage of time that the processor is busy)
-   ![processor-util](https://i.imgur.com/VBlyPF8.png)
+   ![processor-util](https://uwserver.github.io/image-server/processor_util.png)
 3. Minimize scheduler overhead
 
 ### Non-Preemptive Schedulers
@@ -838,7 +836,7 @@ Procedures to draw scheduling diagram:
 2. Determine schedule length = least common multiple (LCM) of task periods(Ti)
 3. Create the schedule using non-preemptive earliest deadline first (**EDF**)
 
-![preemptive](https://i.imgur.com/tPdoNoO.png)
+![preemptive](https://uwserver.github.io/image-server/preemptive.png)
 
 **Implementation**: store the order in an array and the scheduler moves to the next task each time.
 
@@ -855,13 +853,13 @@ Tasks are suspended mid-execution to allow other tasks to run
 - All tasks have equal priority
 - Tasks switch occurs at the end of each **time slice**
 
-![round-robin](https://i.imgur.com/782nmwN.png)
+![round-robin](https://uwserver.github.io/image-server/round_robin.png)
 
 **Implementation**: ready queue which is based on a linked list.
 On a context switch, equeue old task at tail and dequeue next task to run from head.
 The TCBs have pointers for the purpose.
 
-![round-robin-impl](https://i.imgur.com/s0hgwlZ.png)
+![round-robin-impl](https://uwserver.github.io/image-server/round_robin_impl.png)
 
 - Scheduler Overhead O(1)
 - Limitation: no priorities, no deadline
@@ -879,7 +877,7 @@ e.g. priority levels: 0(lowest) - 7(highest)
 - τ1, τ2 = priority 2
 - τ3, τ4, τ5 = priority 5
 
-![fpp](https://i.imgur.com/Jy8KJx7r.png)
+![fpp](https://uwserver.github.io/image-server/fpp.png)
 
 - When a timeslice ends, the scheduler enqueues the running task at the tail of its priority, queue and deque next task to run from the head of the same queue
 - Adding a new task is O(1)
@@ -904,7 +902,7 @@ RM is a way to map deadlines to priorities for FPP scheduling.
 **Schedulability** test:
 a task set is schedulable (i.e. will meet all deadlines) by RM if **Π(1+Ci/Ti) ≤ 2**.
 
-![rm-schedulability](https://i.imgur.com/RkyFewr.png)
+![rm-schedulability](https://uwserver.github.io/image-server/rm_schedulability.png)
 
 The test to accept a new task online can be performed in O(1) time.
 
@@ -921,7 +919,7 @@ Procedures for RM:
 1. Check processor utilization U=2/10+3/12+1/6 ≅ 0.62 ≤ 1
 2. Schedulability test: (1+2/10)(1+3/12)+(1+1/6) = 1.75 ≤ 2
 
-![rm-w-fpp](https://i.imgur.com/57EUqya.png)
+![rm-w-fpp](https://uwserver.github.io/image-server/rm_w_fpp.png)
 
 e.g. Example 2:
 
@@ -933,7 +931,7 @@ e.g. Example 2:
 
 U=0.67, Π=1.82
 
-![ex2-scheduling](https://i.imgur.com/cGU93Pe.png)
+![ex2-scheduling](https://uwserver.github.io/image-server/ex2_scheduling.png)
 
 #### Preemptive EDF
 
