@@ -10,10 +10,12 @@ This page contains the overviews of undergraduate mathematics fundamentals.
 
 ## [Vector Calculus Applications](advcalc.html)
 
-## [Numerical Methods](numerical_methods.html)
-
 ## [Differential Equations](differential_equations.html)
 
 ## [Laplace Transform](laplace.html)
+
+## [Fourier Analysis](fourier.html)
+
+## [Numerical Methods](numerical_methods.html)
 
 ## [Statistics](statistics.html)
