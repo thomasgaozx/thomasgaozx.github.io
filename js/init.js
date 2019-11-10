@@ -6,7 +6,7 @@ $(document).ready(function() {
     document.querySelector("body div.container").innerHTML = str
 
     // make table look better
-    document.querySelectorAll("table").forEach(function(e) { e.classList += "table table-sm table-bordered col-md-6" })
+    document.querySelectorAll("table").forEach(function(e) { e.classList += "table table-sm table-bordered col-md-8" })
     document.querySelectorAll("img").forEach(function(e) { e.classList.add("img-fluid"); e.classList.add("img-thumbnail"); })
 })
 
