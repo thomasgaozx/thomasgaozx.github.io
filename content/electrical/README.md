@@ -2,13 +2,15 @@
 
 This page summarizes the undergraduate level electrical engineering fundamentals.
 
-## [Elementary Circuits](circuit.html)
+## [Elementary Circuits](archive/circuit.html)
 
-## [Op Amp Circuits](opamp.html)
+## [Op Amp Circuits](archive/opamp.html)
 
-## [Transistors](transistors.html)
+## [Sensors and Instrumentation](sensors.html)
 
-## [Filter Design](filter.html)
+## [Transistors](archive/transistors.html)
+
+## [Filter Design](archive/filter.html)
 
 ## [Digital Logics](digital_logics.html)
 
