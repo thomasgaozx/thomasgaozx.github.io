@@ -56,6 +56,20 @@
     - [WCET Analysis](#wcet-analysis)
       - [Empirical WCET](#empirical-wcet)
       - [Analytical WCET](#analytical-wcet)
+  - [Queueing Theory](#queueing-theory)
+    - [Deterministic and Markov Model](#deterministic-and-markov-model)
+    - [Kendall Notation for Queueing Models](#kendall-notation-for-queueing-models)
+    - [M/M/1 Queues](#mm1-queues)
+  - [Fault Tolerance](#fault-tolerance)
+    - [Concepts](#concepts)
+    - [Clock Synchronized](#clock-synchronized)
+      - [Standard Clock Cs](#standard-clock-cs)
+      - [Precision Time Protocol (PTP)](#precision-time-protocol-ptp)
+      - [Distributed Clock Synchronization](#distributed-clock-synchronization)
+    - [Byzantine Generals Problem](#byzantine-generals-problem)
+      - [Maximum 1 Traitor](#maximum-1-traitor)
+      - [Maximum 2 Traitors](#maximum-2-traitors)
+      - [Byzantine Generals Problem Applications](#byzantine-generals-problem-applications)
 
 ## Introduction
 
@@ -988,7 +1002,234 @@ do {
 
 This method is prone to over-estimating WCET.
 
+## Queueing Theory
 
+Models the real world as client/server systems.
+Clients arrive and wait in a queue to be served.
 
+- **λ** (Clients): average arrival rate
+- **μ** (Server): average service rate
+- **ρ** = λ/μ = **load factor**
 
+### Deterministic and Markov Model
+
+Deterministic D:
+
+- Clients arrive with regular interval T = 1/λ
+- Server time = 1/μ
+
+Markov M:
+A **Markov Process** is a memoryless stochastic process.
+We use probability density functions to model the probability of next event occuring at a specific future time.
+
+### Kendall Notation for Queueing Models
+
+**Kendall Notation**: `A/S/K/N`
+
+- A: arrival model (D or M)
+- S: service model (D or M)
+- K: number of servers (1 or m)
+- N: queue length (default to ∞)
+
+### M/M/1 Queues
+
+M/M/1 queues (i.e. M/M/1/∞)
+
+- Average \#clients = \#clients in queue + #clients being served: **L = ρ/(1-ρ)**
+- Average client time in the system (waiting in queue + being served): **W** = (1/μ)/(1-ρ) **= 1/(μ-λ)**
+- We have **Little's Law**: **L=λW**
+
+Probability of \# clients assume infinite buffer (i.e. M/M/1/∞):
+
+- Probability that there are 0 clients (system is idle): P0 = 1-ρ
+- Probability that there are n clients (n<=k): Pn = (1-ρ)ρ^n
+
+Probability of \# clients assume finite buffer (i.e. M/M/1/K):
+
+- Probability that there are 0 clients (system is idle): P0 = (1-ρ)/(1-ρ^(k+1))
+- Probability that there are n clients (n<=k): Pn = (1-ρ)ρ^n/(1-ρ^(k+1))
+- Blocking probability (that there are K clients in the system, and that a new client is blocked): Pk = P_B = (1-ρ)ρ^k/(1-ρ^(k+1))
+
+Example:
+data is produced at a rate of λ=4 packets per second,
+data is consumed at a rate of μ=5 packets per second,
+assume an M/M/1 queueing model.
+
+What is the average number of buffered packets?
+
+L = ρ/(1-ρ) = 4
+
+(there are 4 packets in the system on average and 3 packets in the buffer on average)
+
+How long on average does a packet spend in the system?
+
+W = (1/μ)/(1-ρ) = 1s
+
+Probability that system is idle (infinite buffer)?
+
+P0 = 1-ρ = 20%
+
+Probability that there are 4 packets in the system?
+
+Infinite buffer: P4 = P0 ρ^4 = 8.192%
+Finite buffer (K=4): PB = (1-ρ)ρ^4/(1-ρ^5) = 12.18%
+
+Why is P4 larger with a bounded buffer than an infinite buffer?
+Because with the bounded buffer P4 also incorporates the cases where there would have been 5 or 6 or more in the system.
+
+## Fault Tolerance
+
+### Concepts
+
+- **Fault**: cause of an error (e.g. environmental faults, mechanical faults, design faults).
+- **Error**: manifestation of a fault within the system
+- **Failure**: system deviates from the specification as the result of an error
+
+Approaches to dealing with faults:
+
+1. Avoidance: prevent them from happening, e.g. shielding, lightening rods, good coding practices.
+2. Tolerance:
+   - continue to operate within spec: redundant components.
+   - graceful degradation of service, e.g. thermal throttling of a processor
+   - fail safe (halt in a safe manner, e.g. deadman switches
+
+Case study: **Voyager 2**
+
+Launched on Auguest 20, 1977, Voyager 2 explored Jupiter, Saturn, and then flew by Uranus and Neptune, and headed to interstellar space (heliopause).
+In May 2010, its transmissions became corrupted, it was 13.8 billion km from earth, which means the transmission latency approximately equals 13 hours.
+Ground control examined the memory and found a flipped bit that was part of a command.
+They hypothesized that cosmic radiation flipped the bit.
+They corrected it and correct transmission resumed.
+
+- Fault: cosmic radiation / insufficient shielding / lack of ECC RAM
+- Error: flipped bit
+- Failure: corrupted transmission
+
+### Clock Synchronized
+
+- devices in a distributed system often have their own clock.
+- clocks are not perfect, they are affected by temperature and supply voltage
+  - 0.5s of drift per day is not unusual
+- options to keep a common time:
+  - (centralized) have a standard clock, Cs against which the others synchronize
+  - (distributed) synchronize with each other.
+
+#### Standard Clock Cs
+
+- clock Ci gives time Ci(t) at real time t
+- requirements for synchronizang against Cs
+
+1. **correctness**: |Ci(t)-Cs(t)| < Ɛ, e.g. an absolute error bound
+2. **bounded drift** |dCi(t)/dt - 1| < ρ, e.g. clock i runs at approximately the correct rate
+3. **monotonicity**: Ci(t1) >= Ci(t0) where t1 > t0, e.g. time moves forward, not backward
+4. **chronoscopicity**: if t2-t1=t4-t3, then Ci(t2)-Ci(t1)≅Ci(t4)-Ci(t3), e.g. measurement of the equal intervals should be approximately equal
+
+**clock correction**: e.g. 32768 Hz clock is determined to be 100 ms fast and needs correcting
+
+A **sudden correction** (e.g. subtract 100ms) would satisfy requirement 1 but violate requirement 3, so a **gradual correction is perferred**, e.g. count 32768 + 1 ticks at 1s. This would slow the clock by 1/(32768+1Hz) = 3.05E-5s, and the correction will take 0.1s/3.05E-5=3275.9s ≅ 55 min.
+
+How often should we synchronize?
+
+- Assume clock i is synchronized at t0: |Ci(t0) - t0| < 𝛿 (max synchronization error).
+- After drifting: |Ci(t0) - t0| < 𝛿 + ρ(t-t0) (where t is when to synchronize next)
+- We must ensure |Ci(t)-t| < Ɛ (absolute error bound)
+
+Therefore, because 𝛿 + ρ(t-t0) <= Ɛ:
+
+t-t0 <= (Ɛ-𝛿)/ρ
+
+where t-t0 is the maximum synchronization interval.
+
+#### Precision Time Protocol (PTP)
+
+> IEEE standard 1588-2008
+
+PTP technique uses hardware timestamping to achieve ns accuracy.
+PTP uses a **master-slave hierachy**, the standard clock (time server) is called the "grandmaster", it broadcasts synchronization packets (UDP) to clocks on its network at up to 10 Hz.
+
+Synchronization sequence:
+
+![synchronization-sequence](https://i.imgur.com/v1mh3Tm.png)
+
+The slave will know T1 (Master), T1' (Slave), T2 (Slave), T2' (Master).
+
+- T1' = T1 + 𝛿 + l
+- T2' = T2 - 𝛿 + l
+
+where 𝛿 is slave synchronization error, and l is network latency.
+We obtain a correction factor for the slave synchronization error:
+
+𝛿 = (T1' - T1 + T2 - T2')/2
+
+#### Distributed Clock Synchronization
+
+There are n clocks in the system that use averaging to synchronize.
+Faulty clocks or faulty communication can interfere with synchornization.
+
+![distributed-sync-avg](https://i.imgur.com/wCgchmT.png)
+
+Averaging doesn't always work.
+
+**CNV** (**Convergence**) Algorithm: at time t all clocks report their time Cj.
+Each clock Ck records the time from each clock as Cj if |Cj-Ck| < Ɛ and Ck otherwise.
+Update each clock Ck=(1/n) Σ Cj.
+
+Example:
+
+![distributed-sync-cnv](https://i.imgur.com/xzwiThm.png)
+
+### Byzantine Generals Problem
+
+The failure of components in a distributed system is modelled as treacherous generals.
+The commanding general **C** sends a command "attack" or "retreat" to the lieutenant general **L**.
+The commander or lieutenants may be traitors.
+
+![byzantine-generals](https://i.imgur.com/4cIaNLI.png)
+
+The loyal lieutenants all need to agree on the same action.
+
+The solution requires that the total number of participants n>= 3d + 1, where d is the number of disloyal participants.
+There are d rounds of communication.
+In the event of a tie the lieutenants take a default action e.g. retreat.
+
+#### Maximum 1 Traitor
+
+- Requires n >= 3+1 = 4 participants (1 commander, 3 lieutenants).
+- Commander issues order V to all lieutenants.
+- The lieutenants tell each other their order.
+- Each lieutenant forms a vector of the received commands and acts on the majority value.
+
+![one-traitor](https://i.imgur.com/00V33Bd.png)
+
+L3 was faulty (the information it sends is unreliable) but L1 and L2 still arrive at the correct action.
+
+#### Maximum 2 Traitors
+
+- Requires n >= 3*2+1 = 7 participants.
+- Command issues order V to all lieutenants.
+- The lieutenants communicate their vectors to each other.
+- Each column j represents the command received by Lj as reported by each lieutenant.
+- The diagonal is removed.
+- Lj replaces each Vij forall i with the command it received from the commander
+- Column majorities are computed and the lieutenant acts on the majority of the column majorities.
+
+![2-traitors](https://i.imgur.com/7Uz0YTE.png)
+
+- Column Majorities: a,a,a,a,r,r
+- V = majority{a,a,a,a,r,r} = a
+- Each lieutenant builds its own table.
+
+#### Byzantine Generals Problem Applications
+
+A Byzantine fault is the arbitrary failure of a component, e.g. it may communicate different values to different components.
+Redundant systems use multiple components (e.g. sensors, busses, processors) that must decide on an outcome - usually by majority voting.
+
+The BGP solution guarantees that the majority of non-faulty components will produce the same outcome.
+It requries pair-wise communication between all components.
+It also requires n >= 3d+1 compoenents where d is the number of tolerated faulty components, and d communication rounds.
+The complexity of BGP solution is O(n^(d+1)), Expansive!
+Newer solutions are faster, based on state machine replication.
+
+BGP is used in bitcoin to reach consensus on "proof-of-work".
+It is also used in aerospace.
 

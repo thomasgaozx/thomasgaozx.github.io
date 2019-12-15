@@ -19,6 +19,18 @@ Summarized git techniques that often come in handy:
 
 Coursework on RTOS.
 
+## [Embedded Patterns](embedded-patterns.md)
+
+Buffers and queues.
+
+## [Semaphores](semaphore.md)
+
+Semaphore practices.
+
+## [Networks](networks.md)
+
+Basic networks overview from coursework.
+
 ## [Task Asynchronous Programming](tap.md)
 
 Internal workings of `async` `await`.
