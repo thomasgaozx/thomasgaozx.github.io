@@ -20,7 +20,9 @@ This page summarizes the undergraduate level electrical engineering fundamentals
 
 ## [Digital Logics](digital_logics.html)
 
-## [Linear Signals and Systems](signals_systems.html)
+### [Signal Processing](signal_processing.html)
+
+- The full legacy [Linear Signals and Systems version](archive/signals_systems.html)
 
 ## [Assembly Programming](assembly.html)
 
