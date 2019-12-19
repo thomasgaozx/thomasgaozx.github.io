@@ -492,6 +492,10 @@ void car(void *arg, dir_t direction) {
     }
     signal(&mutex);
 
+    if (to_wait) {
+        wait(&waiting_sem);
+    }
+
     // crossing
     osDelay(500);
 

@@ -119,7 +119,7 @@ void queue_init(queue_t *q) {
     q->head_index = q->tail_index = 0;
     q->head_mutex = q->tail_mutex = 1;
     q->full = 0;
-    q->empty = 1;
+    q->empty = n;
 }
 
 void enqueue(queue_t *q, uint32_t msg) {
