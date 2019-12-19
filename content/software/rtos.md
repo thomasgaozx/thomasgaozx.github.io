@@ -1119,8 +1119,8 @@ They corrected it and correct transmission resumed.
 - clock Ci gives time Ci(t) at real time t
 - requirements for synchronizang against Cs
 
-1. **correctness**: |Ci(t)-Cs(t)| < Ɛ, e.g. an absolute error bound
-2. **bounded drift** |dCi(t)/dt - 1| < ρ, e.g. clock i runs at approximately the correct rate
+1. **correctness**: \|Ci(t)-Cs(t)\| < Ɛ, e.g. an absolute error bound
+2. **bounded drift** \|dCi(t)/dt - 1\| < ρ, e.g. clock i runs at approximately the correct rate
 3. **monotonicity**: Ci(t1) >= Ci(t0) where t1 > t0, e.g. time moves forward, not backward
 4. **chronoscopicity**: if t2-t1=t4-t3, then Ci(t2)-Ci(t1)≅Ci(t4)-Ci(t3), e.g. measurement of the equal intervals should be approximately equal
 
@@ -1130,9 +1130,9 @@ A **sudden correction** (e.g. subtract 100ms) would satisfy requirement 1 but vi
 
 How often should we synchronize?
 
-- Assume clock i is synchronized at t0: |Ci(t0) - t0| < 𝛿 (max synchronization error).
-- After drifting: |Ci(t0) - t0| < 𝛿 + ρ(t-t0) (where t is when to synchronize next)
-- We must ensure |Ci(t)-t| < Ɛ (absolute error bound)
+- Assume clock i is synchronized at t0: \|Ci(t0) - t0\| < 𝛿 (max synchronization error).
+- After drifting: \|Ci(t0) - t0\| < 𝛿 + ρ(t-t0) (where t is when to synchronize next)
+- We must ensure \|Ci(t)-t\| < Ɛ (absolute error bound)
 
 Therefore, because 𝛿 + ρ(t-t0) <= Ɛ:
 
@@ -1171,7 +1171,7 @@ Faulty clocks or faulty communication can interfere with synchornization.
 Averaging doesn't always work.
 
 **CNV** (**Convergence**) Algorithm: at time t all clocks report their time Cj.
-Each clock Ck records the time from each clock as Cj if |Cj-Ck| < Ɛ and Ck otherwise.
+Each clock Ck records the time from each clock as Cj if \|Cj-Ck\| < Ɛ and Ck otherwise.
 Update each clock Ck=(1/n) Σ Cj.
 
 Example:

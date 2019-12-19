@@ -7,10 +7,6 @@
   - [Barrier Synchronization](#barrier-synchronization)
     - [Non-reusable Barrier Synchronization](#non-reusable-barrier-synchronization)
     - [Reusable Barrier Synchronization](#reusable-barrier-synchronization)
-  - [Starvation](#starvation)
-  - [Appplications](#appplications)
-    - [Readers-Writers Problem](#readers-writers-problem)
-    - [Single Lane Bridge Problem](#single-lane-bridge-problem)
 
 A semaphore is a counter with 3 functions:
 
@@ -45,7 +41,7 @@ void signal(sem_t *s) {
 
 ## Condition Variable
 
-One task signals anotehr task that an event has occured, then the other task can proceed.
+One task signals another task that an event has occured, then the other task can proceed.
 
 1. initialize semaphore to 0
 2. one task will `wait()` to wait on the event
@@ -234,6 +230,7 @@ void b_sync(sem_t* first, sem_t* second) {
     if (++count == n) {
         wait(&second);  // lock the second
         signal(&first); // unlock the first
+        count = 0;
     }
     signal(&mutex);
 
@@ -431,9 +428,84 @@ Requirements:
 2. exclusive writer access
 3. no starvation
 
-Solution from little book of semaphores:
+Introducing **Lightswitch** pattern, where the first person into the room turns on the light (locks the mutex), and the last one out turns it off (unlocks the mutex).
+
+```c
+uint32_t counter = 0;
+sem_t mutex = 1, turnstile = 1, room_empty = 1;
+
+void writer() {
+    wait(&turnstile);
+    wait(&room_empty);
+
+    /* --- critical section for writers --- */
+
+    signal(&turnstile);
+    signal(&room_empty);
+}
+
+void reader() {
+    wait(&turnstile);
+    signal(&turnstile);
+
+    // reader lightswitch on
+    wait(&mutex);
+    if (++counter == 1) { // first one enter room
+        wait(&room_empty);
+    }
+    signal(&mutex);
+
+    /* --- critical section for readers ---  */
+
+    // reader lightswitch off check
+    wait(&mutex);
+    if (--counter == 0) {
+        signal(&room_empty);
+    }
+    signal(&mutex);
+}
+```
 
 ### Single Lane Bridge Problem
 
+Also use lightswitch pattern.
 
+```c
+typedef enum {North = 0, South = 1} dir_t;
+sem_t mutex = 1;
+int crossing_count = 0, waiting_count = 0;
+sem_t waiting_sem;
+dir_t crossing_direction = North;
+
+void car(void *arg, dir_t direction) {
+    // wait & condition check
+    int to_wait = 1;
+    wait(&mutex);
+    if (crossing_count == 0)
+        crossing_direction = direction;
+
+    if (crossing_direction == direction) {
+        crossing_count++;
+        to_wait = 0;
+    } else {
+        waiting_count++;
+    }
+    signal(&mutex);
+
+    // crossing
+    osDelay(500);
+
+    // update conditions and status
+    wait(&mutex);
+    if (--crossing_count == 0) {
+        for (int i=0; i<waiting_count, ++i) {
+            signal(&waiting_sem);
+        }
+        crossing_direction = 1 - direction; // reverse direction
+        crossing_count = waiting_count;
+        waiting_count = 0;
+    }
+    signal(&mutex);
+}
+```
 

@@ -1,4 +1,4 @@
-# Embedded Patterns
+# Embedded Buffering
 
 ## Producer-Consumer Pattern
 
@@ -99,10 +99,48 @@ Solution:
   - `tail=0` for producers
   - `head=0` for consumers
 - two mutexes:
-    - `tailMutex` for multiple producers
-    - `headMutex` for multiple consumers
+  - `tailMutex` for multiple producers
+  - `headMutex` for multiple consumers
 
-THINK
+```c
+const uint32_t n = 4; // buffer size
+
+typedef struct {
+    uint32_t data[n];
+    uint32_t head_index;
+    uint32_t tail_index;
+    sem_t head_mutex;
+    sem_t tail_mutex;
+    sem_t full;
+    sem_t empty;
+} queue_t;
+
+void queue_init(queue_t *q) {
+    q->head_index = q->tail_index = 0;
+    q->head_mutex = q->tail_mutex = 1;
+    q->full = 0;
+    q->empty = 1;
+}
+
+void enqueue(queue_t *q, uint32_t msg) {
+    wait(q->empty);
+    wait(q->tail_mutex);
+    q->tail_index = (q->tail_index + 1) % n;
+    q->data[q->tail_index] = msg;
+    signal(q->tail_mutex);
+    signal(q->full);
+}
+
+uint32_t dequeue(queue_t *q) {
+    wait(q->full);
+    wait(q->head_mutex);
+    uint32_t msg = q->data[q->head_index];
+    q->head_index = (q->head_index + 1) % n;
+    signal(q->head_mutex);
+    signal(q->empty);
+    return msg;
+}
+```
 
 ## buffering Sizing
 
@@ -113,7 +151,7 @@ Let's assume that producing rate P(t) exceeds consuming rate C(t) for a short bu
 - data consumed during burst = CT
 - buffer size B=(P-C)T
 
-Example problem: I/O deuze produces data at 9600 B/s for bursts of 1s.
+Example problem: I/O device produces data at 9600 B/s for bursts of 1s.
 A task consumes this data at 800 B/s.
 
 - Q1: What's the minimum buffer size? B=8800B/s*1s = 8800B

@@ -19,9 +19,9 @@ Summarized git techniques that often come in handy:
 
 Coursework on RTOS.
 
-## [Embedded Patterns](embedded-patterns.md)
+## [Embedded Buffering](embedded-buffering.md)
 
-Buffers and queues.
+Single, Double, and N-Buffering.
 
 ## [Semaphores](semaphore.md)
 
