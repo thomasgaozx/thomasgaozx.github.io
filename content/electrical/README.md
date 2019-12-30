@@ -18,9 +18,16 @@ This page summarizes the undergraduate level electrical engineering fundamentals
 
 - [Legacy Version](archive/filter.html)
 
-## [Signal Processing](signal_processing.html)
+## [Signals and Systems](systems.html)
 
-- The full legacy [Linear Signals and Systems version](archive/signals_systems.html)
+The full legacy [Linear Signals and Systems version](archive/signals_systems.html)
+
+## [Integral Transforms](itransform.html)
+
+- Laplace Transform
+- Z Transform
+- Fourier Series
+- Fourier Transform
 
 ## [Digital Logics](digital_logics.html)
 
