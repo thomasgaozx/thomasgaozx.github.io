@@ -1,75 +1,64 @@
 # Software Wiki
 
-The wikis listed on this page summarizes the practical aspects of software discipline, includes industrial tools, terminal tools, networks, and others.
+- [Software Wiki](#software-wiki)
+  - [Networking](#networking)
+  - [Kubernetes](#kubernetes)
+  - [Database Design](#database-design)
+  - [Asynchronous Programming](#asynchronous-programming)
+  - [Advanced Python Techniques](#advanced-python-techniques)
+  - [Advanced Git Techniques](#advanced-git-techniques)
+  - [Terminal Tools](#terminal-tools)
+  - [Real-Time Operating Systems](#real-time-operating-systems)
+  - [Python Socket Programming](#python-socket-programming)
+  - [XML DTD and Schema](#xml-dtd-and-schema)
+  - [Blogs](#blogs)
+
+## [Networking](networking.md)
+
+Prerequisite networking concepts and terminologies.
+Layer 2 and layer 3 networking tools and techniques such as LLDP, SSH tunneling and port forwarding.
+
+## [Kubernetes](kube.md)
+
+Kubernetes concepts and terminologies.
+
+## [Database Design](sql.md)
+
+Database Concepts and SQL References
+
+## [Asynchronous Programming](async.md)
+
+`async`/`await` task asynchronous programming.
+Buffering/Queuing in embedded systems.
+Semaphore techniques.
+
+## [Advanced Python Techniques](python-advanced.md)
+
+How to write Python mega-oneliners.
+Metaprogramming patterns such as Mixin.
+Debugging tools and techniques such as pdb and inspect.
 
 ## [Advanced Git Techniques](git.md)
 
-Summarized git techniques that often come in handy:
+Git techniques such as hunk manipulation, conflict resolution.
+Handy tools such as Git Server and Git Hooks.
 
-* Git Workflow
-* Git Rebase
-* Git Stash
-* Git Reset
-* Hunk Manipulations
-* Conflict Resolution
-* Setting Up Git Server
-* Using Git Hooks
+## [Terminal Tools](terminal.md)
+
+Handy Debian terminal commands.
 
 ## [Real-Time Operating Systems](rtos.md)
 
 Coursework on RTOS.
 
-## [Embedded Buffering](embedded-buffering.md)
+## [Python Socket Programming](socket.md)
 
-Single, Double, and N-Buffering.
+A comprehensive tutorial of python socket API and its advanced usage such as network buffer and tcp multicasting.
 
-## [Semaphores](semaphore.md)
+## [XML DTD and Schema](xml.md)
 
-Semaphore practices.
+Comprehensive DTD and schema overview.
 
-## [Networks](networks.md)
+## [Blogs](blogs.md)
 
-Basic networks overview from coursework.
-
-## [Task Asynchronous Programming](tap.md)
-
-Internal workings of `async` `await`.
-
-## [Debian Terminal Utility](terminal.md)
-
-Outlined some occassional useful commands and tricks for Debian environment:
-
-* Package Management
-* File Searching
-* Detach Programs From Shells/Sessions
-* Environment Settings
-* Static IP Addressing
-
-## [Secure Shell Automatic Authentication](ssh.md)
-
-Step-by-step tutorial on how to set up configure SSH such that one can do `ssh 192.168.0.250` instead of `sshpass -p somepswd username@192.168.0.250`.
-
-## [Python Network Programming](socket.md)
-
-A comprehensive tutorial of python socket API and its advanced usage:
-
-* Socket API Overview
-* Various Approaches for TCP Message Delivery (Working with Network Buffer)
-* TCP Multicasting with `Selector` (Single-threaded)
-* TCP Multicasting with `ThreadPoolExecutor` (Multi-threaded)
-
-## [SQL Reference](sql.md)
-
-A quick overview of sql commands.
-
-## [XML DTD and Schema Wiki](xml.md)
-
-A look into XML DTD aiming at completeness, and a brief intro to schema concepts.
-
-## [Regex Utility](regex.md)
-
-Documented some nasty regex I wrote, their scope of application, and assumptions:
-
-* Capturing Magic Numbers in C++
-
-***
+Short, interesting articles.
