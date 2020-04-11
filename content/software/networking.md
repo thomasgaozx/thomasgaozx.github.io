@@ -12,6 +12,7 @@
     - [Reverse DNS Lookup](#reverse-dns-lookup)
   - [Layer 2 Networking](#layer-2-networking)
     - [CDP, LLDP](#cdp-lldp)
+      - [Practical LLDP](#practical-lldp)
   - [Layer 3 Networking](#layer-3-networking)
     - [NAT and Proxy](#nat-and-proxy)
     - [DMZ, Bastion Host, Jump Server](#dmz-bastion-host-jump-server)
@@ -19,6 +20,14 @@
       - [Local Forwarding](#local-forwarding)
       - [Specify SSH Jump Hosts](#specify-ssh-jump-hosts)
     - [TCP Window Size, Socket Buffer](#tcp-window-size-socket-buffer)
+  - [Practical IP](#practical-ip)
+    - [Add/Remove IP to Interface](#addremove-ip-to-interface)
+    - [Set Up VLAN Interface](#set-up-vlan-interface)
+    - [Setting Up A Router](#setting-up-a-router)
+      - [Enable Forwarding](#enable-forwarding)
+      - [Set Static Gateway IP](#set-static-gateway-ip)
+      - [Set up IPtables](#set-up-iptables)
+      - [Instruct Node to use Router](#instruct-node-to-use-router)
 
 ## Basic Terminologies
 
@@ -62,6 +71,9 @@ A **subnet** (i.e. network) represents all of the devices within a **LAN**.
 
 Multiple switches can be interconnected and divide VLANs between all hosts.
 
+A **VLAN Interface** is a virtual interface that is attached to the physical network port or bond that your VLAN is configured on.
+Each time a VLAN is created on a switch, a new VLAN interface is created.
+
 ### Summary: Layers and Reachability
 
 Same network segment (layer 1) -> can reach each other physically
@@ -91,6 +103,12 @@ Then you can get its underlying port.
 
 ```bash
 tcpdump -i eth1 'port 80'
+```
+
+One can also save the captured packet as `lldp.pcap` and open it with WireShark:
+
+```bash
+tcpdump -en -i enp0s9 ether proto 0x88cc -w lldp.pcap # save captured lldp packet
 ```
 
 ### Reverse DNS Lookup
@@ -147,6 +165,28 @@ References:
 - [lldp explained](https://www.orbit-computer-solutions.com/link-layer-discovery-protocol-lldp/)
 - [Youtube 1](https://youtu.be/FMxou9zpVI8)
 - [Youtube 2](https://youtu.be/oxMBI0muCHY)
+
+#### Practical LLDP
+
+Install lldpd (or lldpad), to see the neighbor information, do
+
+Start lldpd:
+
+```bash
+/etc/init.d/lldpd restart
+```
+
+Show neighbors:
+
+```bash
+lldpcli show neighbors
+lldpcli show neighbors details -f json
+```
+
+References:
+
+1. https://community.mellanox.com/s/article/howto-enable-lldp-on-linux-servers-for-link-discovery
+2. http://manpages.ubuntu.com/manpages/bionic/man8/lldpcli.8.html
 
 ## Layer 3 Networking
 
@@ -279,3 +319,91 @@ If the sender has not received acknowledgement for the first packet it sent, it 
 - **packet size** is the same as **block size**
 
 a socket's buffer can be of any size but cannot go beyond system min/max set by `tcp_rmem` and `tcp_wmem`
+
+## Practical IP
+
+### Add/Remove IP to Interface
+
+```bash
+sudo ip address add 10.0.0.1/24 dev eth0
+sudo ip address del 10.0.0.1/24 dev eth0
+```
+
+### Set Up VLAN Interface
+
+```bash
+sudo apt-get install vlan
+sudo modprobe 8021q
+sudo vconfig add enp0s3 10
+sudo ip addr add 10.0.0.4/24 dev enp0s3.10
+sudo ip link set up enp0s3.10 # enable interface
+```
+
+To delete the vlan interface:
+
+```bash
+# cleanly shutdown the setting before removing link
+sudo ip link set dev eth0.100 down
+
+# Removing a VLAN interface
+ip link delete eth0.100
+```
+
+Reference:
+
+1. https://wiki.ubuntu.com/vlan
+2. https://wiki.archlinux.org/index.php/VLAN
+
+### Setting Up A Router
+
+Ensure there are two interfaces, one connected to the external network, e.g. NAT, and the other to the internal network, e.g. host-only.
+
+#### Enable Forwarding
+
+```bash
+sudo vim /etc/sysctl.conf
+# Edit sysctl.conf and uncomment the following line:
+# net.ipv4.ip_forward=1
+
+sudo sysctl -p # activate the change
+```
+
+#### Set Static Gateway IP
+
+Set a static ip address as the gateway IP address to interface connected to the host only network:
+
+```bash
+# Assuming that enp0s8 is connected to the OAM host only network:
+cat > /etc/netplan/99_config.yaml << EOF
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s8:
+      addresses:
+        - 10.10.10.1/24
+EOF
+sudo netplan apply
+```
+
+> In case you encounter permission denied in latest Ubuntu dist. Simply touch 99_config.yaml and vim the content in.
+
+#### Set up IPtables
+
+Set up iptables to forward packets from the host only network to the NAT network:
+
+```bash
+# This assumes the NAT is on enp0s3 and the host only network is on enp0s8
+sudo iptables -t nat -A POSTROUTING --out-interface enp0s3 -j MASQUERADE
+sudo iptables -A FORWARD --in-interface enp0s8 -j ACCEPT
+sudo apt-get install iptables-persistent
+```
+
+#### Instruct Node to use Router
+
+On a node that wants to use the router, assuming enp0s3 interface is connected to the router:
+
+```bash
+sudo ip link set up dev enp0s3 # enable interface
+sudo ip route add default via 10.10.10.1 dev enp0s3 # route via gateway ip
+```
