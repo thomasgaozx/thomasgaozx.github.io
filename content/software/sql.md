@@ -1,9 +1,15 @@
-# SQL Primer
+# Database Systems
 
-Reference: [w3schools](www.w3schools.com/sql)
-
-- [SQL Primer](#sql-primer)
-  - [Preliminaries](#preliminaries)
+- [Database Systems](#database-systems)
+  - [Relational Database Basics](#relational-database-basics)
+    - [Table, Row, Column](#table-row-column)
+    - [Domain Atomicity](#domain-atomicity)
+    - [Superkey, Primary Key, Foreign key](#superkey-primary-key-foreign-key)
+    - [Relational Algebra](#relational-algebra)
+    - [Database Schema](#database-schema)
+  - [SQL](#sql)
+    - [DDL vs DML](#ddl-vs-dml)
+  - [SQL Commands](#sql-commands)
     - [Create and Drop Table](#create-and-drop-table)
     - [`SELECT`](#select)
     - [Aliases](#aliases)
@@ -30,7 +36,77 @@ Reference: [w3schools](www.w3schools.com/sql)
     - [`CASE`](#case)
     - [Stored Procedures](#stored-procedures)
 
-## Preliminaries
+## Relational Database Basics
+
+### Table, Row, Column
+
+- **table** $\equiv$ **relation**
+- **row** $\equiv$ **tuple** $\equiv$ **relationship**
+- **column** $\equiv$ **attribute**
+
+### Domain Atomicity
+
+- **domain**: a set of permitted values for an attribute
+- **atomic** domain: a domain is atomic if elements of the domain are indivisible; statically allocated types are usually atomic, dynamic lists/sets are _not_ atomic.
+
+We require that for all relations $r$, the domain of all attributes of $r$ be atomic.
+
+**null** value is an exception.
+
+### Superkey, Primary Key, Foreign key
+
+- A **superkey** is a set of attributes that identifies a unique tuple in the relation.
+- A **candidate key** is a minimal superkey with no extraneous attributes.
+- A **primary key** is a candidate key that is the principal means of tuple identification, by design.
+
+> It is possible that several distinct sets of attributes could serve as a candidate key.
+
+A relation $r_1$ may include the primary key from $r_2$ as an attribute called **foreign key**.
+
+Let $r_1, r_2$ be 2 relations, we define the **foreign key constraint** from $r_1$ to $r_2$ as:
+
+- $r_1$'s **foreign key** attribute $\equiv r_2$'s primary key.
+- $r_1\equiv$ **referencing relation**
+- $r_2\equiv$ **referenced relation**
+
+We also define the **referential integrity constraint**: if a value of one attribute of a relation references a value of another attribute in the same or a different relation, then the referenced value must exist.
+
+### Relational Algebra
+
+- **Selection**, $\sigma_\textrm{predicate}(\textrm{table})$: return rows of the input relation that satisfy the predicate.
+- **Projection**, $\Pi_\textrm{attributes}(\textrm{table})$: return specified attributes from all rows of the input relation. Remove duplicate tuples from the output.
+- **Natural Join**, $\textrm{table1} \bowtie \textrm{table2}$: returns pairs of rows from two input relations that have the same value on all attributes that have the same name.
+- **Cartesian Product**, $\textrm{table1} \times\textrm{table2}$: returns all pairs of rows from the two input relations
+- **Union**, $\Pi_\textrm{attributes}(\textrm{table1}) \cup\Pi_\textrm{attributes}(\textrm{table2})$: returns the union of tuples from the two input relations.
+
+### Database Schema
+
+**Schema** of a relation is the logical design of the table, in a schema diagram:
+
+- primary keys are underlined
+- foreign keys use arrows to point to the primary keys of the referenced relations.
+
+## SQL
+
+### DDL vs DML
+
+**Data-Definition Language**:
+
+- defining/modifying relation schemas
+- deleting relations.
+- specifying integrity constraint (updates that violates those constraints are disallowed)
+- defining views.
+- specifying access rights to relations and views
+
+**Data-Manipulation Language**:
+
+- query information from database
+- insert/delete tuples into/from database
+- modifying tuples
+
+Both are part of SQL.
+
+## SQL Commands
 
 ### Create and Drop Table
 
