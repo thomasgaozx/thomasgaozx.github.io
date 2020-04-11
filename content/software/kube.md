@@ -5,6 +5,7 @@
     - [Pods](#pods)
     - [Service](#service)
     - [Namespaces](#namespaces)
+    - [Container Layers](#container-layers)
   - [Practical Kubernetes](#practical-kubernetes)
     - [Setting up Kubernetes Client](#setting-up-kubernetes-client)
       - [Install GO](#install-go)
@@ -134,6 +135,11 @@ spec:
 Kubernetes supports multiple virtual clusters backed by the same physical cluster.
 These virtual clusters are called **namespaces**.
 Namespaces can not be nested inside one another and each Kubernetes resource can only be in one namespace.
+
+### Container Layers
+
+- [Digging into Docker layers](https://medium.com/@jessgreb01/digging-into-docker-layers-c22f948ed612)
+- [Use multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build/)
 
 ## Practical Kubernetes
 

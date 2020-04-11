@@ -11,6 +11,7 @@
     - [Packet Capturing using `tcpdump`](#packet-capturing-using-tcpdump)
     - [Reverse DNS Lookup](#reverse-dns-lookup)
     - [Iperf3 and mininet](#iperf3-and-mininet)
+      - [TCP Window Size, Socket Buffer](#tcp-window-size-socket-buffer)
   - [Layer 2 Networking](#layer-2-networking)
     - [CDP, LLDP](#cdp-lldp)
       - [Practical LLDP](#practical-lldp)
@@ -20,7 +21,6 @@
     - [**SSH Tunneling**](#ssh-tunneling)
       - [Local Forwarding](#local-forwarding)
       - [Specify SSH Jump Hosts](#specify-ssh-jump-hosts)
-    - [TCP Window Size, Socket Buffer](#tcp-window-size-socket-buffer)
   - [Practical IP](#practical-ip)
     - [Add/Remove IP to Interface](#addremove-ip-to-interface)
     - [Set Up VLAN Interface](#set-up-vlan-interface)
@@ -163,6 +163,18 @@ As a result, you must run the following to reset the min, default, max size of t
 sysctl -w net.ipv4.tcp_rmem="10240 87380 536870912" # receiver socket
 sysctl -w net.ipv4.tcp_wmem="10240 87380 536870912" # sender socket
 ```
+
+#### TCP Window Size, Socket Buffer
+
+**RWIN** (**TCP Receive Window**) is the amount of data that a computer can accept without acknowledging the sender.
+If the sender has not received acknowledgement for the first packet it sent, it will stop and wait and if this wait exceeds a certain limit, it may even retransmit
+
+- **tcp_rmem**: receive buffer size
+- **tcp_wmem**: send buffer size
+- **window size** is the same as **socket buffer size**
+- **packet size** is the same as **block size**
+
+a socket's buffer can be of any size but cannot go beyond system min/max set by `tcp_rmem` and `tcp_wmem`
 
 ## Layer 2 Networking
 
@@ -353,19 +365,7 @@ ssh -J tgao@yow-cgts1-lx,tgao@yow-tuxlab2 sysadmin@v6-150-11.yow.lab.wrs.com
 
 If you want SSH to go into the background, you can do so with the -f flag.
 
-If you’ve tried the above examples, you may have noticed that running the command also opens up a shell. If you don’t need the shell, you can disable it with the -N switch:
-
-### TCP Window Size, Socket Buffer
-
-**RWIN** (**TCP Receive Window**) is the amount of data that a computer can accept without acknowledging the sender.
-If the sender has not received acknowledgement for the first packet it sent, it will stop and wait and if this wait exceeds a certain limit, it may even retransmit
-
-- **tcp_rmem**: receive buffer size
-- **tcp_wmem**: send buffer size
-- **window size** is the same as **socket buffer size**
-- **packet size** is the same as **block size**
-
-a socket's buffer can be of any size but cannot go beyond system min/max set by `tcp_rmem` and `tcp_wmem`
+If you've tried the above examples, you may have noticed that running the command also opens up a shell. If you don’t need the shell, you can disable it with the -N switch
 
 ## Practical IP
 
