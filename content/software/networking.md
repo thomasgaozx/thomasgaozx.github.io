@@ -10,6 +10,7 @@
   - [Tools](#tools)
     - [Packet Capturing using `tcpdump`](#packet-capturing-using-tcpdump)
     - [Reverse DNS Lookup](#reverse-dns-lookup)
+    - [Iperf3 and mininet](#iperf3-and-mininet)
   - [Layer 2 Networking](#layer-2-networking)
     - [CDP, LLDP](#cdp-lldp)
       - [Practical LLDP](#practical-lldp)
@@ -115,6 +116,52 @@ tcpdump -en -i enp0s9 ether proto 0x88cc -w lldp.pcap # save captured lldp packe
 
 ```bash
 nslookup <ip-addr>
+```
+
+### Iperf3 and mininet
+
+`iperf3` may be used for performance comparison. Iperf3 can be run on two host machines, or a single machine With mininet installed:
+
+```bash
+sudo mn --topo single,2
+xterm h1 h2
+```
+
+On h1, which we treat as server:
+
+```bash
+iperf3 -s $HOST_IP -J -i 60
+```
+
+On h2, which we treat as client:
+
+```bash
+iperf3 -c $SERVER_IP -V -N -i 30 -t 10 -f m -w 512M -Z -P 8 -M $MSS # tcp
+iperf3 -c $SERVER_IP -i 30 -t 10 -f m -b 0 -u #udp
+```
+
+For TCP $MSS, use any value between mssMin and mssMax (inclusive) below:
+
+```go
+mssMin               = 96
+mssMax               = 1460
+mssStepSize          = 64
+```
+
+If the tcp test complains about socket buffer size error, check the output of:
+
+```bash
+sysctl net.ipv4.tcp_rmem
+```
+
+This will show the min, default, max of the receiver socket buffer size.
+If the max is less than `512M`, the `-w 512M` asks the iperf3 test app to create sockets with buffer size greater than what the system allows.
+
+As a result, you must run the following to reset the min, default, max size of the receiver and sender socket buffer size, make sure only the max size is changed to `512M`, i.e. `536870912`:
+
+```bash
+sysctl -w net.ipv4.tcp_rmem="10240 87380 536870912" # receiver socket
+sysctl -w net.ipv4.tcp_wmem="10240 87380 536870912" # sender socket
 ```
 
 ## Layer 2 Networking
