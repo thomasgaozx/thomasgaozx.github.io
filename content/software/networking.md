@@ -3,6 +3,7 @@
 - [Networking](#networking)
   - [Basic Terminologies](#basic-terminologies)
     - [Interfaces, Address, Routes, Gateway](#interfaces-address-routes-gateway)
+    - [Port, Link Aggregation](#port-link-aggregation)
     - [Subnet, LAN, VLAN](#subnet-lan-vlan)
     - [Summary: Layers and Reachability](#summary-layers-and-reachability)
     - [Address Pool](#address-pool)
@@ -13,6 +14,7 @@
     - [Iperf3 and mininet](#iperf3-and-mininet)
       - [TCP Window Size, Socket Buffer](#tcp-window-size-socket-buffer)
   - [Layer 2 Networking](#layer-2-networking)
+    - [Cisco Switch Commands](#cisco-switch-commands)
     - [CDP, LLDP](#cdp-lldp)
       - [Practical LLDP](#practical-lldp)
   - [Layer 3 Networking](#layer-3-networking)
@@ -62,6 +64,15 @@ Finally, interface should have at least one address that's in the same subnet as
 Otherwise there is no way to reach the gateway.
 
 **Orphaned Route**: no address in the interface is in the same subnet as the route gateway, which means the gateway is not reachable.
+
+### Port, Link Aggregation
+
+A **port** is like the physical interface. An interface is one level higher than a port.
+For example, a port might be eth0, which has interfaces eth0 and eth0.100 (vlan) on top.
+
+The term **link aggregation** applies to various methods of combining (aggregating) multiple network connections in parallel in order to increase throughput beyond what a single connection could sustain, and to provide redundancy in case one of the links should fail.
+
+A **link aggregation group** (**LAG**) combines a number of physical ports together to make a single high-bandwidth data path, so as to implement the traffic load sharing among the member ports in the group and to enhance the connection reliability.
 
 ### Subnet, LAN, VLAN
 
@@ -177,6 +188,25 @@ If the sender has not received acknowledgement for the first packet it sent, it 
 a socket's buffer can be of any size but cannot go beyond system min/max set by `tcp_rmem` and `tcp_wmem`
 
 ## Layer 2 Networking
+
+### Cisco Switch Commands
+
+Log into a cisco switch via ssh.
+
+```bash
+# Get into configuration mode
+enable
+configure
+
+# Go to interface xe1
+interface xe1
+
+# To take the port down:
+shut
+
+# To bring the port back up:
+no shut
+```
 
 ### CDP, LLDP
 

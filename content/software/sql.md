@@ -50,7 +50,6 @@
 - **atomic** domain: a domain is atomic if elements of the domain are indivisible; statically allocated types are usually atomic, dynamic lists/sets are _not_ atomic.
 
 We require that for all relations $r$, the domain of all attributes of $r$ be atomic.
-
 **null** value is an exception.
 
 ### Superkey, Primary Key, Foreign key

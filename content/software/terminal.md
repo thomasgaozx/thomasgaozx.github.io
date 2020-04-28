@@ -11,6 +11,9 @@
     - [Switch Package Version](#switch-package-version)
     - [Install from tar](#install-from-tar)
   - [File Searching](#file-searching)
+    - [File Name Search](#file-name-search)
+    - [File Content Search](#file-content-search)
+    - [Which?](#which)
   - [Setting up Automatic SSH Authentication](#setting-up-automatic-ssh-authentication)
     - [Step 1. Generating Key on Host Machine](#step-1-generating-key-on-host-machine)
     - [Step 2. Setting SSH Configuration File on Host Machine](#step-2-setting-ssh-configuration-file-on-host-machine)
@@ -91,6 +94,15 @@ make
 sudo make install
 ```
 
+To do the install in a user directory without sudo:
+
+```bash
+cd iperf-3.7
+./configure --prefix=$HOME/usr_install
+make
+make install
+```
+
 alternatively:
 
 ```bash
@@ -106,16 +118,39 @@ RUN cd iperf-3.7 && ./configure --prefix=/usr/local --bindir /usr/local/bin && m
 
 ## File Searching
 
+### File Name Search
+
 To search file names for `$FILE_NAME`, do:
 
 ```sh
 find / | grep $FILE_NAME
 ```
 
-To search file content for `$REGEX`, do:
+### File Content Search
+
+To search file content for `$REGEX` recursively under a `$DIR`:
 
 ```sh
-grep -r $REGEX
+grep -r $REGEX $DIR # recursive
+```
+
+To non-recursively search file content, either:
+
+```bash
+shopt -s dotglob # make a glob include hidden files
+grep -s $REGEX $DIR/*
+```
+
+Or
+
+```bash
+grep -s $REGEX $DIR/{*,.*} # to include hidden files
+```
+
+### Which?
+
+```sh
+which -a <executable name> # gives a list of executable names
 ```
 
 ## Setting up Automatic SSH Authentication

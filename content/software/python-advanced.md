@@ -13,6 +13,7 @@
     - [Find Class Attributes of Unknown Object](#find-class-attributes-of-unknown-object)
     - [PDB Debugger](#pdb-debugger)
     - [Using Inspect](#using-inspect)
+    - [Log Hijacking](#log-hijacking)
 
 ## Trivials Techniques
 
@@ -136,3 +137,24 @@ Inspect lets you see the source code of a method/function.
 ```python
 inspect.getsource(self.app._gen_request)
 ```
+
+### Log Hijacking
+
+Log Hijacking is a basic technique that I occassionally forget, so just take a quick note here.
+
+In the case your program is is running as a background thread of a daemon service, you 1) don't have access to console printing, 2) have to inspect the log via something like `cat /var/log/daemon.log | grep <key phrase>`, and 3) when your code change is in effect you have no control or idea when the log will show up.
+This can be a massive pain in the butt and significantly bloats the development cycle.
+One way to alleviate this, is to simply perform a log hijacking:
+
+```python
+import threading
+write_lock = threading.Lock()
+def debug(*args):
+    with write_lock:
+        with open("/home/user/debug.txt", "a+") as fout:
+            fout.write(' '.join(str(arg) for arg in args) + '\n')
+
+debug("Checking in ...")
+```
+
+You can now treat `debug(args)` as `print`, and then, you can simply `tail -f ~/debug.txt | less` on a separate terminal and wait for the only relevent log to show up.
