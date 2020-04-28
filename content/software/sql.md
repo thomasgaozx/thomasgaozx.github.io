@@ -1,74 +1,68 @@
 # Database Systems
 
 - [Database Systems](#database-systems)
-  - [Relational Database Basics](#relational-database-basics)
-    - [Table, Row, Column](#table-row-column)
-    - [Domain Atomicity](#domain-atomicity)
-    - [Superkey, Primary Key, Foreign key](#superkey-primary-key-foreign-key)
+  - [Relational Query Language](#relational-query-language)
+    - [Prerequisite](#prerequisite)
     - [Relational Algebra](#relational-algebra)
-    - [Database Schema](#database-schema)
   - [SQL](#sql)
-    - [DDL vs DML](#ddl-vs-dml)
-  - [SQL Commands](#sql-commands)
-    - [Create and Drop Table](#create-and-drop-table)
-    - [`SELECT`](#select)
-    - [Aliases](#aliases)
-  - [`WHERE` and Conditions](#where-and-conditions)
-    - [Conditional Operators](#conditional-operators)
-    - [`AND, OR, NOT`](#and-or-not)
-    - [`EXIST` Operator](#exist-operator)
-    - [`ANY, All` Operators](#any-all-operators)
-  - [Modifying Table](#modifying-table)
-    - [`INSERT INTO`](#insert-into)
-    - [`UPDATE`](#update)
-    - [`DELETE`](#delete)
-    - [Joins](#joins)
-    - [`SELECT INTO`](#select-into)
-    - [`INSERT INTO SELECT`](#insert-into-select)
-  - [`ORDER BY`](#order-by)
-  - [`GROUP BY`](#group-by)
-    - [`Min, Max`](#min-max)
-    - [`COUNT, AVG, SUM`](#count-avg-sum)
-    - [`HAVING` Clause](#having-clause)
-  - [Additional Techniques](#additional-techniques)
-    - [`UNION`](#union)
-    - [Self Join*](#self-join)
-    - [`CASE`](#case)
-    - [Stored Procedures](#stored-procedures)
+    - [Database Organization](#database-organization)
+      - [Authorization](#authorization)
+    - [Supported Data Types](#supported-data-types)
+      - [blob and clob](#blob-and-clob)
+      - [User Types](#user-types)
+    - [Data Definition Language](#data-definition-language)
+    - [Data Manipulation Language](#data-manipulation-language)
+      - [Cartesian Product](#cartesian-product)
+      - [Rename Operation](#rename-operation)
+      - [Null in Expressions](#null-in-expressions)
+      - [Construct Temporary Relation](#construct-temporary-relation)
+      - [Update Attribute Values](#update-attribute-values)
+    - [Set Operations and Nested Subquery](#set-operations-and-nested-subquery)
+      - [Correlated Subqueries](#correlated-subqueries)
+      - [Scalar Subqueries](#scalar-subqueries)
+    - [Join](#join)
+      - [Natural Join vs Conditional Join](#natural-join-vs-conditional-join)
+      - [Outer Joins](#outer-joins)
+      - [Self Join](#self-join)
+    - [Aggregation](#aggregation)
+    - [Views](#views)
+    - [Index Creation](#index-creation)
+    - [Transactions, Commit and Rollback](#transactions-commit-and-rollback)
+    - [Constraint Checking](#constraint-checking)
+  - [Additional SQL Features](#additional-sql-features)
+    - [Functions, Procedures, Recursion](#functions-procedures-recursion)
+    - [Triggers](#triggers)
+    - [Programming Language Integration](#programming-language-integration)
+    - [OLAP](#olap)
 
-## Relational Database Basics
+## Relational Query Language
 
-### Table, Row, Column
+### Prerequisite
 
-- **table** $\equiv$ **relation**
-- **row** $\equiv$ **tuple** $\equiv$ **relationship**
-- **column** $\equiv$ **attribute**
+Relation components:
 
-### Domain Atomicity
+- **Relation** is table.
+- **Tuple** is a row of the table.
+- **Attribute** is a column.
 
-- **domain**: a set of permitted values for an attribute
-- **atomic** domain: a domain is atomic if elements of the domain are indivisible; statically allocated types are usually atomic, dynamic lists/sets are _not_ atomic.
+Relation keys:
 
-We require that for all relations $r$, the domain of all attributes of $r$ be atomic.
-**null** value is an exception.
+- **Superkey** is a set of attributes that can identify a unique tuple. **Candidate key** is a minimal superkey with no extraneous attributes.
+- **Primary key** is a candidate key that is the designated means of tuple identification.
+- **Foreign key** references the primary key of another relation.
+  - **Referencing relation** has the foreign key.
+  - **Referenced relation**'s primary key is referenced.
 
-### Superkey, Primary Key, Foreign key
+Relation rules:
 
-- A **superkey** is a set of attributes that identifies a unique tuple in the relation.
-- A **candidate key** is a minimal superkey with no extraneous attributes.
-- A **primary key** is a candidate key that is the principal means of tuple identification, by design.
+- **Domain atomicity** states the domain of any attribute must be indivisible (fixed size, statically allocated), with _null_ value being an exception.
+- **Foreign key constraint** states that the referencing relation's foreign key must be the primary key of the referenced relation. All referenced values must exist in the referenced relation without duplicate.
+- **Referential integrity constraint** states that all referenced value must exist in the referenced relation (duplicate allowed).
 
-> It is possible that several distinct sets of attributes could serve as a candidate key.
+Database schemas:
 
-A relation $r_1$ may include the primary key from $r_2$ as an attribute called **foreign key**.
-
-Let $r_1, r_2$ be 2 relations, we define the **foreign key constraint** from $r_1$ to $r_2$ as:
-
-- $r_1$'s **foreign key** attribute $\equiv r_2$'s primary key.
-- $r_1\equiv$ **referencing relation**
-- $r_2\equiv$ **referenced relation**
-
-We also define the **referential integrity constraint**: if a value of one attribute of a relation references a value of another attribute in the same or a different relation, then the referenced value must exist.
+- **Relation schemas** outlines all attributes of a relation, including primary keys (underlined), and foreign keys(pointed by arrows)
+- **Database schemas** shows the relation schemas and the interaction between them.
 
 ### Relational Algebra
 
@@ -78,513 +72,490 @@ We also define the **referential integrity constraint**: if a value of one attri
 - **Cartesian Product**, $\textrm{table1} \times\textrm{table2}$: returns all pairs of rows from the two input relations
 - **Union**, $\Pi_\textrm{attributes}(\textrm{table1}) \cup\Pi_\textrm{attributes}(\textrm{table2})$: returns the union of tuples from the two input relations.
 
-### Database Schema
-
-**Schema** of a relation is the logical design of the table, in a schema diagram:
-
-- primary keys are underlined
-- foreign keys use arrows to point to the primary keys of the referenced relations.
-
 ## SQL
 
-### DDL vs DML
+### Database Organization
 
-**Data-Definition Language**:
+Like a file system, modern database systems provide a three-level hierachy for naming relations.
+The top level of the hierachy consists of **catalogs**, each of which contains **schemas**.
+Schemas contain **SQL objects** (e.g. relations, views).
 
-- defining/modifying relation schemas
-- deleting relations.
-- specifying integrity constraint (updates that violates those constraints are disallowed)
-- defining views.
-- specifying access rights to relations and views
+One can identify a relation using the full path, for example, `catalog5.univ_schema.course`.
 
-**Data-Manipulation Language**:
+Each user has a **SQL environment** that is set up for each connection.
+The SQL environment contains info like default catalog and schema.
 
-- query information from database
-- insert/delete tuples into/from database
-- modifying tuples
+One can also `create schema` or `drop schema`, do try it at home.
 
-Both are part of SQL.
+#### Authorization
 
-## SQL Commands
-
-### Create and Drop Table
+DB administrator can grant/revoke `select`, `insert`, `update`, and `delete` privileges to DB user, and can grant users to pass on these privileges to other users.
+Basically,
 
 ```sql
-CREATE TABLE table_name (
-    column1 datatype,
-    column2 datatype,
-   ....
-);
+grant <privilege list>
+on <relation name or view name>
+to <user/role list>
+with grant option;          --option: to allow passing on permission
 
--- create table from another table
-CREATE TABLE new_table_name AS
-    SELECT column1, column2,...
-    FROM existing_table_name
-    WHERE ....;
+revoke <privilege list>
+on <relation name or view name>
+from <user/role list>;
+
+revote grant option
+for <privilege list>
+on <relation name or view name>
+from <user/role list>;      --option: can no longer pass on permission
 ```
 
-Examples:
+The special user name **public** refers to all current and future user of the system, so do be careful.
+
+Granting individual users authorization can be repetitive, therefore DB administrator can create roles.
+Users granted the role `role_name` must run `set role role_name` to assume the role.
 
 ```sql
-CREATE TABLE Persons (
-    PersonID int,
-    LastName varchar(255),
-    FirstName varchar(255),
-);
+create role instructor;
 ```
 
-To Drop Table:
+DB admin can also grant foreign-key permission on specific schema attribute. See doc for more.
+
+### Supported Data Types
+
+SQL supports char(n), varchar(n), int, smallint, numeric(p, d), double, float, and datetime.
+
+#### blob and clob
+
+Database applications may need large attribute to store **l**arge **ob**jects (*lob).
+SQL has large-object data types for character data (**clob**) or binary data (**blob**).
 
 ```sql
-DROP TABLE table_name;
-TRUNCATE TABLE table_name; -- delete all data but not the table
+dialog  clob(5KB)
+image   blob(5MB)
+game    blob(50GB)
 ```
 
-### `SELECT`
+It is inefficient to retrieve the entire large object in memory.
+Applications usually use SQL query to retrieve a locator for the large object and then "paginate" the actual large object.
 
-The `SELECT` statement is used to select data from a database.
-The data returned is stored ina  result table, called the result-set.
-`SELECT DISTINCT` statement is used to return only distinct values.
+#### User Types
+
+User types are based on an actual type, but are strongly typed.
 
 ```sql
-SELECT column_name(s) FROM table_name;
-SELECT * FROM table_name;
-SELECT DISTINCT column_name(s) from table_name;
+create type Dollars as numeric(12,2) final;
+create type Pounds as numeric(12,2) final;
+
+create table department
+    (dept_name  varchar(20),
+    budget      Dollars);
 ```
 
-### Aliases
+One can `cast (department.budget to numeric(12,2))` to convert the `Dollar` type back to `numeric` type.
 
-SQL aliases are used to give a table, or a column in a table, a temporary name.
-Aliases are often used to make column names more readable.
-An alias _only_ exists for the duration of the query.
+Before user-defined types, there were **domain** which operates the same except 1) domains can have constraints 2) domains are not strongly typed. Look up docs on domain if interested.
+
+### Data Definition Language
+
+Create table:
 
 ```sql
-SELECT column_name AS alias_name FROM table_name; -- Alias Column
-SELECT column_name(s) FROM table_name AS alias_name; -- Alias Table
+create table course
+    (course_id  varchar(7),
+    title       varchar(50),
+    dept_name   varchar(20),
+    credit      numeric(2,0) default 0,       --if not specified in insert
+    primary key (course_id, title),                 --integrity-constraint
+    foreign key (dept_name) references department); --integrity-constraint
 
-SELECT CustomerID AS ID, CustomerName AS Customer FROM Customers;
+create table tmp like instructor;   --creates an empty table with schema
 
-SELECT o.OrderID, o.OrderDate, c.CustomerName
-FROM Customers AS c, Orders AS o
-WHERE c.CustomerName="Around the Horn" AND c.CustomerID=o.CustomerID;
+create table t1 as
+    (select * from instructor)
+    with data;                      --populate the otherwise empty table
 ```
 
-> **Note**: it requires double quotation marks or square brackess if the alias name contains spaces.
-
-One can also create combined columns with alias:
+Insert rows:
 
 ```sql
-SELECT CustomerName, CONCAT(Address,', ',City,', ',Country) AS Address
-FROM Customers;
+insert into course
+    value ('id', 'title', 'eng', 1);
+insert into course (title, course_id, credits, dept_name) --whatever-order
+    values ('Database Systems', 'CS-437', 4, 'Comp. Sci.');
+
+insert into instructor
+    select ID, name, dept_name, 18000
+    from student
+    where tot_cred > 144;
 ```
 
-## `WHERE` and Conditions
+In the last case, the `select` clause is evaluated completely before any insertion occurs.
+
+Delete rows:
 
 ```sql
-SELECT column_name(s) FROM table_name WHERE condition;
-SELECT * FROM Customers WHERE Country='Canada';
-SELECT * FROM Product WHERE Price BETWEEN 50 AND 60;
-SELECT * FROM Customers WHERE City IN ('Paris','London');
+delete from r; --delete all rows
+delete from r
+    where P;
 ```
 
-### Conditional Operators
-
-`=, >, <, >=, <=` are self explanatory. `<>` is _not_ equal. Other operators include:
-
-| Opeartor  | Description              |
-| --------- | ------------------------ |
-| `BETWEEN` | Between a certain range  |
-| `LIKE`    | Search for a pattern     |
-| `IN`      | In a given set of values |
+Delete table:
 
 ```sql
-SELECT column_name(s) FROM table_name
-WHERE column_name IN (value1, value2, ...);
-SELECT column_name(s) FROM table_name
-WHERE column_name IN (SELECT STATEMENT);
-
-SELECT column_name(s) FROM table_name
-WHERE column_name BETWEEN value1 AND value2;
-SELECT * FROM Products WHERE Price NOT BETWEEN 10 AND 20;
+drop table r;
 ```
 
-### `AND, OR, NOT`
+Alter attribute:
 
 ```sql
-SELECT column_name(s) FROM table_name WHERE condition1 AND condition2;
-SELECT column_name(s) FROM table_name WHERE condition1 OR condition2;
-SELECT column_name(s) FROM table_name WHERE NOT condition;
-SELECT * FROM Customers WHERE NOT Country='Germany' AND NOT Country='USA';
+alter table r add A D;  --A=attr_name, D=type
+alter table r drop A;   --remote attribute A
 ```
 
-### `EXIST` Operator
+4.5.6 Create table extensions
 
-The `EXISTS` operator is used to test for the existence of any record in a subquery.
-The `EXISTS` operator returns true if the subquery returns one or more records.
+### Data Manipulation Language
+
+Simple query:
 
 ```sql
-SELECT column_name(s) FROM table_name
-WHERE EXISTS
-(SELECT column_name FROM table_name WHERE condition);
-
-SELECT SupplierName FROM Suppliers WHERE EXISTS
-(SELECT ProductName FROM Products WHERE Products.SupplierID = Suppliers.supplierID AND Price < 20);
-
-SELECT SupplierName FROM Suppliers
-WHERE EXISTS (SELECT ProductName FROM Products WHERE Products.SupplierID = Suppliers.supplierID AND Price = 22);
+select A from r;            --duplicate
+select all A from r;        --explicit-duplicate
+select distinct A from r;   --no-duplicate
 ```
 
-### `ANY, All` Operators
-
-The `ANY` and `ALL` operators are used with a `WHERE` or `HAVING` clause.
-The `ANY` operator returns true if any of the subquery values meet the condition.
-The `ALL` operator returns true if all of the subquery values meet the condition.
+Query with condition and order:
 
 ```sql
-SELECT column_name(s) FROM table_name
-WHERE column_name ANY
-(SELECT column_name FROM table_name WHERE condition);
-
-SELECT column_name(s) FROM table_name
-WHERE column_name ALL
-(SELECT column_name FROM table_name WHERE condition);
+select dept_name, salary*1.1
+    from instructor
+    where dept_name like '%eng%' and salary between 90 and 100 and ID<>0
+    order by depart_name desc, salary asc;
 ```
 
-Examples:
+`like` is used for pattern string pattern matching:
+
+- `%` matches substring
+- `_` matches any character
+
+`order by` list items in ascending order by default.
+
+#### Cartesian Product
 
 ```sql
-SELECT ProductName FROM Products
-WHERE ProductID = ANY (SELECT ProductID FROM OrderDetails WHERE Quantity = 10);
+select A1, A2, An
+    from E1, E2, Em; --cartisian-product
 
-SELECT ProductName FROM Products
-WHERE ProductID = ANY (SELECT ProductID FROM OrderDetails WHERE Quantity > 99);
-
-SELECT ProductName FROM Products
-WHERE ProductID = ALL (SELECT ProductID FROM OrderDetails WHERE Quantity = 10);
+select name, title
+    from instructor natural join teaches, course
+    where teaches.course_id=course.course_id;
 ```
 
+where `E1, E2, Em` can be a single relation or an expression of natural joins.
 
-## Modifying Table
-
-### `INSERT INTO`
-
-The `INSERT INTO` statement is used to insert new records in a table.
-It is possible to write the `INSERT INTO` statement in two ways.
-The first way specifies both the column names and the values to be inserted:
-If you are adding values for all the columns of the table, you do _not_ need to specify the column names in the SQL query. However, make sure the order of the values is in the same order as the columns in the table. The INSERT INTO syntax would be as follows:
+It is worth noting that as a special case, the following two expressions are equivalent:
 
 ```sql
-INSERT INTO table_name (column1, column2) VALUES (value1, value2);
-INSERT INTO table_name VALUES (value1, value2, value3, ...);
+select name, course_id
+    from instructor, teaches
+    where instructor.ID=teaches.ID;
 
-INSERT INTO Customers (CustomerName, City, Country)
-VALUES ('Cardinal', 'Stavanger', 'Norway');
+select name, course_id
+    from instructor natural join teaches;
 ```
 
-### `UPDATE`
+#### Rename Operation
 
-The UPDATE statement is used to modify the existing records in a table.
+Renaming attributes:
 
 ```sql
-UPDATE table_name
-SET column1 = value1, column2 = value2, ...
-WHERE condition;
-
-UPDATE Customers SET ContactName='Juan' WHERE Country='Mexico';
+select A as attr
+    from r;
 ```
 
-> **WARNING**: Be careful when updating records. If you omit the WHERE clause, ALL records will be updated!
-
-### `DELETE`
+Renaming relations:
 
 ```sql
-DELETE FROM table_name WHERE condition;
-DELETE FROM Customers WHERE CustomerName='Alfreds Futterkiste';
-DELETE FROM table_name; --WARNING: delete all rows
+select T.name, S.course_id
+    from instructor as T, teaches as S
+    where T.ID=S.ID;
 ```
 
-### Joins
+The `T, S` alias is called **correlation name**, **table alias**, **correlation variable**, or a **tuple variable**.
 
-Here are the different types of the Joins in SQL:
+#### Null in Expressions
 
-- `INNER JOIN`: Returns records that have matching values in both tables
-- `LEFT JOIN`: Return all records from the left table, and the matched records from the right table
-- `RIGHT JOIN`: Return all records from the right table, and the matched records from the left table
-- `FULL OUTER JOIN`: Return all records when there is a match in either left or right table
+- `1 < null` evaluates to 'unknown'
+- `and`/`or` involving null/'unknown' evaluates 'unknown', with 2 exceptions:
+  - false `and` 'unknown' evaluates to false
+  - true `or` 'unknown' evaluates to true
+- `not` 'unknown' evaluates to unknown
+- `is null` evaluates to boolean
+
+'unknown' is a third logical value created to deal with null value.
+It eventually evaluates to false.
+
+#### Construct Temporary Relation
 
 ```sql
-SELECT column_name(s) FROM table1 INNER JOIN table2
-ON table1.column_name = table2.column_name;
-
-SELECT column_name(s) FROM table1 LEFT JOIN table2
-ON table1.column_name = table2.column_name;
-
-SELECT column_name(s) FROM table1 FULL OUTER JOIN table2
-ON table1.column_name = table2.column_name WHERE condition;
-
-SELECT Orders.OrderID, Customers.CustomerName FROM Orders
-INNER JOIN Customers ON Orders.CustomerID = Customers.CustomerID;
-
-SELECT Customers.CustomerName, Orders.OrderID FROM Customers
-LEFT JOIN Orders ON Customers.CustomerID = Orders.CustomerID
-ORDER BY Customers.CustomerName;
-
-SELECT Customers.CustomerName, Orders.OrderID FROM Customers
-FULL OUTER JOIN Orders ON Customers.CustomerID=Orders.CustomerID
-ORDER BY Customers.CustomerName;
+with dept_total (dept_name, value) as   --first-temp-table
+    (select dept_name, sum(salary)
+    from instructor
+    group by dept_name),
+dept_total_avg(value) as                --second-temp-table
+    (select avg(value)
+    from dept_total)
+select dept_name
+    from dept_total, dept_total_avg
+    where dept_total.value >= dept_total_avg.value;
 ```
 
-### `SELECT INTO`
-
-The SQL `SELECT INTO` Statement
-The `SELECT INTO` statement copies data from one table into a new table.
-
-Copy all columns into a new table:
+#### Update Attribute Values
 
 ```sql
-SELECT * INTO newtable [IN externaldb]
-FROM oldtable WHERE condition;
+update instructor
+    set salary=salary*1.1;
+
+update instructor
+    set salary = case
+                    when salary <= 100000 then salary * 1.05
+                    else salary * 1.03
+                 end
 ```
 
-Copy only some columns into a new table:
+### Set Operations and Nested Subquery
+
+Basic set operation:
 
 ```sql
-SELECT column1, column2 INTO newtable [IN externaldb]
-FROM oldtable WHERE condition;
+r1 union r2;            --no-duplicate
+r1 union all r2;        --duplicate
+r1 intersect r2;        --no-duplicate
+r1 intersect all r2;    --duplicate
+r1 except r2;           --no-duplicate
+r1 except all r2;       --duplicate
 ```
 
-Examples:
+Test membership:
 
 ```sql
--- creates a backup copy of Customer
-SELECT * INTO CustomersBackup2017 IN 'Backup.mdb' FROM Customers;
-
-SELECT * INTO CustomersGermany FROM Customers WHERE Country = 'Germany';
+select distinct A
+    from r1
+    where A not in r2; --r2 can be a nested subquery
 ```
 
-### `INSERT INTO SELECT`
-
-The `INSERT INTO SELECT` statement copies data from one table and inserts it into another table.
-
-- `INSERT INTO SELECT` requires that data types in source and target tables match
-- The existing records in the target table are unaffected
+Set comparison:
 
 ```sql
-INSERT INTO table2
-SELECT * FROM table1
-WHERE condition;
-
-INSERT INTO table2 (column1, column2)
-SELECT column1, column2
-FROM table1
-WHERE condition;
+select name
+    from instructor
+    where salary > some(select salary
+                        from instructor
+                        where dept_name = 'bio')
+select name
+    from instructor
+    where salary > all(r2)
 ```
 
-Examples:
+#### Correlated Subqueries
+
+Test empty:
 
 ```sql
-INSERT INTO Customers (CustomerName, City, Country)
-SELECT SupplierName, City, Country FROM Suppliers;
+select course_id
+    from section as S
+    where semester='Fall' and
+        exists (select *
+                from section as T
+                where semester='Spring' and
+                    S.course_id=T.course_id);   --correlated subquery
 ```
 
-## `ORDER BY`
+Note that a subquery that uses a correlation name from an outer query is **correlated subquery**.
+Subqueries in the `from` clause do not support correlated subquery!
 
-`ORDER BY` keyword is used to sort the result set in ascending or descending order.
-It sorts the records in ascending order by default.
-To sort the records in descending order, use the DESC keyword.
+Test containment: we could use `not exists (B except A)` to test that "relation A contains relation B"
+
+Test duplicate using `unique`:
 
 ```sql
-SELECT column_name(s) FROM table_name ORDER BY column_name(s) ASC|DESC
-SELECT * FROM Customers ORDER BY Country;
-SELECT * FROM Customers ORDER BY Country ASC, CustomerName DESC;
+select T.course_id
+    from course as T
+    where unique (select course_id from section as R
+                  where T.course_id= R.course_id and
+                        R.year = 2009);
 ```
 
-## `GROUP BY`
+Note that `unique` evaluates to true on an empty set.
 
-> `SELECT` returns _one_ result set, `GROUP BY` seems to return multiple result sets. One could think of these multiple result sets as rows of one table, and each result set has attribute/columns like `COUNT(column_name)`
+#### Scalar Subqueries
 
-The `GROUP BY` statement is often used with aggregate functions (`COUNT, MAX, MIN, SUM, AVG`) to group the result-set by one or more columns.
+SQL allows **scalar subqueries** (1 tuple, 1 attribute) to occur wherever a single value is permitted. Scalar subqueries can occur in `select`, `where`, or `having` clauses.
 
 ```sql
-SELECT column_name(s)
-FROM table_name
-WHERE condition
-GROUP BY column_name(s)
-ORDER BY column_name(s);
+select dept_name,
+        (select count(*)    --scalar-subquery
+         from instructor
+         where department.dept_name = instructor.dept_name)
+        as num_instructors
+    from department;
 ```
 
-### `Min, Max`
+### Join
 
-The `MIN()` function returns the smallest value of the selected column.
-The `MAX()` function returns the largest value of the selected column.
+#### Natural Join vs Conditional Join
+
+**Natural join** (`join ... using <attributes>`) joins together two relations. It considers only those pairs of tuples with the same value on those attributes that appear in the schemas of both relations. It then merge the pair and append to the return relation.
 
 ```sql
-SELECT MIN(column_name) FROM table_name WHERE condition;
-SELECT MAX(column_name) FROM table_name WHERE condition;
+select * from student natural join takes;           --using-all-shared-attr
+select * from student join takes using (ID);
+select * from student inner join takes using (ID);  --equivalent
 ```
 
-### `COUNT, AVG, SUM`
-
-The `COUNT()` function returns the number of rows that matches a specified criteria.
-The `AVG()` function returns the average value of a numeric column.
-The `SUM()` function returns the total sum of a numeric column.
+**Conditional Join** (`join ... on <conditions>`) simply concatenates the attributes of the two relation as long as the join conditions are met.
+This means that certain attributes will appear twice.
 
 ```sql
-SELECT COUNT(column_name) FROM table_name WHERE condition;
-SELECT AVG(column_name) FROM table_name WHERE condition;
-SELECT SUM(column_name) FROM table_name WHERE condition;
+select *
+    from student join takes on student.ID=takes.ID;
 
-SELECT COUNT(ProductID) FROM Products;
-SELECT AVG(Price) FROM Products;
-SELECT SUM(Quantity) FROM OrderDetails;
-
-SELECT COUNT(CustomerID), Country FROM Customers GROUP BY Country;
-SELECT COUNT(CustomerID), Country FROM Customers GROUP BY Country
-ORDER BY COUNT(CustomerID) DESC;
+--in this case,the following query is equivalent
+select * from student, takes where student.ID=takes.ID;
 ```
 
-### `HAVING` Clause
+#### Outer Joins
 
-The `HAVING` clause was added to SQL because the `WHERE` keyword could not be used with aggregate functions.
+3 types of outer join:
+
+- `left outer join` preserves unmatched tuples in left-hand-side relation.
+- `right outer join` preserves unmatched tuples in right-hand-side relation.
+- `full outer join` preserves tuple in both relations.
+
+Left outer join are computed using these steps:
+
+1. perform inner join
+2. for all tuples on the left-hand-side relation that's unmatched (primary-key value not in result table): fill in known attribute values, and fill the rest with null
 
 ```sql
-SELECT column_name(s)
-FROM table_name
-WHERE condition
-GROUP BY column_name(s)
-HAVING condition
-ORDER BY column_name(s);
-
-SELECT COUNT(CustomerID), Country
-FROM Customers
-GROUP BY Country
-HAVING COUNT(CustomerID) > 5; --only include countries with >5 customers
-
-SELECT Employees.LastName, COUNT(Orders.OrderID) AS NumberOfOrders
-FROM (Orders
-INNER JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID)
-GROUP BY LastName
-HAVING COUNT(Orders.OrderID) > 10;
+select *
+from takes natural right outer join student;
 ```
 
-## Additional Techniques
+#### Self Join
 
-### `UNION`
-
-The `UNION` operator is used to combine the result-set of two or more `SELECT` statements.
-
-- Each `SELECT` statement within UNION must have the same number of columns
-- The columns must also have similar data types
-- The columns in each `SELECT` statement must also be in the same order
+A self join a technique where the table is joined with itself.
 
 ```sql
-SELECT column_name(s) FROM table1
-UNION
-SELECT column_name(s) FROM table2;
+select column_name(s) from table1 T1, table1 T2 where condition;
+
+--example: pairing instructors in the same department
+select I1.name, I2.name, I1.department
+from instructor I1, instructor I2 where I1.ID <> I2.ID
+and I1.dept_name = I2.dept_name;
 ```
 
-The `UNION` operator selects only distinct values by default. To allow duplicate values, use `UNION ALL`:
+### Aggregation
+
+Basic aggregate functions include `avg`, `min`, `max`, `sum`, `count`.
+Aggregate functions `some`, `every` deals with boolean data type.
 
 ```sql
-SELECT column_name(s) FROM table1
-UNION ALL
-SELECT column_name(s) FROM table2;
+select count(*) from r; --counts-all-entries
+
+select A1, avg(A2) from r
+    group by A1;
+
+select A1, A2, max(A3) from r
+    group by A1, A2         --cartesian-product-grouping
+    having max(A3) > 50;
 ```
 
-Examples:
+Only attributes present in `group by` clause may appear in `select` statement without aggregate function.
+
+### Views
+
+**Views** are "virtual relations" that can be placed wherever a relation may appear.
+The virtual relation executes its query whenever it is used.
 
 ```sql
-SELECT City FROM Customers UNION SELECT City FROM Suppliers ORDER BY City;
-SELECT City FROM Customers UNION ALL SELECT City FROM Suppliers ORDER BY City;
+create view v as <query expression>;
 
-SELECT 'Customer' As Type, ContactName, City, Country
-FROM Customers
-UNION
-SELECT 'Supplier', ContactName, City, Country
-FROM Suppliers;
+create view faculty as
+    select ID, name, dept_name from instructor;
 ```
 
-Notice the "AS Type" above - it is an alias. SQL Aliases are used to give a table or a column a temporary name.
-An alias only exists for the duration of the query.
-So, here we have created a temporary column named "Type", that list whether the contact person is a "Customer" or a "Supplier".
+**Materialized views** stores the view relations (as duplicate), but make sure if the view definition change, the view is kept up-to-date.
+The way DB manages to keep materialized views up-to-date depends on implementation;
+there are bad implementation mind you.
 
-![alias-result](https://i.imgur.com/cusxDW8.png)
+One can also update a view by `insert into` a view, look up documentation specific for your DB if you really wan to learn that.
 
-### Self Join*
+### Index Creation
 
-A self JOIN is a regular join, but the table is joined with itself.
+An **index** on an attribute of a relation is a data structure that allows database system to find the values of that attribute efficiently.
+A widely used kind of index is called B+ Tree index.
 
 ```sql
-SELECT column_name(s) FROM table1 T1, table1 T2 WHERE condition;
+create index studentID_index on student(ID); --non-standard
 ```
 
-`T1` and `T2` are different table aliases for the same table.
+### Transactions, Commit and Rollback
 
-The following SQL statement matches customers that are from the same city:
+A **transaction** consists of a sequence of query/update.
+
+- **Commit work** commits the current transaction. It makes the updates performed by the transaction permanent. After commiting a new transaction is automatically started.
+- **Rollback work** causes the current transaction to roll back. It undoes all the updates performed by the SQL statements in the transaction. An error during one SQL statement roll back the transaction completely.
+
+Generally, each SQL statement commits a separate transaction.
+Look up documentation for your specific DB on how to run multiple SQL commands as one transaction.
+
+### Constraint Checking
+
+Constraint checking during table creation:
+
+- **not null** constraint: `name varchar(20) not null`
+- **unique** constraint: `unique (A1, A2, ..., An)`, primary key are unique by default
+- foreign key constraint, already shown
+
+Check clause:
 
 ```sql
-SELECT A.CustomerName AS CustomerName1,
-B.CustomerName AS CustomerName2, A.City
-FROM Customers A, Customers B WHERE A.CustomerID <> B.CustomerID
-AND A.City = B.City ORDER BY A.City;
+create table section
+    (course_id  varchar(8) check (course_id > 0),       --syntax-1
+     sec_id     varchar(8),
+     semester   varchar(6),
+     foreign key(course_id) references course
+                 on delete cascade
+                 on update cascade,
+     check(semester in ('Fall', 'Winter', 'Summer')));  --syntax-2
 ```
 
-### `CASE`
+Due to foreign key constraint, deleting/update a row in the referenced table may cause referential integrity violation.
+Therefore, `on delete cascade` and `on update cascade` in the referencing table's foreign key field enables SQL to correct such violation.
+Note the word 'cascade', if there is a chain of foreign-key dependencing across multiple relations, the deletion or update will propagate.
+If a cascading update/delete causes a constraint violation that cannot be handled, the transaction will roll back.
 
-The `CASE` statement goes through conditions and returns a value when the first condition is met (like an IF-THEN-ELSE statement). So, once a condition is true, it will stop reading and return the result. If no conditions are true, it returns the value in the ELSE clause.
-If there is no ELSE part and no conditions are true, it returns NULL.
+One can also define more complex condition checks using **assertion**:
 
 ```sql
-CASE
-    WHEN condition1 THEN result1
-    WHEN condition2 THEN result2
-    WHEN conditionN THEN resultN
-    ELSE result
-END;
+create assertion <assertion-name> check (<predicate>)
 ```
 
-Examples:
+Look up your own docs for more info.
 
-```sql
-SELECT OrderID, Quantity,
-CASE
-    WHEN Quantity > 30 THEN "The quantity is greater than 30"
-    WHEN Quantity = 30 THEN "The quantity is 30"
-    ELSE "The quantity is under 30"
-END AS QuantityText
-FROM OrderDetails;
+## Additional SQL Features
 
-SELECT CustomerName, City, Country
-FROM Customers
-ORDER BY
-(CASE
-    WHEN City IS NULL THEN Country
-    ELSE City
-END);
-```
+This section outlines other less commonly seen SQL features.
 
-### Stored Procedures
+### Functions, Procedures, Recursion
 
-A stored procedure is a prepared SQL code that you can save, so the code can be reused over and over again.
-So if you have an SQL query that you write over and over again, save it as a stored procedure, and then just call it to execute it.
-You can also pass parameters to a stored procedure, so that the stored procedure can act based on the parameter value(s) that is passed.
+SQL can even support recursion.
+Search it up if you will.
+I won't bother going into it since it's just recursion in programming language with much more disgusting syntax.
+Look up doc for more info.
 
-```sql
--- to store procedure
-CREATE PROCEDURE procedure_name
-AS
-sql_statement
-GO;
+### Triggers
 
--- to execute stored procedure
-EXEC procedure_name;
+### Programming Language Integration
 
--- to store procedure with parameter
-CREATE PROCEDURE SelectAllCustomers @City nvarchar(30)
-AS
-SELECT * FROM Customers WHERE City = @City
-GO;
-
--- to execute procedure with parameter
-EXEC SelectAllCustomers City = "London";
-```
+### OLAP
