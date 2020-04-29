@@ -25,15 +25,19 @@
       - [Outer Joins](#outer-joins)
       - [Self Join](#self-join)
     - [Aggregation](#aggregation)
+      - [Rank, Partition](#rank-partition)
+      - [Window Query](#window-query)
     - [Views](#views)
     - [Index Creation](#index-creation)
     - [Transactions, Commit and Rollback](#transactions-commit-and-rollback)
     - [Constraint Checking](#constraint-checking)
   - [Additional SQL Features](#additional-sql-features)
     - [Functions, Procedures, Recursion](#functions-procedures-recursion)
-    - [Triggers](#triggers)
     - [Programming Language Integration](#programming-language-integration)
+      - [External Language Routines](#external-language-routines)
+    - [Triggers](#triggers)
     - [OLAP](#olap)
+      - [Cube, Rollup](#cube-rollup)
 
 ## Relational Query Language
 
@@ -472,6 +476,66 @@ select A1, A2, max(A3) from r
 
 Only attributes present in `group by` clause may appear in `select` statement without aggregate function.
 
+#### Rank, Partition
+
+`rank()` is used for efficiency, removing the need for aggregation:
+
+```sql
+select ID, rank() over (order by (GPA) desc) as s_rank
+    from student_grades
+    limit 10;   --optional
+
+select ID, ntile(4) over (order by (GPA) desc) as quartile
+    from student_grades;
+
+select ID, rank() over (order by (GPA) desc nulls last) as s_rank
+    from student_grades;
+
+select ID, dept_name,
+        rank() over (partition by dept_name order by GPA desc) as dept_rank
+    from dept_grades
+    order by  dept_name, dept_rank;
+```
+
+Other functions that can be used in place of rank:
+
+- `percent_rank()`: rank of tuple as fraction
+- `cume_dist()`: cumulative distribution
+- `row_number()`: start from 1
+- `ntile()`: buckets
+
+#### Window Query
+
+Window queries compute aggregate function over ranges of tuples, for all tuples.
+
+```sql
+select year, avg(num_credits)
+        over (order by year rows 3 preceding)           --avg-up-to-3-preceding
+        as avg_total_credits
+    from tot_credits;
+
+select year, avg(num_credits)
+        over (order by year rows unbounded preceding)   --avg-all-preceding
+        as avg_total_credits
+    from tot_credits;
+
+select year, avg(num_credits)
+        over (order by year rows between 3 preceding and 2 following)
+        as avg_total_credits
+    from tot_credits;
+
+select year, avg(num_credits)
+        over (order by year rows between year -4 and year)
+        as avg_total_credits
+    from tot_credits;
+
+select dept_name, year, avg(num_credits)
+        over (partition by dept_name
+            order by year rows between 3 preceding and current row)
+        as avg_total_credits    --treating departments separately
+    from tot_credits_dept;
+```
+
 ### Views
 
 **Views** are "virtual relations" that can be placed wherever a relation may appear.
@@ -549,13 +613,214 @@ This section outlines other less commonly seen SQL features.
 
 ### Functions, Procedures, Recursion
 
+SQL support single statement and compound statement (`begin ... end`).
+Functions, loops and conditions all have 1 slot for single statement or compound statement.
+
+Functions:
+
+```sql
+create function dept_count(dept_name varchar(20))   --parameter
+    returns integer                                 --return-type
+    begin
+    declare d_count integer;                        --local-variable
+        select count(*) into d_count                --var-assignment
+        from instructor
+        where instructor.dept_name=dept_name
+    return d_count;                                 --return
+    end
+
+create function instructors_of(dept_name varchar(20))
+    returns table (                                 --return-table
+        ID varchar(5),
+        dept_name varchar(20))
+    return table
+        (select ID, dept_name from instructor
+            where instructor.dpt_name=instructor_of.dept_name)
+```
+
+Procedures:
+
+```sql
+create procedure dept_count_proc(in dept_name varchar(20),
+                                 out d_count integer)
+    begin
+        select count(*) into d_count
+        from instructor
+        where instructor.dept_name=dept_count_proc.dept_name
+    end
+
+declare d_count integer;
+call dept_count('Physics', d_count);    --return-by-ref
+```
+
+Iterations:
+
+```sql
+while <bool expression> do          --while
+    <whatever>
+end while
+
+repeat                              --do-while
+    <whatever>
+until <bool expression>
+end repeat
+
+declare n integer default 0;
+for r as                            --for
+    select budget from department
+    where dept_name='Music'
+do
+    set n = n-r.budget
+end for
+```
+
+Condition branching:
+
+```sql
+if <bool expression>
+    then <whatever>
+elseif <bool expression>
+    then <whatever>
+else <whatever>
+end if
+```
+
 SQL can even support recursion.
 Search it up if you will.
 I won't bother going into it since it's just recursion in programming language with much more disgusting syntax.
 Look up doc for more info.
 
-### Triggers
-
 ### Programming Language Integration
 
+Generally, DB has programming language client that utilizes api to connect and executes the SQL statements.
+
+Generall, the following objects are included:
+
+- **Driver** must be loaded before connecting to DB, this specifies what DB the user is working with, e.g. PostgreSQL.
+- **Connection**: makes connection to DB, with credentials
+- **Statement**: executes raw SQL statement: `execute_query` executes a query whereas `execute_update` executes non-query statements (update, insert, delete, create table, etc.)
+  - **Prepared Statement**: DB compiles the query with unknown '?' values; each time the query is executed, DB will simply apply new values. Example: `insert into r values(?,?,?)`
+  - **Callable Statement**: allows invocation of SQL stored procedures and functions.
+- **Result Set**: query returns a set.
+- **Result metadata**: from the result set, provide information about the table, e.g. column name, column type, etc.
+
+Note that `execute_query` or `execute_update` can only execute one single SQL statement at a time to prevent SQL injection attack.
+
+![programming-language](https://i.imgur.com/pZJumWq.png)
+
+#### External Language Routines
+
+This allows one to call C/C++ function in SQL.
+However, don't use unless necessary because security risks.
+
+```sql
+create procedure dept_count_proc(in dept_name varchar(20),
+                                 out count integer)
+language C
+external name '/usr/avi/bin/dept_count_proc'
+
+create function dept_count(dept_name varchar(20))
+returns integer
+language C
+external name '/usr/avi/bin/dept_count'
+```
+
+### Triggers
+
+A trigger is a statement that system executes automatically from a modification to the DB.
+It is like git hook, and can execute before/after the modification.
+Trigger is very powerful but modern DB don't use it that often, because actions like DB backup will often cause undesired trigger actions.
+
+```sql
+create trigger t1 after update of takes on (grade)
+    referencing new row as nrow     --new row as variable
+    referencing old row as orow     --old row as variable
+    for each row
+        when nrow.grade<>'F'        --condition
+        begin atomic                --atomic-transaction
+            update student
+                set total_cred=-1
+        end;
+```
+
+Read doc for more info.
+
 ### OLAP
+
+**Online analytical processing** (OLAP) provides online (input->feedback) way to view **multidimentional data** (data that can be modeled as dimention attributes and measure attributes).
+
+- **Dimension attributes**: specifies a tag that can be used for aggregation, e.g. color, type.
+- **Measure attributes**: measurement value, usually numerics.
+
+For example, a relation
+
+| type | color | value |
+| ---- | ----- | ----- |
+| A    | black | 5     |
+| B    | white | 6     |
+| A    | white | 3     |
+| B    | black | 4     |
+
+can be **pivoted** as 2D **cross-tabulation** or **pivot-table**:
+
+| type/color | black | white |
+| ---------- | ----- | ----- |
+| A          | 5     | 3     |
+| B          | 4     | 6     |
+
+3D data can be represented as **data cube**.
+One may **slice** or **dice** the cube by fixating one dimension.
+
+One can view the data at different levels of detail, these levels can be organized into a **hierachy**.
+The operation of making presented data more generic (less detailed) is called a **roll up**.
+The opposite operation to view more detailed data is called **drill down** (original table required).
+
+```sql
+select * from sales
+pivot (                             --not-official
+    sum(quantity)                   --measure-attribute
+    for color in ('dark','white')   --dimension-attribute
+)
+order by item_name;
+```
+
+The resulting table would be something like:
+
+| item_name | clothes_size | dark | white |
+| --------- | ------------ | ---- | ----- |
+
+Note that 'color' attribute is eliminated, and the 'quantity' attribute is specified as values under dark, white attributes.
+
+#### Cube, Rollup
+
+Consider the relation `sales (item_name, color, clothes_size, quantity)` where 'quantity' is the measure attribute.
+If we want to construct a data cube, we'll have to aggregate the sum for all sets/tuples in the **power set** of \{item_name, color, clothes_size\}.
+This means we'll have to aggregate 8 times manually!
+Luckily, `cube()` does it for us:
+
+```sql
+select item_name, color, clothes_size, sum(quantity)
+    from sales
+    group by cube(item_name, color, clothes_size);
+```
+
+For attributes that are not present in a particular grouping, null are used to fill in the empty attribute.
+
+Data cube relations tend to be very large.
+An alternative `rollup()` construct can be used to minimize footprint.
+
+```sql
+--to generate 4 groupings
+--{(item_name,color,clothes_size), (item_name,color), (item_name), ()}
+--note that the order of listed attribute matters!
+select item_name, color, clothes_size, sum(quantity)
+    from sales
+    group by rollup(item_name, color, clothes_size);
+
+--to generate 6 groupings
+--{(item_name,color,clothes_size), (item_name,color), (item_name),
+-- (color,clothes_size), (color), ()}
+select item_name, color, clothes_size, sum(quantity)
+    from sales
+    group by rollup(item_name), rollup(color, clothes_size);
+```
