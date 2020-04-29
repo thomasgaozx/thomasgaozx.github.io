@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+    <html>
+        <head>
+            <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+
+            <title>Database Systems</title>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+            <script src="/js/init.js"></script>
+        </head>
+    <body class="vscode-light">
+        <h1 id="database-systems">Database Systems</h1>
+<ul>
+<li><a href="#database-systems">Database Systems</a>
+<ul>
+<li><a href="#relational-query-language">Relational Query Language</a>
+<ul>
+<li><a href="#prerequisite">Prerequisite</a></li>
+<li><a href="#relational-algebra">Relational Algebra</a></li>
+</ul>
+</li>
+<li><a href="#sql">SQL</a>
+<ul>
+<li><a href="#database-organization">Database Organization</a>
+<ul>
+<li><a href="#authorization">Authorization</a></li>
+</ul>
+</li>
+<li><a href="#supported-data-types">Supported Data Types</a>
+<ul>
+<li><a href="#blob-and-clob">blob and clob</a></li>
+<li><a href="#user-types">User Types</a></li>
+</ul>
+</li>
+<li><a href="#data-definition-language">Data Definition Language</a></li>
+<li><a href="#data-manipulation-language">Data Manipulation Language</a>
+<ul>
+<li><a href="#cartesian-product">Cartesian Product</a></li>
+<li><a href="#rename-operation">Rename Operation</a></li>
+<li><a href="#null-in-expressions">Null in Expressions</a></li>
+<li><a href="#construct-temporary-relation">Construct Temporary Relation</a></li>
+<li><a href="#update-attribute-values">Update Attribute Values</a></li>
+</ul>
+</li>
+<li><a href="#set-operations-and-nested-subquery">Set Operations and Nested Subquery</a>
+<ul>
+<li><a href="#correlated-subqueries">Correlated Subqueries</a></li>
+<li><a href="#scalar-subqueries">Scalar Subqueries</a></li>
+</ul>
+</li>
+<li><a href="#join">Join</a>
+<ul>
+<li><a href="#natural-join-vs-conditional-join">Natural Join vs Conditional Join</a></li>
+<li><a href="#outer-joins">Outer Joins</a></li>
+<li><a href="#self-join">Self Join</a></li>
+</ul>
+</li>
+<li><a href="#aggregation">Aggregation</a>
+<ul>
+<li><a href="#rank-partition">Rank, Partition</a></li>
+<li><a href="#window-query">Window Query</a></li>
+</ul>
+</li>
+<li><a href="#views">Views</a></li>
+<li><a href="#index-creation">Index Creation</a></li>
+<li><a href="#transactions-commit-and-rollback">Transactions, Commit and Rollback</a></li>
+<li><a href="#constraint-checking">Constraint Checking</a></li>
+</ul>
+</li>
+<li><a href="#additional-sql-features">Additional SQL Features</a>
+<ul>
+<li><a href="#functions-procedures-recursion">Functions, Procedures, Recursion</a></li>
+<li><a href="#programming-language-integration">Programming Language Integration</a>
+<ul>
+<li><a href="#external-language-routines">External Language Routines</a></li>
+</ul>
+</li>
+<li><a href="#triggers">Triggers</a></li>
+<li><a href="#olap">OLAP</a>
+<ul>
+<li><a href="#cube-rollup">Cube, Rollup</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="relational-query-language">Relational Query Language</h2>
+<h3 id="prerequisite">Prerequisite</h3>
+<p>Relation components:</p>
+<ul>
+<li><strong>Relation</strong> is table.</li>
+<li><strong>Tuple</strong> is a row of the table.</li>
+<li><strong>Attribute</strong> is a column.</li>
+</ul>
+<p>Relation keys:</p>
+<ul>
+<li><strong>Superkey</strong> is a set of attributes that can identify a unique tuple. <strong>Candidate key</strong> is a minimal superkey with no extraneous attributes.</li>
+<li><strong>Primary key</strong> is a candidate key that is the designated means of tuple identification.</li>
+<li><strong>Foreign key</strong> references the primary key of another relation.
+<ul>
+<li><strong>Referencing relation</strong> has the foreign key.</li>
+<li><strong>Referenced relation</strong>'s primary key is referenced.</li>
+</ul>
+</li>
+</ul>
+<p>Relation rules:</p>
+<ul>
+<li><strong>Domain atomicity</strong> states the domain of any attribute must be indivisible (fixed size, statically allocated), with <em>null</em> value being an exception.</li>
+<li><strong>Foreign key constraint</strong> states that the referencing relation's foreign key must be the primary key of the referenced relation. All referenced values must exist in the referenced relation without duplicate.</li>
+<li><strong>Referential integrity constraint</strong> states that all referenced value must exist in the referenced relation (duplicate allowed).</li>
+</ul>
+<p>Database schemas:</p>
+<ul>
+<li><strong>Relation schemas</strong> outlines all attributes of a relation, including primary keys (underlined), and foreign keys(pointed by arrows)</li>
+<li><strong>Database schemas</strong> shows the relation schemas and the interaction between them.</li>
+</ul>
+<h3 id="relational-algebra">Relational Algebra</h3>
+<ul>
+<li><strong>Selection</strong>, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mtext>predicate</mtext></msub><mo stretchy="false">(</mo><mtext>table</mtext><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\sigma_\textrm{predicate}(\textrm{table})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.036108em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">σ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">predicate</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord text"><span class="mord textrm">table</span></span><span class="mclose">)</span></span></span></span>: return rows of the input relation that satisfy the predicate.</li>
+<li><strong>Projection</strong>, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Π</mi><mtext>attributes</mtext></msub><mo stretchy="false">(</mo><mtext>table</mtext><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\Pi_\textrm{attributes}(\textrm{table})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord">Π</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">attributes</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord text"><span class="mord textrm">table</span></span><span class="mclose">)</span></span></span></span>: return specified attributes from all rows of the input relation. Remove duplicate tuples from the output.</li>
+<li><strong>Natural Join</strong>, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>table1</mtext><mo>⋈</mo><mtext>table2</mtext></mrow><annotation encoding="application/x-tex">\textrm{table1} \bowtie \textrm{table2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69944em;vertical-align:-0.005em;"></span><span class="mord text"><span class="mord textrm">table1</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">⋈</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord text"><span class="mord textrm">table2</span></span></span></span></span>: returns pairs of rows from two input relations that have the same value on all attributes that have the same name.</li>
+<li><strong>Cartesian Product</strong>, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>table1</mtext><mo>×</mo><mtext>table2</mtext></mrow><annotation encoding="application/x-tex">\textrm{table1} \times\textrm{table2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.77777em;vertical-align:-0.08333em;"></span><span class="mord text"><span class="mord textrm">table1</span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord text"><span class="mord textrm">table2</span></span></span></span></span>: returns all pairs of rows from the two input relations</li>
+<li><strong>Union</strong>, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Π</mi><mtext>attributes</mtext></msub><mo stretchy="false">(</mo><mtext>table1</mtext><mo stretchy="false">)</mo><mo>∪</mo><msub><mi mathvariant="normal">Π</mi><mtext>attributes</mtext></msub><mo stretchy="false">(</mo><mtext>table2</mtext><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\Pi_\textrm{attributes}(\textrm{table1}) \cup\Pi_\textrm{attributes}(\textrm{table2})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord">Π</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">attributes</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord text"><span class="mord textrm">table1</span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">∪</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord">Π</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">attributes</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord text"><span class="mord textrm">table2</span></span><span class="mclose">)</span></span></span></span>: returns the union of tuples from the two input relations.</li>
+</ul>
+<h2 id="sql">SQL</h2>
+<h3 id="database-organization">Database Organization</h3>
+<p>Like a file system, modern database systems provide a three-level hierachy for naming relations.
+The top level of the hierachy consists of <strong>catalogs</strong>, each of which contains <strong>schemas</strong>.
+Schemas contain <strong>SQL objects</strong> (e.g. relations, views).</p>
+<p>One can identify a relation using the full path, for example, <code>catalog5.univ_schema.course</code>.</p>
+<p>Each user has a <strong>SQL environment</strong> that is set up for each connection.
+The SQL environment contains info like default catalog and schema.</p>
+<p>One can also <code>create schema</code> or <code>drop schema</code>, do try it at home.</p>
+<h4 id="authorization">Authorization</h4>
+<p>DB administrator can grant/revoke <code>select</code>, <code>insert</code>, <code>update</code>, and <code>delete</code> privileges to DB user, and can grant users to pass on these privileges to other users.
+Basically,</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">grant</span> &lt;privilege <span class="hljs-keyword">list</span>&gt;
+<span class="hljs-keyword">on</span> &lt;relation <span class="hljs-keyword">name</span> <span class="hljs-keyword">or</span> <span class="hljs-keyword">view</span> <span class="hljs-keyword">name</span>&gt;
+<span class="hljs-keyword">to</span> &lt;<span class="hljs-keyword">user</span>/<span class="hljs-keyword">role</span> <span class="hljs-keyword">list</span>&gt;
+<span class="hljs-keyword">with</span> <span class="hljs-keyword">grant</span> <span class="hljs-keyword">option</span>;          <span class="hljs-comment">--option: to allow passing on permission</span>
+
+<span class="hljs-keyword">revoke</span> &lt;privilege <span class="hljs-keyword">list</span>&gt;
+<span class="hljs-keyword">on</span> &lt;relation <span class="hljs-keyword">name</span> <span class="hljs-keyword">or</span> <span class="hljs-keyword">view</span> <span class="hljs-keyword">name</span>&gt;
+<span class="hljs-keyword">from</span> &lt;<span class="hljs-keyword">user</span>/<span class="hljs-keyword">role</span> <span class="hljs-keyword">list</span>&gt;;
+
+revote <span class="hljs-keyword">grant</span> <span class="hljs-keyword">option</span>
+<span class="hljs-keyword">for</span> &lt;privilege <span class="hljs-keyword">list</span>&gt;
+<span class="hljs-keyword">on</span> &lt;relation <span class="hljs-keyword">name</span> <span class="hljs-keyword">or</span> <span class="hljs-keyword">view</span> <span class="hljs-keyword">name</span>&gt;
+<span class="hljs-keyword">from</span> &lt;<span class="hljs-keyword">user</span>/<span class="hljs-keyword">role</span> <span class="hljs-keyword">list</span>&gt;;      <span class="hljs-comment">--option: can no longer pass on permission</span>
+</div></code></pre>
+<p>The special user name <strong>public</strong> refers to all current and future user of the system, so do be careful.</p>
+<p>Granting individual users authorization can be repetitive, therefore DB administrator can create roles.
+Users granted the role <code>role_name</code> must run <code>set role role_name</code> to assume the role.</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">create</span> <span class="hljs-keyword">role</span> instructor;
+</div></code></pre>
+<p>DB admin can also grant foreign-key permission on specific schema attribute. See doc for more.</p>
+<h3 id="supported-data-types">Supported Data Types</h3>
+<p>SQL supports char(n), varchar(n), int, smallint, numeric(p, d), double, float, and datetime.</p>
+<h4 id="blob-and-clob">blob and clob</h4>
+<p>Database applications may need large attribute to store <strong>l</strong>arge <strong>ob</strong>jects (*lob).
+SQL has large-object data types for character data (<strong>clob</strong>) or binary data (<strong>blob</strong>).</p>
+<pre><code class="language-sql"><div>dialog  clob(5KB)
+image   blob(5MB)
+game    blob(50GB)
+</div></code></pre>
+<p>It is inefficient to retrieve the entire large object in memory.
+Applications usually use SQL query to retrieve a locator for the large object and then &quot;paginate&quot; the actual large object.</p>
+<h4 id="user-types">User Types</h4>
+<p>User types are based on an actual type, but are strongly typed.</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">create</span> <span class="hljs-keyword">type</span> Dollars <span class="hljs-keyword">as</span> <span class="hljs-built_in">numeric</span>(<span class="hljs-number">12</span>,<span class="hljs-number">2</span>) <span class="hljs-keyword">final</span>;
+<span class="hljs-keyword">create</span> <span class="hljs-keyword">type</span> Pounds <span class="hljs-keyword">as</span> <span class="hljs-built_in">numeric</span>(<span class="hljs-number">12</span>,<span class="hljs-number">2</span>) <span class="hljs-keyword">final</span>;
+
+<span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> department
+    (dept_name  <span class="hljs-built_in">varchar</span>(<span class="hljs-number">20</span>),
+    budget      Dollars);
+</div></code></pre>
+<p>One can <code>cast (department.budget to numeric(12,2))</code> to convert the <code>Dollar</code> type back to <code>numeric</code> type.</p>
+<p>Before user-defined types, there were <strong>domain</strong> which operates the same except 1) domains can have constraints 2) domains are not strongly typed. Look up docs on domain if interested.</p>
+<h3 id="data-definition-language">Data Definition Language</h3>
+<p>Create table:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> course
+    (course_id  <span class="hljs-built_in">varchar</span>(<span class="hljs-number">7</span>),
+    title       <span class="hljs-built_in">varchar</span>(<span class="hljs-number">50</span>),
+    dept_name   <span class="hljs-built_in">varchar</span>(<span class="hljs-number">20</span>),
+    credit      <span class="hljs-built_in">numeric</span>(<span class="hljs-number">2</span>,<span class="hljs-number">0</span>) <span class="hljs-keyword">default</span> <span class="hljs-number">0</span>,       <span class="hljs-comment">--if not specified in insert</span>
+    primary <span class="hljs-keyword">key</span> (course_id, title),                 <span class="hljs-comment">--integrity-constraint</span>
+    <span class="hljs-keyword">foreign</span> <span class="hljs-keyword">key</span> (dept_name) <span class="hljs-keyword">references</span> department); <span class="hljs-comment">--integrity-constraint</span>
+
+<span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> tmp <span class="hljs-keyword">like</span> instructor;   <span class="hljs-comment">--creates an empty table with schema</span>
+
+<span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> t1 <span class="hljs-keyword">as</span>
+    (<span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> instructor)
+    <span class="hljs-keyword">with</span> <span class="hljs-keyword">data</span>;                      <span class="hljs-comment">--populate the otherwise empty table</span>
+</div></code></pre>
+<p>Insert rows:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> course
+    <span class="hljs-keyword">value</span> (<span class="hljs-string">'id'</span>, <span class="hljs-string">'title'</span>, <span class="hljs-string">'eng'</span>, <span class="hljs-number">1</span>);
+<span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> course (title, course_id, credits, dept_name) <span class="hljs-comment">--whatever-order</span>
+    <span class="hljs-keyword">values</span> (<span class="hljs-string">'Database Systems'</span>, <span class="hljs-string">'CS-437'</span>, <span class="hljs-number">4</span>, <span class="hljs-string">'Comp. Sci.'</span>);
+
+<span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> instructor
+    <span class="hljs-keyword">select</span> <span class="hljs-keyword">ID</span>, <span class="hljs-keyword">name</span>, dept_name, <span class="hljs-number">18000</span>
+    <span class="hljs-keyword">from</span> student
+    <span class="hljs-keyword">where</span> tot_cred &gt; <span class="hljs-number">144</span>;
+</div></code></pre>
+<p>In the last case, the <code>select</code> clause is evaluated completely before any insertion occurs.</p>
+<p>Delete rows:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">delete</span> <span class="hljs-keyword">from</span> r; <span class="hljs-comment">--delete all rows</span>
+<span class="hljs-keyword">delete</span> <span class="hljs-keyword">from</span> r
+    <span class="hljs-keyword">where</span> P;
+</div></code></pre>
+<p>Delete table:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">drop</span> <span class="hljs-keyword">table</span> r;
+</div></code></pre>
+<p>Alter attribute:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">alter</span> <span class="hljs-keyword">table</span> r <span class="hljs-keyword">add</span> A D;  <span class="hljs-comment">--A=attr_name, D=type</span>
+<span class="hljs-keyword">alter</span> <span class="hljs-keyword">table</span> r <span class="hljs-keyword">drop</span> A;   <span class="hljs-comment">--remote attribute A</span>
+</div></code></pre>
+<p>4.5.6 Create table extensions</p>
+<h3 id="data-manipulation-language">Data Manipulation Language</h3>
+<p>Simple query:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> A <span class="hljs-keyword">from</span> r;            <span class="hljs-comment">--duplicate</span>
+<span class="hljs-keyword">select</span> <span class="hljs-keyword">all</span> A <span class="hljs-keyword">from</span> r;        <span class="hljs-comment">--explicit-duplicate</span>
+<span class="hljs-keyword">select</span> <span class="hljs-keyword">distinct</span> A <span class="hljs-keyword">from</span> r;   <span class="hljs-comment">--no-duplicate</span>
+</div></code></pre>
+<p>Query with condition and order:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> dept_name, salary*<span class="hljs-number">1.1</span>
+    <span class="hljs-keyword">from</span> instructor
+    <span class="hljs-keyword">where</span> dept_name <span class="hljs-keyword">like</span> <span class="hljs-string">'%eng%'</span> <span class="hljs-keyword">and</span> salary <span class="hljs-keyword">between</span> <span class="hljs-number">90</span> <span class="hljs-keyword">and</span> <span class="hljs-number">100</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">ID</span>&lt;&gt;<span class="hljs-number">0</span>
+    <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> depart_name <span class="hljs-keyword">desc</span>, salary <span class="hljs-keyword">asc</span>;
+</div></code></pre>
+<p><code>like</code> is used for pattern string pattern matching:</p>
+<ul>
+<li><code>%</code> matches substring</li>
+<li><code>_</code> matches any character</li>
+</ul>
+<p><code>order by</code> list items in ascending order by default.</p>
+<h4 id="cartesian-product">Cartesian Product</h4>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> A1, A2, An
+    <span class="hljs-keyword">from</span> E1, E2, Em; <span class="hljs-comment">--cartisian-product</span>
+
+<span class="hljs-keyword">select</span> <span class="hljs-keyword">name</span>, title
+    <span class="hljs-keyword">from</span> instructor <span class="hljs-keyword">natural</span> <span class="hljs-keyword">join</span> teaches, course
+    <span class="hljs-keyword">where</span> teaches.course_id=course.course_id;
+</div></code></pre>
+<p>where <code>E1, E2, Em</code> can be a single relation or an expression of natural joins.</p>
+<p>It is worth noting that as a special case, the following two expressions are equivalent:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> <span class="hljs-keyword">name</span>, course_id
+    <span class="hljs-keyword">from</span> instructor, teaches
+    <span class="hljs-keyword">where</span> instructor.ID=teaches.ID;
+
+<span class="hljs-keyword">select</span> <span class="hljs-keyword">name</span>, course_id
+    <span class="hljs-keyword">from</span> instructor <span class="hljs-keyword">natural</span> <span class="hljs-keyword">join</span> teaches;
+</div></code></pre>
+<h4 id="rename-operation">Rename Operation</h4>
+<p>Renaming attributes:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> A <span class="hljs-keyword">as</span> <span class="hljs-keyword">attr</span>
+    <span class="hljs-keyword">from</span> r;
+</div></code></pre>
+<p>Renaming relations:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> T.name, S.course_id
+    <span class="hljs-keyword">from</span> instructor <span class="hljs-keyword">as</span> T, teaches <span class="hljs-keyword">as</span> S
+    <span class="hljs-keyword">where</span> T.ID=S.ID;
+</div></code></pre>
+<p>The <code>T, S</code> alias is called <strong>correlation name</strong>, <strong>table alias</strong>, <strong>correlation variable</strong>, or a <strong>tuple variable</strong>.</p>
+<h4 id="null-in-expressions">Null in Expressions</h4>
+<ul>
+<li><code>1 &lt; null</code> evaluates to 'unknown'</li>
+<li><code>and</code>/<code>or</code> involving null/'unknown' evaluates 'unknown', with 2 exceptions:
+<ul>
+<li>false <code>and</code> 'unknown' evaluates to false</li>
+<li>true <code>or</code> 'unknown' evaluates to true</li>
+</ul>
+</li>
+<li><code>not</code> 'unknown' evaluates to unknown</li>
+<li><code>is null</code> evaluates to boolean</li>
+</ul>
+<p>'unknown' is a third logical value created to deal with null value.
+It eventually evaluates to false.</p>
+<h4 id="construct-temporary-relation">Construct Temporary Relation</h4>
+<pre><code class="language-sql"><div><span class="hljs-keyword">with</span> dept_total (dept_name, <span class="hljs-keyword">value</span>) <span class="hljs-keyword">as</span>   <span class="hljs-comment">--first-temp-table</span>
+    (<span class="hljs-keyword">select</span> dept_name, <span class="hljs-keyword">sum</span>(salary)
+    <span class="hljs-keyword">from</span> instructor
+    <span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> dept_name),
+dept_total_avg(<span class="hljs-keyword">value</span>) <span class="hljs-keyword">as</span>                <span class="hljs-comment">--second-temp-table</span>
+    (<span class="hljs-keyword">select</span> <span class="hljs-keyword">avg</span>(<span class="hljs-keyword">value</span>)
+    <span class="hljs-keyword">from</span> dept_total)
+<span class="hljs-keyword">select</span> dept_name
+    <span class="hljs-keyword">from</span> dept_total, dept_total_avg
+    <span class="hljs-keyword">where</span> dept_total.value &gt;= dept_total_avg.value;
+</div></code></pre>
+<h4 id="update-attribute-values">Update Attribute Values</h4>
+<pre><code class="language-sql"><div><span class="hljs-keyword">update</span> instructor
+    <span class="hljs-keyword">set</span> salary=salary*<span class="hljs-number">1.1</span>;
+
+<span class="hljs-keyword">update</span> instructor
+    <span class="hljs-keyword">set</span> salary = <span class="hljs-keyword">case</span>
+                    <span class="hljs-keyword">when</span> salary &lt;= <span class="hljs-number">100000</span> <span class="hljs-keyword">then</span> salary * <span class="hljs-number">1.05</span>
+                    <span class="hljs-keyword">else</span> salary * <span class="hljs-number">1.03</span>
+                 <span class="hljs-keyword">end</span>
+</div></code></pre>
+<h3 id="set-operations-and-nested-subquery">Set Operations and Nested Subquery</h3>
+<p>Basic set operation:</p>
+<pre><code class="language-sql"><div>r1 union r2;            <span class="hljs-comment">--no-duplicate</span>
+r1 union all r2;        <span class="hljs-comment">--duplicate</span>
+r1 intersect r2;        <span class="hljs-comment">--no-duplicate</span>
+r1 intersect all r2;    <span class="hljs-comment">--duplicate</span>
+r1 except r2;           <span class="hljs-comment">--no-duplicate</span>
+r1 except all r2;       <span class="hljs-comment">--duplicate</span>
+</div></code></pre>
+<p>Test membership:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> <span class="hljs-keyword">distinct</span> A
+    <span class="hljs-keyword">from</span> r1
+    <span class="hljs-keyword">where</span> A <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> r2; <span class="hljs-comment">--r2 can be a nested subquery</span>
+</div></code></pre>
+<p>Set comparison:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> <span class="hljs-keyword">name</span>
+    <span class="hljs-keyword">from</span> instructor
+    <span class="hljs-keyword">where</span> salary &gt; <span class="hljs-keyword">some</span>(<span class="hljs-keyword">select</span> salary
+                        <span class="hljs-keyword">from</span> instructor
+                        <span class="hljs-keyword">where</span> dept_name = <span class="hljs-string">'bio'</span>)
+<span class="hljs-keyword">select</span> <span class="hljs-keyword">name</span>
+    <span class="hljs-keyword">from</span> instructor
+    <span class="hljs-keyword">where</span> salary &gt; <span class="hljs-keyword">all</span>(r2)
+</div></code></pre>
+<h4 id="correlated-subqueries">Correlated Subqueries</h4>
+<p>Test empty:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> course_id
+    <span class="hljs-keyword">from</span> <span class="hljs-keyword">section</span> <span class="hljs-keyword">as</span> S
+    <span class="hljs-keyword">where</span> semester=<span class="hljs-string">'Fall'</span> <span class="hljs-keyword">and</span>
+        <span class="hljs-keyword">exists</span> (<span class="hljs-keyword">select</span> *
+                <span class="hljs-keyword">from</span> <span class="hljs-keyword">section</span> <span class="hljs-keyword">as</span> T
+                <span class="hljs-keyword">where</span> semester=<span class="hljs-string">'Spring'</span> <span class="hljs-keyword">and</span>
+                    S.course_id=T.course_id);   <span class="hljs-comment">--correlated subquery</span>
+</div></code></pre>
+<p>Note that a subquery that uses a correlation name from an outer query is <strong>correlated subquery</strong>.
+Subqueries in the <code>from</code> clause do not support correlated subquery!</p>
+<p>Test containment: we could use <code>not exists (B except A)</code> to test that &quot;relation A contains relation B&quot;</p>
+<p>Test duplicate using <code>unique</code>:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> T.course_id
+    <span class="hljs-keyword">from</span> course <span class="hljs-keyword">as</span> T
+    <span class="hljs-keyword">where</span> <span class="hljs-keyword">unique</span> (<span class="hljs-keyword">select</span> course_id <span class="hljs-keyword">from</span> <span class="hljs-keyword">section</span> <span class="hljs-keyword">as</span> R
+                  <span class="hljs-keyword">where</span> T.course_id= R.course_id <span class="hljs-keyword">and</span>
+                        R.year = <span class="hljs-number">2009</span>);
+</div></code></pre>
+<p>Note that <code>unique</code> evaluates to true on an empty set.</p>
+<h4 id="scalar-subqueries">Scalar Subqueries</h4>
+<p>SQL allows <strong>scalar subqueries</strong> (1 tuple, 1 attribute) to occur wherever a single value is permitted. Scalar subqueries can occur in <code>select</code>, <code>where</code>, or <code>having</code> clauses.</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> dept_name,
+        (<span class="hljs-keyword">select</span> <span class="hljs-keyword">count</span>(*)    <span class="hljs-comment">--scalar-subquery</span>
+         <span class="hljs-keyword">from</span> instructor
+         <span class="hljs-keyword">where</span> department.dept_name = instructor.dept_name)
+        <span class="hljs-keyword">as</span> num_instructors
+    <span class="hljs-keyword">from</span> department;
+</div></code></pre>
+<h3 id="join">Join</h3>
+<h4 id="natural-join-vs-conditional-join">Natural Join vs Conditional Join</h4>
+<p><strong>Natural join</strong> (<code>join ... using &lt;attributes&gt;</code>) joins together two relations. It considers only those pairs of tuples with the same value on those attributes that appear in the schemas of both relations. It then merge the pair and append to the return relation.</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> student <span class="hljs-keyword">natural</span> <span class="hljs-keyword">join</span> takes;           <span class="hljs-comment">--using-all-shared-attr</span>
+<span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> student <span class="hljs-keyword">join</span> takes <span class="hljs-keyword">using</span> (<span class="hljs-keyword">ID</span>);
+<span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> student <span class="hljs-keyword">inner</span> <span class="hljs-keyword">join</span> takes <span class="hljs-keyword">using</span> (<span class="hljs-keyword">ID</span>);  <span class="hljs-comment">--equivalent</span>
+</div></code></pre>
+<p><strong>Conditional Join</strong> (<code>join ... on &lt;conditions&gt;</code>) simply concatenates the attributes of the two relation as long as the join conditions are met.
+This means that certain attributes will appear twice.</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> *
+    <span class="hljs-keyword">from</span> student <span class="hljs-keyword">join</span> takes <span class="hljs-keyword">on</span> student.ID=takes.ID;
+
+<span class="hljs-comment">--in this case,the following query is equivalent</span>
+<span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> student, takes <span class="hljs-keyword">where</span> student.ID=takes.ID;
+</div></code></pre>
+<h4 id="outer-joins">Outer Joins</h4>
+<p>3 types of outer join:</p>
+<ul>
+<li><code>left outer join</code> preserves unmatched tuples in left-hand-side relation.</li>
+<li><code>right outer join</code> preserves unmatched tuples in right-hand-side relation.</li>
+<li><code>full outer join</code> preserves tuple in both relations.</li>
+</ul>
+<p>Left outer join are computed using these steps:</p>
+<ol>
+<li>perform inner join</li>
+<li>for all tuples on the left-hand-side relation that's unmatched (primary-key value not in result table): fill in known attribute values, and fill the rest with null</li>
+</ol>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> *
+<span class="hljs-keyword">from</span> takes <span class="hljs-keyword">natural</span> <span class="hljs-keyword">right</span> <span class="hljs-keyword">outer</span> <span class="hljs-keyword">join</span> student;
+</div></code></pre>
+<h4 id="self-join">Self Join</h4>
+<p>A self join a technique where the table is joined with itself.</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> column_name(s) <span class="hljs-keyword">from</span> table1 T1, table1 T2 <span class="hljs-keyword">where</span> condition;
+
+<span class="hljs-comment">--example: pairing instructors in the same department</span>
+<span class="hljs-keyword">select</span> I1.name, I2.name, I1.department
+<span class="hljs-keyword">from</span> instructor I1, instructor I2 <span class="hljs-keyword">where</span> I1.ID &lt;&gt; I2.ID
+<span class="hljs-keyword">and</span> I1.dept_name = I2.dept_name;
+</div></code></pre>
+<h3 id="aggregation">Aggregation</h3>
+<p>Basic aggregate functions include <code>avg</code>, <code>min</code>, <code>max</code>, <code>sum</code>, <code>count</code>.
+Aggregate functions <code>some</code>, <code>every</code> deals with boolean data type.</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> <span class="hljs-keyword">count</span>(*) <span class="hljs-keyword">from</span> r; <span class="hljs-comment">--counts-all-entries</span>
+
+<span class="hljs-keyword">select</span> A1, <span class="hljs-keyword">avg</span>(A2) <span class="hljs-keyword">from</span> r
+    <span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> A1;
+
+<span class="hljs-keyword">select</span> A1, A2, <span class="hljs-keyword">max</span>(A3) <span class="hljs-keyword">from</span> r
+    <span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> A1, A2         <span class="hljs-comment">--cartesian-product-grouping</span>
+    <span class="hljs-keyword">having</span> <span class="hljs-keyword">max</span>(A3) &gt; <span class="hljs-number">50</span>;
+</div></code></pre>
+<p>Only attributes present in <code>group by</code> clause may appear in <code>select</code> statement without aggregate function.</p>
+<h4 id="rank-partition">Rank, Partition</h4>
+<p><code>rank()</code> is used for efficiency, removing the need for aggregation:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> <span class="hljs-keyword">ID</span>, <span class="hljs-keyword">rank</span>() <span class="hljs-keyword">over</span> (<span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> (GPA) <span class="hljs-keyword">desc</span>) <span class="hljs-keyword">as</span> s_rank
+    <span class="hljs-keyword">from</span> student_grades
+    <span class="hljs-keyword">limit</span> <span class="hljs-number">10</span>;   <span class="hljs-comment">--optional</span>
+
+<span class="hljs-keyword">select</span> <span class="hljs-keyword">ID</span>, ntile(<span class="hljs-number">4</span>) <span class="hljs-keyword">over</span> (<span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> (GPA) <span class="hljs-keyword">desc</span>) <span class="hljs-keyword">as</span> quartile
+    <span class="hljs-keyword">from</span> student_grades;
+
+<span class="hljs-keyword">select</span> <span class="hljs-keyword">ID</span>, <span class="hljs-keyword">rank</span>() <span class="hljs-keyword">over</span> (<span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> (GPA) <span class="hljs-keyword">desc</span> <span class="hljs-keyword">nulls</span> <span class="hljs-keyword">last</span>) <span class="hljs-keyword">as</span> s_rank
+    <span class="hljs-keyword">from</span> student_grades;
+
+<span class="hljs-keyword">select</span> <span class="hljs-keyword">ID</span>, dept_name,
+        <span class="hljs-keyword">rank</span>() <span class="hljs-keyword">over</span> (<span class="hljs-keyword">partition</span> <span class="hljs-keyword">by</span> dept_name <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> GPA <span class="hljs-keyword">desc</span>) <span class="hljs-keyword">as</span> dept_rank
+    <span class="hljs-keyword">from</span> dept_grades
+    <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span>  dept_name, dept_rank;
+</div></code></pre>
+<p>Other functions that can be used in place of rank:</p>
+<ul>
+<li><code>percent_rank()</code>: rank of tuple as fraction</li>
+<li><code>cume_dist()</code>: cumulative distribution</li>
+<li><code>row_number()</code>: start from 1</li>
+<li><code>ntile()</code>: buckets</li>
+</ul>
+<h4 id="window-query">Window Query</h4>
+<p>Window queries compute aggregate function over ranges of tuples, for all tuples.</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> <span class="hljs-keyword">year</span>, <span class="hljs-keyword">avg</span>(num_credits)
+        <span class="hljs-keyword">over</span> (<span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> <span class="hljs-keyword">year</span> <span class="hljs-keyword">rows</span> <span class="hljs-number">3</span> <span class="hljs-keyword">preceding</span>)           <span class="hljs-comment">--avg-up-to-3-preceding</span>
+        <span class="hljs-keyword">as</span> avg_total_credits
+    <span class="hljs-keyword">from</span> tot_credits;
+
+<span class="hljs-keyword">select</span> <span class="hljs-keyword">year</span>, <span class="hljs-keyword">avg</span>(num_credits)
+        <span class="hljs-keyword">over</span> (<span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> <span class="hljs-keyword">year</span> <span class="hljs-keyword">rows</span> <span class="hljs-keyword">unbounded</span> <span class="hljs-keyword">preceding</span>)   <span class="hljs-comment">--avg-all-preceding</span>
+        <span class="hljs-keyword">as</span> avg_total_credits
+    <span class="hljs-keyword">from</span> tot_credits;
+
+<span class="hljs-keyword">select</span> <span class="hljs-keyword">year</span>, <span class="hljs-keyword">avg</span>(num_credits)
+        <span class="hljs-keyword">over</span> (<span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> <span class="hljs-keyword">year</span> <span class="hljs-keyword">rows</span> <span class="hljs-keyword">between</span> <span class="hljs-number">3</span> <span class="hljs-keyword">preceding</span> <span class="hljs-keyword">and</span> <span class="hljs-number">2</span> <span class="hljs-keyword">following</span>)
+        <span class="hljs-keyword">as</span> avg_total_credits
+    <span class="hljs-keyword">from</span> tot_credits;
+
+<span class="hljs-keyword">select</span> <span class="hljs-keyword">year</span>, <span class="hljs-keyword">avg</span>(num_credits)
+        <span class="hljs-keyword">over</span> (<span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> <span class="hljs-keyword">year</span> <span class="hljs-keyword">rows</span> <span class="hljs-keyword">between</span> <span class="hljs-keyword">year</span> <span class="hljs-number">-4</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">year</span>)
+        <span class="hljs-keyword">as</span> avg_total_credits
+    <span class="hljs-keyword">from</span> tot_credits;
+
+<span class="hljs-keyword">select</span> dept_name, <span class="hljs-keyword">year</span>, <span class="hljs-keyword">avg</span>(num_credits)
+        <span class="hljs-keyword">over</span> (<span class="hljs-keyword">partition</span> <span class="hljs-keyword">by</span> dept_name
+            <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> <span class="hljs-keyword">year</span> <span class="hljs-keyword">rows</span> <span class="hljs-keyword">between</span> <span class="hljs-number">3</span> <span class="hljs-keyword">preceding</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">current</span> <span class="hljs-keyword">row</span>)
+        <span class="hljs-keyword">as</span> avg_total_credits    <span class="hljs-comment">--treating departments separately</span>
+    <span class="hljs-keyword">from</span> tot_credits_dept;
+</div></code></pre>
+<h3 id="views">Views</h3>
+<p><strong>Views</strong> are &quot;virtual relations&quot; that can be placed wherever a relation may appear.
+The virtual relation executes its query whenever it is used.</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">create</span> <span class="hljs-keyword">view</span> v <span class="hljs-keyword">as</span> &lt;<span class="hljs-keyword">query</span> expression&gt;;
+
+<span class="hljs-keyword">create</span> <span class="hljs-keyword">view</span> faculty <span class="hljs-keyword">as</span>
+    <span class="hljs-keyword">select</span> <span class="hljs-keyword">ID</span>, <span class="hljs-keyword">name</span>, dept_name <span class="hljs-keyword">from</span> instructor;
+</div></code></pre>
+<p><strong>Materialized views</strong> stores the view relations (as duplicate), but make sure if the view definition change, the view is kept up-to-date.
+The way DB manages to keep materialized views up-to-date depends on implementation;
+there are bad implementation mind you.</p>
+<p>One can also update a view by <code>insert into</code> a view, look up documentation specific for your DB if you really wan to learn that.</p>
+<h3 id="index-creation">Index Creation</h3>
+<p>An <strong>index</strong> on an attribute of a relation is a data structure that allows database system to find the values of that attribute efficiently.
+A widely used kind of index is called B+ Tree index.</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">create</span> <span class="hljs-keyword">index</span> studentID_index <span class="hljs-keyword">on</span> student(<span class="hljs-keyword">ID</span>); <span class="hljs-comment">--non-standard</span>
+</div></code></pre>
+<h3 id="transactions-commit-and-rollback">Transactions, Commit and Rollback</h3>
+<p>A <strong>transaction</strong> consists of a sequence of query/update.</p>
+<ul>
+<li><strong>Commit work</strong> commits the current transaction. It makes the updates performed by the transaction permanent. After commiting a new transaction is automatically started.</li>
+<li><strong>Rollback work</strong> causes the current transaction to roll back. It undoes all the updates performed by the SQL statements in the transaction. An error during one SQL statement roll back the transaction completely.</li>
+</ul>
+<p>Generally, each SQL statement commits a separate transaction.
+Look up documentation for your specific DB on how to run multiple SQL commands as one transaction.</p>
+<h3 id="constraint-checking">Constraint Checking</h3>
+<p>Constraint checking during table creation:</p>
+<ul>
+<li><strong>not null</strong> constraint: <code>name varchar(20) not null</code></li>
+<li><strong>unique</strong> constraint: <code>unique (A1, A2, ..., An)</code>, primary key are unique by default</li>
+<li>foreign key constraint, already shown</li>
+</ul>
+<p>Check clause:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> <span class="hljs-keyword">section</span>
+    (course_id  <span class="hljs-built_in">varchar</span>(<span class="hljs-number">8</span>) <span class="hljs-keyword">check</span> (course_id &gt; <span class="hljs-number">0</span>),       <span class="hljs-comment">--syntax-1</span>
+     sec_id     <span class="hljs-built_in">varchar</span>(<span class="hljs-number">8</span>),
+     semester   <span class="hljs-built_in">varchar</span>(<span class="hljs-number">6</span>),
+     <span class="hljs-keyword">foreign</span> <span class="hljs-keyword">key</span>(course_id) <span class="hljs-keyword">references</span> course
+                 <span class="hljs-keyword">on</span> <span class="hljs-keyword">delete</span> <span class="hljs-keyword">cascade</span>
+                 <span class="hljs-keyword">on</span> <span class="hljs-keyword">update</span> <span class="hljs-keyword">cascade</span>,
+     <span class="hljs-keyword">check</span>(semester <span class="hljs-keyword">in</span> (<span class="hljs-string">'Fall'</span>, <span class="hljs-string">'Winter'</span>, <span class="hljs-string">'Summer'</span>)));  <span class="hljs-comment">--syntax-2</span>
+</div></code></pre>
+<p>Due to foreign key constraint, deleting/update a row in the referenced table may cause referential integrity violation.
+Therefore, <code>on delete cascade</code> and <code>on update cascade</code> in the referencing table's foreign key field enables SQL to correct such violation.
+Note the word 'cascade', if there is a chain of foreign-key dependencing across multiple relations, the deletion or update will propagate.
+If a cascading update/delete causes a constraint violation that cannot be handled, the transaction will roll back.</p>
+<p>One can also define more complex condition checks using <strong>assertion</strong>:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">create</span> <span class="hljs-keyword">assertion</span> &lt;<span class="hljs-keyword">assertion</span>-<span class="hljs-keyword">name</span>&gt; <span class="hljs-keyword">check</span> (&lt;predicate&gt;)
+</div></code></pre>
+<p>Look up your own docs for more info.</p>
+<h2 id="additional-sql-features">Additional SQL Features</h2>
+<p>This section outlines other less commonly seen SQL features.</p>
+<h3 id="functions-procedures-recursion">Functions, Procedures, Recursion</h3>
+<p>SQL support single statement and compound statement (<code>begin ... end</code>).
+Functions, loops and conditions all have 1 slot for single statement or compound statement.</p>
+<p>Functions:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">create</span> <span class="hljs-keyword">function</span> dept_count(dept_name <span class="hljs-built_in">varchar</span>(<span class="hljs-number">20</span>))   <span class="hljs-comment">--parameter</span>
+    <span class="hljs-keyword">returns</span> <span class="hljs-built_in">integer</span>                                 <span class="hljs-comment">--return-type</span>
+    <span class="hljs-keyword">begin</span>
+    <span class="hljs-keyword">declare</span> d_count <span class="hljs-built_in">integer</span>;                        <span class="hljs-comment">--local-variable</span>
+        <span class="hljs-keyword">select</span> <span class="hljs-keyword">count</span>(*) <span class="hljs-keyword">into</span> d_count                <span class="hljs-comment">--var-assignment</span>
+        <span class="hljs-keyword">from</span> instructor
+        <span class="hljs-keyword">where</span> instructor.dept_name=dept_name
+    <span class="hljs-keyword">return</span> d_count;                                 <span class="hljs-comment">--return</span>
+    <span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">create</span> <span class="hljs-keyword">function</span> instructors_of(dept_name <span class="hljs-built_in">varchar</span>(<span class="hljs-number">20</span>))
+    <span class="hljs-keyword">returns</span> <span class="hljs-keyword">table</span> (                                 <span class="hljs-comment">--return-table</span>
+        <span class="hljs-keyword">ID</span> <span class="hljs-built_in">varchar</span>(<span class="hljs-number">5</span>),
+        dept_name <span class="hljs-built_in">varchar</span>(<span class="hljs-number">20</span>))
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">table</span>
+        (<span class="hljs-keyword">select</span> <span class="hljs-keyword">ID</span>, dept_name <span class="hljs-keyword">from</span> instructor
+            <span class="hljs-keyword">where</span> instructor.dpt_name=instructor_of.dept_name)
+</div></code></pre>
+<p>Procedures:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">create</span> <span class="hljs-keyword">procedure</span> dept_count_proc(<span class="hljs-keyword">in</span> dept_name <span class="hljs-built_in">varchar</span>(<span class="hljs-number">20</span>),
+                                 <span class="hljs-keyword">out</span> d_count <span class="hljs-built_in">integer</span>)
+    <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">select</span> <span class="hljs-keyword">count</span>(*) <span class="hljs-keyword">into</span> d_count
+        <span class="hljs-keyword">from</span> instructor
+        <span class="hljs-keyword">where</span> instructor.dept_name=dept_count_proc.dept_name
+    <span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">declare</span> d_count <span class="hljs-built_in">integer</span>;
+<span class="hljs-keyword">call</span> dept_count(<span class="hljs-string">'Physics'</span>, d_count);    <span class="hljs-comment">--return-by-ref</span>
+</div></code></pre>
+<p>Iterations:</p>
+<pre><code class="language-sql"><div>while &lt;bool expression&gt; <span class="hljs-keyword">do</span>          <span class="hljs-comment">--while</span>
+    &lt;whatever&gt;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">while</span>
+
+<span class="hljs-keyword">repeat</span>                              <span class="hljs-comment">--do-while</span>
+    &lt;whatever&gt;
+<span class="hljs-keyword">until</span> &lt;<span class="hljs-built_in">bool</span> expression&gt;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">repeat</span>
+
+<span class="hljs-keyword">declare</span> n <span class="hljs-built_in">integer</span> <span class="hljs-keyword">default</span> <span class="hljs-number">0</span>;
+for r as                            <span class="hljs-comment">--for</span>
+    <span class="hljs-keyword">select</span> budget <span class="hljs-keyword">from</span> department
+    <span class="hljs-keyword">where</span> dept_name=<span class="hljs-string">'Music'</span>
+<span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">set</span> n = n-r.budget
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">for</span>
+</div></code></pre>
+<p>Condition branching:</p>
+<pre><code class="language-sql"><div>if &lt;bool expression&gt;
+    then &lt;whatever&gt;
+elseif &lt;bool expression&gt;
+    then &lt;whatever&gt;
+else &lt;whatever&gt;
+<span class="hljs-keyword">end</span> <span class="hljs-keyword">if</span>
+</div></code></pre>
+<p>SQL can even support recursion.
+Search it up if you will.
+I won't bother going into it since it's just recursion in programming language with much more disgusting syntax.
+Look up doc for more info.</p>
+<h3 id="programming-language-integration">Programming Language Integration</h3>
+<p>Generally, DB has programming language client that utilizes api to connect and executes the SQL statements.</p>
+<p>Generall, the following objects are included:</p>
+<ul>
+<li><strong>Driver</strong> must be loaded before connecting to DB, this specifies what DB the user is working with, e.g. PostgreSQL.</li>
+<li><strong>Connection</strong>: makes connection to DB, with credentials</li>
+<li><strong>Statement</strong>: executes raw SQL statement: <code>execute_query</code> executes a query whereas <code>execute_update</code> executes non-query statements (update, insert, delete, create table, etc.)
+<ul>
+<li><strong>Prepared Statement</strong>: DB compiles the query with unknown '?' values; each time the query is executed, DB will simply apply new values. Example: <code>insert into r values(?,?,?)</code></li>
+<li><strong>Callable Statement</strong>: allows invocation of SQL stored procedures and functions.</li>
+</ul>
+</li>
+<li><strong>Result Set</strong>: query returns a set.</li>
+<li><strong>Result metadata</strong>: from the result set, provide information about the table, e.g. column name, column type, etc.</li>
+</ul>
+<p>Note that <code>execute_query</code> or <code>execute_update</code> can only execute one single SQL statement at a time to prevent SQL injection attack.</p>
+<p><img src="https://i.imgur.com/pZJumWq.png" alt="programming-language"></p>
+<h4 id="external-language-routines">External Language Routines</h4>
+<p>This allows one to call C/C++ function in SQL.
+However, don't use unless necessary because security risks.</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">create</span> <span class="hljs-keyword">procedure</span> dept_count_proc(<span class="hljs-keyword">in</span> dept_name <span class="hljs-built_in">varchar</span>(<span class="hljs-number">20</span>),
+                                 <span class="hljs-keyword">out</span> <span class="hljs-keyword">count</span> <span class="hljs-built_in">integer</span>)
+<span class="hljs-keyword">language</span> C
+<span class="hljs-keyword">external</span> <span class="hljs-keyword">name</span> <span class="hljs-string">'/usr/avi/bin/dept_count_proc'</span>
+
+<span class="hljs-keyword">create</span> <span class="hljs-keyword">function</span> dept_count(dept_name <span class="hljs-built_in">varchar</span>(<span class="hljs-number">20</span>))
+<span class="hljs-keyword">returns</span> <span class="hljs-built_in">integer</span>
+<span class="hljs-keyword">language</span> C
+<span class="hljs-keyword">external</span> <span class="hljs-keyword">name</span> <span class="hljs-string">'/usr/avi/bin/dept_count'</span>
+</div></code></pre>
+<h3 id="triggers">Triggers</h3>
+<p>A trigger is a statement that system executes automatically from a modification to the DB.
+It is like git hook, and can execute before/after the modification.
+Trigger is very powerful but modern DB don't use it that often, because actions like DB backup will often cause undesired trigger actions.</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">create</span> <span class="hljs-keyword">trigger</span> t1 <span class="hljs-keyword">after</span> <span class="hljs-keyword">update</span> <span class="hljs-keyword">of</span> takes <span class="hljs-keyword">on</span> (grade)
+    <span class="hljs-keyword">referencing</span> <span class="hljs-keyword">new</span> <span class="hljs-keyword">row</span> <span class="hljs-keyword">as</span> nrow     <span class="hljs-comment">--new row as variable</span>
+    <span class="hljs-keyword">referencing</span> <span class="hljs-keyword">old</span> <span class="hljs-keyword">row</span> <span class="hljs-keyword">as</span> orow     <span class="hljs-comment">--old row as variable</span>
+    <span class="hljs-keyword">for</span> <span class="hljs-keyword">each</span> <span class="hljs-keyword">row</span>
+        <span class="hljs-keyword">when</span> nrow.grade&lt;&gt;<span class="hljs-string">'F'</span>        <span class="hljs-comment">--condition</span>
+        <span class="hljs-keyword">begin</span> atomic                <span class="hljs-comment">--atomic-transaction</span>
+            <span class="hljs-keyword">update</span> student
+                <span class="hljs-keyword">set</span> total_cred=<span class="hljs-number">-1</span>
+        <span class="hljs-keyword">end</span>;
+</div></code></pre>
+<p>Read doc for more info.</p>
+<h3 id="olap">OLAP</h3>
+<p><strong>Online analytical processing</strong> (OLAP) provides online (input-&gt;feedback) way to view <strong>multidimentional data</strong> (data that can be modeled as dimention attributes and measure attributes).</p>
+<ul>
+<li><strong>Dimension attributes</strong>: specifies a tag that can be used for aggregation, e.g. color, type.</li>
+<li><strong>Measure attributes</strong>: measurement value, usually numerics.</li>
+</ul>
+<p>For example, a relation</p>
+<table>
+<thead>
+<tr>
+<th>type</th>
+<th>color</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>black</td>
+<td>5</td>
+</tr>
+<tr>
+<td>B</td>
+<td>white</td>
+<td>6</td>
+</tr>
+<tr>
+<td>A</td>
+<td>white</td>
+<td>3</td>
+</tr>
+<tr>
+<td>B</td>
+<td>black</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<p>can be <strong>pivoted</strong> as 2D <strong>cross-tabulation</strong> or <strong>pivot-table</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>type/color</th>
+<th>black</th>
+<th>white</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>5</td>
+<td>3</td>
+</tr>
+<tr>
+<td>B</td>
+<td>4</td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+<p>3D data can be represented as <strong>data cube</strong>.
+One may <strong>slice</strong> or <strong>dice</strong> the cube by fixating one dimension.</p>
+<p>One can view the data at different levels of detail, these levels can be organized into a <strong>hierachy</strong>.
+The operation of making presented data more generic (less detailed) is called a <strong>roll up</strong>.
+The opposite operation to view more detailed data is called <strong>drill down</strong> (original table required).</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> sales
+<span class="hljs-keyword">pivot</span> (                             <span class="hljs-comment">--not-official</span>
+    <span class="hljs-keyword">sum</span>(quantity)                   <span class="hljs-comment">--measure-attribute</span>
+    <span class="hljs-keyword">for</span> color <span class="hljs-keyword">in</span> (<span class="hljs-string">'dark'</span>,<span class="hljs-string">'white'</span>)   <span class="hljs-comment">--dimension-attribute</span>
+)
+<span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> item_name;
+</div></code></pre>
+<p>The resulting table would be something like:</p>
+<table>
+<thead>
+<tr>
+<th>item_name</th>
+<th>clothes_size</th>
+<th>dark</th>
+<th>white</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+<p>Note that 'color' attribute is eliminated, and the 'quantity' attribute is specified as values under dark, white attributes.</p>
+<h4 id="cube-rollup">Cube, Rollup</h4>
+<p>Consider the relation <code>sales (item_name, color, clothes_size, quantity)</code> where 'quantity' is the measure attribute.
+If we want to construct a data cube, we'll have to aggregate the sum for all sets/tuples in the <strong>power set</strong> of {item_name, color, clothes_size}.
+This means we'll have to aggregate 8 times manually!
+Luckily, <code>cube()</code> does it for us:</p>
+<pre><code class="language-sql"><div><span class="hljs-keyword">select</span> item_name, color, clothes_size, <span class="hljs-keyword">sum</span>(quantity)
+    <span class="hljs-keyword">from</span> sales
+    <span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> <span class="hljs-keyword">cube</span>(item_name, color, clothes_size);
+</div></code></pre>
+<p>For attributes that are not present in a particular grouping, null are used to fill in the empty attribute.</p>
+<p>Data cube relations tend to be very large.
+An alternative <code>rollup()</code> construct can be used to minimize footprint.</p>
+<pre><code class="language-sql"><div><span class="hljs-comment">--to generate 4 groupings</span>
+<span class="hljs-comment">--{(item_name,color,clothes_size), (item_name,color), (item_name), ()}</span>
+<span class="hljs-comment">--note that the order of listed attribute matters!</span>
+<span class="hljs-keyword">select</span> item_name, color, clothes_size, <span class="hljs-keyword">sum</span>(quantity)
+    <span class="hljs-keyword">from</span> sales
+    <span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> <span class="hljs-keyword">rollup</span>(item_name, color, clothes_size);
+
+<span class="hljs-comment">--to generate 6 groupings</span>
+<span class="hljs-comment">--{(item_name,color,clothes_size), (item_name,color), (item_name),</span>
+<span class="hljs-comment">-- (color,clothes_size), (color), ()}</span>
+<span class="hljs-keyword">select</span> item_name, color, clothes_size, <span class="hljs-keyword">sum</span>(quantity)
+    <span class="hljs-keyword">from</span> sales
+    <span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> <span class="hljs-keyword">rollup</span>(item_name), <span class="hljs-keyword">rollup</span>(color, clothes_size);
+</div></code></pre>
+
+    </body>
+    </html>

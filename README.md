@@ -4,31 +4,28 @@ My name is Thomas Gao. I am a second-year Mechatronics Engineering Undergrad at 
 
 ## [Software Wiki](/content/software)
 
+- Networking
+- Database Design
+- Kubernetes
+- Asynchronous Programming
 - Advanced Git Techniques
-- Real-Time Operating Systems
-- SQL Reference
-- Task Asynchronous Programming
-- XML DTD and Schema
-- Terminal Tools
-- Computer Networks
+- Bash Scripts
 - Miscellaneous
 
 ## [Computing](/content/computing)
 
-- Data Strucure and Algorithms
+- Algorithms
 - Automata Theory
 - Computability Theory
 - Graph Theory
-- Coding Challenges
 
 ## [Mathematics](/content/math)
 
 - Linear Algebra
-- Numerical Methods
 - Multivariable Calculus
 - Differential Equations
+- Numerical Methods
 - Statistics
-- Proof Techniques
 
 ## [Electrical Wiki](/content/electrical)
 
@@ -38,11 +35,7 @@ My name is Thomas Gao. I am a second-year Mechatronics Engineering Undergrad at 
 - Linear Signals and Systems
 - Assembly Programming
 
-## [Engineering Wiki](/content/eng)
+## [Mechanical Wiki](/content/eng)
 
 - Classical Mechanics
 - Dynamics
-
-## [Economics Wiki](/content/econ)
-
-- Macroeconomics
