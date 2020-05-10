@@ -7,35 +7,28 @@ My name is Thomas Gao. I am a second-year Mechatronics Engineering Undergrad at 
 - Networking
 - Database Design
 - Kubernetes
-- Asynchronous Programming
-- Advanced Git Techniques
-- Bash Scripts
-- Miscellaneous
-
-## [Computing](/content/computing)
-
-- Algorithms
-- Automata Theory
-- Computability Theory
-- Graph Theory
+- Concurrency
+- Advanced Git
 
 ## [Mathematics](/content/math)
 
 - Linear Algebra
 - Multivariable Calculus
-- Differential Equations
-- Numerical Methods
+- Fourier Analysis
+- Algorithms
+- Automata
 - Statistics
 
 ## [Electrical Wiki](/content/electrical)
 
-- Digital Logics
-- PLC Programming
 - Advanced Circuits
+- Filter Design
+- Sensors and Instrumentation
 - Linear Signals and Systems
-- Assembly Programming
+- Integral Transforms
+- PLC, Assembly Programming
 
-## [Mechanical Wiki](/content/eng)
+## [Mechanical Wiki](/content/mech)
 
-- Classical Mechanics
+- Mechanics of Deformable Solids
 - Dynamics

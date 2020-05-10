@@ -6,7 +6,7 @@ This page summarizes the undergraduate level electrical engineering fundamentals
 
 Very basic circuits stuff.
 
-## [Op Amp Circuits](opamp.html)
+## [Operational Amplifier](opamp.html)
 
 - Negative Feedback Configurations
 - Schmitt Trigger
@@ -14,7 +14,8 @@ Very basic circuits stuff.
 - Diode Circuits
 - Feedback Analysis
 - Practical Op Amp Restrictions
-- [Legacy Version](archive/opamp.html)
+
+[Legacy Version](archive/opamp.html)
 
 ## [Sensors and Instrumentation](sensors.html)
 
@@ -37,7 +38,8 @@ Very basic circuits stuff.
 
 - Bode Plot
 - Multistage Filter Amplifier Design Procedure
-- [Legacy Version](archive/filter.html)
+
+[Legacy Version](archive/filter.html)
 
 ## [Signals and Systems](systems.html)
 
@@ -48,7 +50,7 @@ Very basic circuits stuff.
 
 The full legacy [Linear Signals and Systems version](archive/signals_systems.html)
 
-## [Integral Transforms](itransform.html)
+## [**Integral Transforms**](itransform.html)
 
 - Laplace Transform
 - Z Transform
