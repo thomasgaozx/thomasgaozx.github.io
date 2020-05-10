@@ -14,6 +14,7 @@
   - [Geometry in Game Development](#geometry-in-game-development)
     - [OpenGL](#opengl)
     - [Navigation Mesh and Algorithms](#navigation-mesh-and-algorithms)
+  - [Logging in C++](#logging-in-c)
 
 ## Capturing Magic Numbers in C++
 
@@ -173,3 +174,21 @@ https://gamedev.stackexchange.com/questions/68302/how-does-the-simple-stupid-fun
 https://en.wikipedia.org/wiki/Navigation_mesh
 https://en.wikipedia.org/wiki/Polygon_mesh
 https://nwn.fandom.com/wiki/Walkmesh
+
+## Logging in C++
+
+```c++
+#include <fstream>
+#include <mutex>
+#include <string>
+
+std::mutex file_log_mutex;
+void cbug(const std::string & msg) {
+    std::ofstream fout;
+    std::lock_guard<std::mutex> guard(file_log_mutex);
+
+    fout.open("/home/sysadmin/",
+        std::fstream::out | std::fstream::app);
+    fout << msg  << std::endl;
+}
+```
