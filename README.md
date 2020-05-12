@@ -8,7 +8,7 @@ My name is Thomas Gao. I am a second-year Mechatronics Engineering Undergrad at 
 - Database Design
 - Kubernetes
 - Concurrency
-- Advanced Git
+- Git, Bash, Python!
 
 ## [Mathematics](/content/math)
 

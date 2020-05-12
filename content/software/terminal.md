@@ -1,9 +1,10 @@
 ---
 ---
 
-# Debian Terminal Utility
+# Bash!
 
-- [Debian Terminal Utility](#debian-terminal-utility)
+- [Bash!](#bash)
+  - [Bash Tools on Windows!](#bash-tools-on-windows)
   - [Package Management](#package-management)
     - [Search a Particular Package](#search-a-particular-package)
     - [List All Installed Packages](#list-all-installed-packages)
@@ -14,6 +15,7 @@
     - [File Name Search](#file-name-search)
     - [File Content Search](#file-content-search)
     - [Which?](#which)
+  - [Parallel Rsync!](#parallel-rsync)
   - [Setting up Automatic SSH Authentication](#setting-up-automatic-ssh-authentication)
     - [Step 1. Generating Key on Host Machine](#step-1-generating-key-on-host-machine)
     - [Step 2. Setting SSH Configuration File on Host Machine](#step-2-setting-ssh-configuration-file-on-host-machine)
@@ -23,8 +25,33 @@
     - [Export Customized Settings](#export-customized-settings)
     - [Important Environment Variables](#important-environment-variables)
   - [Setting Static IP Address](#setting-static-ip-address)
-  - [Additional Useful Tricks](#additional-useful-tricks)
-    - [Go To Last Visited Directory](#go-to-last-visited-directory)
+  - [Other cool stuff](#other-cool-stuff)
+
+## Bash Tools on Windows!
+
+> Warning: _massive_ rant before the useful stuff.
+
+Windows, yiiiiiikes!! Why? Well, for me personally ...
+
+- The native Command prompt is beyond saving.
+- Cygwin is buggy and has tons of compatibility issues with its "virtual environment".
+- WSL is slightly better but requires you to install basic tools like git and everything all over again! Moreover, it has many incompatibility issues with permissions setting, file path conversion (if it mingles with random windows executable), and requires a lot of shenanigans settings to get up and running semi-properly.
+- All the proprietary GUI software ... or the outdated open-source ones that prompts you "An error occured" with zero explanation or debugging info.
+  Although I guess if you're doing graphics design or 3D modeling/animation, you can't escape this fate.
+
+Turns out Git bash is my best friend, despite being somewhat slower than WSL.
+It is lightweight, user friendly, not overly-ambitious, and doesn't have messed up virtual environment settings.
+Turns out, many basic tools that Windows _desparately_ lack are in Git bash, or are compatible with it.
+
+Here is how to install rsync.
+
+1. Install git bash (which has mingw support)
+2. Go to official pacman repo http://repo.msys2.org/msys/, find the package for rsync, for 64 bit system it is http://repo.msys2.org/msys/x86_64/rsync-3.1.3-1-x86_64.pkg.tar.xz
+3. `curl -LO http://repo.msys2.org/msys/x86_64/rsync-3.1.3-1-x86_64.pkg.tar.xz` in git bash or windows cmd
+4. Decompress the package using 7-zip, and find the `rsync.exe` from bin
+5. Move `rsync.exe` to `C:/Program File/git/usr/bin`
+
+I also verified that GNU `parallel` is perfectly compatible, too!
 
 ## Package Management
 
@@ -80,7 +107,7 @@ sudo update-alternatives --install /usr/bin/npm  npm /usr/share/npm/bin/npm-cli.
 sudo update-alternatives --install /usr/bin/iperf3 iperf3 /home/tgao/iperf-3.7/src/iperf3 1
 ```
 
-If update-alternatives doesn't seem to change the version of the app, one may need to change $PATH to make sure `/usr/bin` occurs before `/usr/local/bin`.
+If update-alternatives doesn't seem to change the version of the app, one may need to change \$PATH to make sure `/usr/bin` occurs before `/usr/local/bin`.
 `$PATH` is set in `/etc/environment`.
 
 ### Install from tar
@@ -153,6 +180,16 @@ grep -s $REGEX $DIR/{*,.*} # to include hidden files
 which -a <executable name> # gives a list of executable names
 ```
 
+## Parallel Rsync!
+
+```bash
+cd some_dir
+ls -1 | parallel -j 24 rsync -avzhP {} dev@192.168.0.2:~/
+```
+
+Side note: one can run `rsync` with `R` flag to make sure it creates directory recursively when necessary.
+
+
 ## Setting up Automatic SSH Authentication
 
 ### Step 1. Generating Key on Host Machine
@@ -209,7 +246,7 @@ Related Readings:
 
 ## Detach Programs From Shells/Sessions
 
-A lot of the times, when you logout of a remote desktop session, or close a secure shell session, the program that is running in the background with `&` is also terminated. 
+A lot of the times, when you logout of a remote desktop session, or close a secure shell session, the program that is running in the background with `&` is also terminated.
 To keep the program running, run:
 
 ```bash
@@ -239,18 +276,18 @@ Export customized environment variables in `~/.bashrc` of `~/.profile`.
 ## Setting Static IP Address
 
 ```bash
-ifconfig wm0 inet 192.168.0.20/24
+ifconfig eth0 inet 192.168.0.20/24
 ```
 
-## Additional Useful Tricks
+Put this line in `/etc/profile`, and the static ip address will init after the boot.
 
-### Go To Last Visited Directory
+## Other cool stuff
+
+Go to last visited directory:
 
 ```bash
 cd -
 ```
-
-Put this line in `/etc/profile`, and the static ip address will init after the boot.
 
 Additional References:
 

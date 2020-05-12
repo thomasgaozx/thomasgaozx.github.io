@@ -5,11 +5,11 @@
   - [Database Design](#database-design)
   - [Kubernetes](#kubernetes)
   - [Asynchronous Programming](#asynchronous-programming)
-  - [Advanced Python Techniques](#advanced-python-techniques)
-  - [Advanced Git Techniques](#advanced-git-techniques)
-  - [Bash Tools](#bash-tools)
+  - [Git!](#git)
+  - [Bash!](#bash)
+  - [Python!](#python)
   - [Real-Time Operating Systems](#real-time-operating-systems)
-  - [Python Socket Programming](#python-socket-programming)
+  - [Socket Programming](#socket-programming)
   - [XML DTD and Schema](#xml-dtd-and-schema)
   - [Blogs](#blogs)
 
@@ -32,26 +32,26 @@ Kubernetes concepts and terminologies.
 Buffering/Queuing in embedded systems.
 Semaphore techniques.
 
-## [Advanced Python Techniques](python-advanced.md)
-
-How to write Python mega-oneliners.
-Metaprogramming patterns such as Mixin.
-Debugging tools and techniques such as pdb and inspect.
-
-## [Advanced Git Techniques](git.md)
+## [Git!](git.md)
 
 Git techniques such as hunk manipulation, conflict resolution.
 Handy tools such as Git Server and Git Hooks.
 
-## [Bash Tools](terminal.md)
+## [Bash!](terminal.md)
 
-Handy Debian terminal commands.
+Handy bash tools, as well as Bash on Windows, yikes!
+
+## [Python!](python-advanced.md)
+
+How to write "impressive" Python mega-oneliners.
+Metaprogramming patterns such as Mixin.
+Debugging tools and techniques such as pdb and inspect.
 
 ## [Real-Time Operating Systems](rtos.md)
 
 Coursework on RTOS.
 
-## [Python Socket Programming](socket.md)
+## [Socket Programming](socket.md)
 
 A comprehensive tutorial of python socket API and its advanced usage such as network buffer and tcp multicasting.
 

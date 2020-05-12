@@ -158,3 +158,6 @@ debug("Checking in ...")
 ```
 
 You can now treat `debug(args)` as `print`, and then, you can simply `tail -f ~/debug.txt | less` on a separate terminal and wait for the only relevent log to show up.
+
+Sometimes the program crash if it tries to open/close the same file in rapid successions.
+In those cases, one can try to run system commands like `echo blah > logfile` in place of `with open(...): ...`.
