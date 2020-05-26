@@ -6,6 +6,8 @@ This page contains the overviews of undergraduate mathematics fundamentals.
 
 ## [**Linear Algebra**](linear_algebra.html)
 
+## [Combinatorics](combinatorics.html)
+
 ## [Multivariable Calculus](multivariable_calculus.html)
 
 ## [Vector Calculus Applications](advcalc.html)

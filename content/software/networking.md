@@ -7,7 +7,6 @@
     - [Subnet, LAN, VLAN](#subnet-lan-vlan)
     - [Summary: Layers and Reachability](#summary-layers-and-reachability)
     - [Address Pool](#address-pool)
-    - [Interface Port](#interface-port)
   - [Tools](#tools)
     - [Packet Capturing using `tcpdump`](#packet-capturing-using-tcpdump)
     - [Reverse DNS Lookup](#reverse-dns-lookup)
@@ -41,7 +40,7 @@ Logical layer 2 **interfaces** are used by network devices to access other netwo
 - name
 - interface type
 - a list of physical ethernet ports associated with the interface.
-  - A single port is most common. Multiple ports are included
+  - A single port is most common.
   - Multiple ports are included only for ethernet AE, they are logically on a single data port.
 - a list of provider networks reachable through the physical interface
 
@@ -70,6 +69,12 @@ Otherwise there is no way to reach the gateway.
 A **port** is like the physical interface. An interface is one level higher than a port.
 For example, a port might be eth0, which has interfaces eth0 and eth0.100 (vlan) on top.
 
+What is an underlying port of an interface? It's the port associated with an (ethernet) interface.
+Listing the host interfaces will show the ports attribute.
+A 'VF' type interface does not have a port listed in the database because it's a virtual interface ontop of an ethernet SR-IOV interface.
+So to get an underlying port for a VF interface, you have to find the ethernet interface that is using the VF interface.
+Then you can get its underlying port.
+
 The term **link aggregation** applies to various methods of combining (aggregating) multiple network connections in parallel in order to increase throughput beyond what a single connection could sustain, and to provide redundancy in case one of the links should fail.
 
 A **link aggregation group** (**LAG**) combines a number of physical ports together to make a single high-bandwidth data path, so as to implement the traffic load sharing among the member ports in the group and to enhance the connection reliability.
@@ -88,23 +93,13 @@ Each time a VLAN is created on a switch, a new VLAN interface is created.
 
 ### Summary: Layers and Reachability
 
-Same network segment (layer 1) -> can reach each other physically
-Same subnet (layer 2) -> requires switch but not router
-Different subnet (layer 3) -> requires router
+- Same network segment (layer 1) -> can reach each other physically
+- Same subnet (layer 2) -> requires switch but not router
+- Different subnet (layer 3) -> requires router
 
 ### Address Pool
 
 What is address pool? It's a list of addresses that can be allocated from.  Here's an exmaple https://docs.starlingx.io/deploy_install_guides/r3_release/bare_metal/ironic_install.html 
-
-### Interface Port
-
-From database schema we can see a port is attributed to a host/node
-
-What is an underlying port of an interface? It's the port associated with an (ethernet) interface.
-Listing the host interfaces will show the ports attribute.
-A 'VF' type interface does not have a port listed in the database because it's a virtual interface ontop of an ethernet SR-IOV interface.
-So to get an underlying port for a VF interface, you have to find the ethernet interface that is using the VF interface.
-Then you can get its underlying port.
 
 ## Tools
 
