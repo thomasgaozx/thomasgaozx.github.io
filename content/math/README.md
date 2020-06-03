@@ -10,7 +10,7 @@ This page contains the overviews of undergraduate mathematics fundamentals.
 
 Under construction.
 
-## [Graph Theory](graph.md)
+## [Graph Theory](graph.html)
 
 ## [Multivariable Calculus](multivariable_calculus.html)
 
