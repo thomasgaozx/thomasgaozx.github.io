@@ -14,6 +14,7 @@
   - [Backtracking](#backtracking)
     - [Minimax](#minimax)
     - [Permutation and Combinatorics](#permutation-and-combinatorics)
+  - [Load Balancer Algorithms](#load-balancer-algorithms)
 
 ## Segment Tree
 
@@ -231,3 +232,57 @@ void permute(vector<int> & arr) {
     permuteImpl(arr, 0);
 }
 ```
+
+## Load Balancer Algorithms
+
+**Load balancing** refers to efficiently distributing incoming network traffic across a group of backend servers<sup>[\[ref\]](https://www.nginx.com/resources/glossary/load-balancing/)</sup>.
+
+**Load Balancer** routes client requests across all backend servers in a manner that maximizes speed and ensure no one server is overworked.
+
+![load-balancing](https://www.nginx.com/wp-content/uploads/2014/07/what-is-load-balancing-diagram-NGINX-640x324.png)
+
+Load-balancing algorithms:
+
+Static Algorithms:
+
+- **Prefix sum**: if execution time of a sequence of tasks are known, divide the tasks in such a way that the same amount of computation goes to each processor. Use prefix sum algorithm, this division can be calculated in logrithmic time.
+- **Round Robin**: requests are distributed across the group of servers sequentially
+- **Randomized static**: simply assign tasks to random servers. Works well because it avoids communication costs for each assignment.
+- **Hash**: allocate queries according to hash table, distributes request based on key, such as client IP address.
+- **IP Hash**: client ip is used to select server.
+
+Dynamic Algorithms
+
+- **Least Connections**: a new request is sent to the server with fewest current connections to clients.
+- **Least Time**: select the server by a formula that combines fastest response time and fewest active connections
+- **Random with 2 choices**: pick 2 servers at random and then select using Least Connections Algorithm.
+
+**Load Balancer** Architecture for neutron<sup>[\[ref\]](https://docs.openstack.org/mitaka/networking-guide/config-lbaas.html#:~:text=The%20load%20balancer%20occupies%20a,address%20assigned%20from%20a%20subnet.&text=Load%20balancers%20can%20listen%20for,is%20specified%20by%20a%20listener.&text=A%20pool%20holds%20a%20list,content%20through%20the%20load%20balancer.)</sup>:
+
+![load-balancer](https://docs.openstack.org/mitaka/networking-guide/_images/lbaasv2-diagram.png)
+
+- **Listener**: multiple listeners listen for requests on different ports
+- **Pool**: holds a list of members that serve content through the load balancer
+- **Member**: servers that serve traffic behind load balancer. Each member is specified by the IP address and port that it uses to serve traffic.
+- **Health monitor**: members may go offline from time to time, health monitors tracks these.
+
+Example load balancer CLI:
+
+```bash
+openstack loadbalancer create --name lb1 --vip-subnet-id public-subnet
+# Re-run the following until lb1 shows ACTIVE and ONLINE statuses:
+openstack loadbalancer show lb1
+openstack loadbalancer listener create --name listener1 --protocol HTTP --protocol-port 80 lb1
+openstack loadbalancer pool create --name pool1 --lb-algorithm ROUND_ROBIN --listener listener1 --protocol HTTP
+openstack loadbalancer healthmonitor create --delay 5 --max-retries 4 --timeout 10 --type HTTP --url-path /healthcheck pool1
+openstack loadbalancer member create --subnet-id private-subnet --address 192.0.2.10 --protocol-port 80 pool1
+openstack loadbalancer member create --subnet-id private-subnet --address 192.0.2.11 --protocol-port 80 pool1
+```
+
+TCP/HTTP load balancer:
+
+- HAproxy
+- Nginx
+- Octavia (for openstack)
+
+Kubernetes have load balancer built in.

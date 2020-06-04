@@ -26,6 +26,8 @@ Database concepts, mathematics, architectures, and comprehensive SQL reference.
 
 Kubernetes concepts and terminologies.
 
+- [**Cloud Architecture**](cloud.md)
+
 ## [Asynchronous Programming](async.md)
 
 `async`/`await` task asynchronous programming.
