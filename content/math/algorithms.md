@@ -3,18 +3,19 @@
 - [Data Structures and Algorithms](#data-structures-and-algorithms)
   - [Segment Tree](#segment-tree)
   - [Binary Indexed Tree*](#binary-indexed-tree)
-    - [Least Significant Bit](#least-significant-bit)
     - [BIT Implementation](#bit-implementation)
   - [Heuristic Algorithm](#heuristic-algorithm)
     - [Dijkstra's Algorithm](#dijkstras-algorithm)
   - [Topological Sort](#topological-sort)
     - [Kahn's Algorithm](#kahns-algorithm)
     - [DFS Based Algorithm](#dfs-based-algorithm)
-      - [DFS Loop Checking](#dfs-loop-checking)
+    - [Graph Cycle Checking](#graph-cycle-checking)
   - [Backtracking](#backtracking)
     - [Minimax](#minimax)
-    - [Permutation and Combinatorics](#permutation-and-combinatorics)
+    - [Permutation](#permutation)
+    - [Combinatorics](#combinatorics)
   - [Load Balancer Algorithms](#load-balancer-algorithms)
+  - [Additional Resources](#additional-resources)
 
 ## Segment Tree
 
@@ -22,46 +23,34 @@
 
 ## Binary Indexed Tree*
 
-We know the fact that each integer can be represented as the sum of powers of two. Similarly, for a given array of size _N_, we can maintain an array `BIT[]` such that, at any index we can store the sum of some numbers of the given array. This can also be called a partial sum tree.
+Binary indexed tree, aka Fenwick tree, is able to maintain a prefix sum with $\log n$ update and query time.
 
-The tree should be such tat parent index of an _ith_ node is obtained by adding the decimal value corresponding to the last set bit of _i_.
-
-### Least Significant Bit
-
-`x&(-x)` gives the last set bit. Note that `-x` uses 2's complement.
-
-![BIT in action](https://i.imgur.com/sc07IiO.png)
-
-Using non least significant bit would break the number done to all power-of-2 terms.
-
-All of these are in place so that the partial sums will not overlap between different values.
+- `x&(-x)` gives the last set bit. Note that `-x` uses 2's complement.
+- The reason binary indexed tree works is: partial sums will not overlap between different values. Figure it out yourself.
 
 ### BIT Implementation
 
-```c++
-class FenwickTree {
-public:
-    FenwickTree(int n) : sums_(n+1, 0) {}
+```python
+class FenwickTree:
+    def __init__(self, n):
+        """tailored for num array of size n"""
+        self.sums = [0] * (n + 1)
 
-    void update(int i, int delta) {
-        for (; i<sums_.size(); i += lsb(i))
-            sums_[i] += delta;
-    }
+    def update(self, i, delta):
+        """updates ith index in BIT with delta"""
+        i += 1
+        while i < len(self.sums):
+            self.sums[i] += delta
+            i += i&(-i) # add lsb
 
-    void query(int i) const {
-        int sum{0};
-        while (; i>0; i-=lsb(i))
-            sum += sums_[i];
-        return sum;
-    }
-
-private:
-    vector<int> sums_;
-
-    static int lsb(int x) {
-        return x&(-x);
-    }
-};
+    def query(self, i):
+        """retrieve sum from index 0 to i"""
+        i += 1
+        s = 0 # sum
+        while i > 0:
+            s += self.sums[i]
+            i -= i&(-i) # remove lsb
+        return s
 ```
 
 ## Heuristic Algorithm
@@ -129,6 +118,8 @@ For a generic heuristic algorithm, the difference occurs at _\[1\]_. Heuristic a
 
 ## Topological Sort
 
+Topological sort is the linear ordering of vertices such that for every directed edge $(u,v)$, vertex $u$ comes before $v$ in the ordering<sup>[\[ref\]](https://www.geeksforgeeks.org/topological-sorting/)</sup>.
+
 ### Kahn's Algorithm
 
 Procedure:
@@ -188,16 +179,19 @@ def dfs(u, L):
 
 Non recursive just use stack.
 
-#### DFS Loop Checking
+### Graph Cycle Checking
 
-Loop checking for dfs approach is a little bit trickier. Each vertice needs to have an extra property `v.occupied`.
-
-> A vertice can be _visited_ but not _occupied_.
-
+Method 1:
+Each vertice needs to have an extra property `v.occupied`.
+A vertice can be _visited_ but not _occupied_.
 DFS approach achieves reverse topological sort through post order traversal.
 The _occupation_ of a vertice occurs in the _reverse topological sorted_ fashion.
 That is to say, when it is one vertice's turn to be occupied (post-order), all outgoing edges of that vertice must be occupied already.
 If any of the outgoing edges are not occupied, then there is at least one loop.
+
+Method 2:
+DFS, keep track of the vertices reached in the current recursion stack.
+If a vertex is reached that is already in teh recursion stack, then there is a cycle in the tree.
 
 ## Backtracking
 
@@ -210,27 +204,51 @@ It is widely used in two player turn-based games such as Tic-Tac-Toe, Backgammon
 
 There is a **minimizer** and a **maximizer**, where _maximizer_ is self, and _minimizer_ is the opponent.
 
-### Permutation and Combinatorics
+### Permutation
 
 Permuting an array is pretty straight forward:
 
 ```c++
-void permuteImpl(vector<int> & arr, int start_pos) {
-    if (start_pos == arr.size() - 1) {
-        printArr(arr);
-        return;
-    }
+def generate(A, n):
+    if (n == 1):
+        print(A)
+        return
+    for i in range(n):
+        A[i], A[n-1] = A[n-1], A[i]
+        generate(A, n-1)
+        A[i], A[n-1] = A[n-1], A[i]
 
-    for (int i=start_pos; i < arr.size(); ++i) {
-        swap(arr[start_pos], arr[i]);
-        permuteImpl(arr, start_pos+1);
-        swap(arr[start_pos], arr[i]);
-    }
-}
+```
 
-void permute(vector<int> & arr) {
-    permuteImpl(arr, 0);
-}
+### Combinatorics
+
+Let `{0,1,...,n-1}` be `n` different states.
+Combinatorics algorithm checks all elements of the k-size string `{0,1,...,n-1}^k`, i.e. all possible combinations states in `k`-tuple.
+
+One could do it the recursive way:
+
+```python
+def combinatorics(n, k, mem):
+    """n-states, k-size string, mem should be of k-size,
+    print all possible combinations as tuples"""
+    if k < 1:
+        print(tuple(mem))
+        return
+    for state in range(n):
+        mem[k-1] = state
+        combinatorics(n, k-1, mem)
+```
+
+Or do it the iterative way...
+
+```python
+def combinatorics(n, k):
+    states = [0] * k
+    for it in range(n**k):
+        for i in range(k):
+            states[i] = it % n
+            it = it // n
+        print(tuple(states))
 ```
 
 ## Load Balancer Algorithms
@@ -286,3 +304,7 @@ TCP/HTTP load balancer:
 - Octavia (for openstack)
 
 Kubernetes have load balancer built in.
+
+## Additional Resources
+
+[**Coding Exercise**](https://github.com/thomasgaozx/thomasgaozx.github.io/blob/master/content/math/exercise.md)
