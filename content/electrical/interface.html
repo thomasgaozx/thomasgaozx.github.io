@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+    <html>
+        <head>
+            <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+
+            <title>Integral Transform in Signal Processing</title>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+            <script src="/js/init.js"></script>
+        </head>
+    <body class="vscode-light">
+        <h1 id="microprocessor-systems-and-interfacing">Microprocessor Systems and Interfacing</h1>
+<ul>
+<li><a href="#microprocessor-systems-and-interfacing">Microprocessor Systems and Interfacing</a>
+<ul>
+<li><a href="#embedded-systems">Embedded Systems</a></li>
+<li><a href="#software-and-synchronization">Software and Synchronization</a>
+<ul>
+<li><a href="#synchronization-mechanisms">Synchronization Mechanisms</a></li>
+<li><a href="#interface-communication">Interface Communication</a></li>
+<li><a href="#synchronous-vs-asynchronous-systems">Synchronous vs Asynchronous Systems</a></li>
+<li><a href="#generalized-io-operations">Generalized I/O Operations</a></li>
+</ul>
+</li>
+<li><a href="#computer-structure">Computer Structure</a>
+<ul>
+<li><a href="#cpu">CPU</a></li>
+<li><a href="#cpu-memory-interface">CPU-Memory Interface</a></li>
+<li><a href="#multiple-drivers">Multiple Drivers</a></li>
+<li><a href="#device-selection">Device Selection</a>
+<ul>
+<li><a href="#device-selection-with-synchronous-bus">Device Selection with Synchronous Bus</a></li>
+</ul>
+</li>
+<li><a href="#metastability">Metastability</a></li>
+<li><a href="#synchronous-bus-characteristics">Synchronous Bus Characteristics</a>
+<ul>
+<li><a href="#synchronous-bus-transfer">Synchronous Bus Transfer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#error-detection-and-correction">Error Detection and Correction</a>
+<ul>
+<li><a href="#hamming-code">Hamming Code</a></li>
+</ul>
+</li>
+<li><a href="#parallel-interface">Parallel Interface</a>
+<ul>
+<li><a href="#system-bus-side-review">System Bus Side (review)</a>
+<ul>
+<li><a href="#data-characteristics">Data characteristics</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Computer interface with a system:</p>
+<p><img src="https://i.imgur.com/f9JOxNj.png" alt="computer-system"></p>
+<ul>
+<li>Analogue signals: range of values</li>
+<li>Digital signals: number of bits</li>
+<li><strong>Interfaces</strong>: connect computer to the outside world; convert signals to appropriate levels and timing to permit interaction wiht the processor.</li>
+<li><strong>Synchronization</strong>: the interaction required to make two entities interact:
+<ul>
+<li><strong>Active Synchronization</strong>: demand-oriented, interrupt when service is required</li>
+</ul>
+</li>
+<li><strong>Passive Synchronization</strong>: request-oriented, poll untill service required</li>
+</ul>
+<p>Issues with interfaces:</p>
+<ul>
+<li>Signal issues
+<ul>
+<li>Noise</li>
+<li>Timing</li>
+<li>Signal levels</li>
+</ul>
+</li>
+<li>Data flow issues
+<ul>
+<li>What's the information transferred</li>
+<li>Direction of data flow, unidirectional or bidirectional</li>
+<li>Which device controls the data flow</li>
+<li>How to indicate valid data presence</li>
+</ul>
+</li>
+<li>Synchronization issues
+<ul>
+<li>Level of service (active or passive)</li>
+<li>How is synchronization achieved (non-maskable interrupts, maskable interrupts, tight polling loops, occasional polling loops, blind synchronization, etc.)</li>
+<li>When will data be generated: spontaneously or only when stimulated.</li>
+</ul>
+</li>
+</ul>
+<h2 id="embedded-systems">Embedded Systems</h2>
+<ul>
+<li><strong>Microprocessor</strong>: a microprocessor consists of a processor only, no main memory and no built-in support for input/output devices. &quot;Microprocessor&quot; term refers to general-purpose CPU.</li>
+<li><strong>Microcontroller</strong> (<strong>MCU</strong>): a complete computer on a single chip consisting of a processor, built-in memory and some I/O devices. These chips are intended for small embedded control applications, so leaving the pins for I/O and not requiring a external memory bus is very useful. Some microcontrollers have as little as 6 pins. Contrast that to a general purpose computing processor intended for a PC. Those things have 100s of pins in a array and require extensive external circuitry.</li>
+<li><strong>System-on-a-Chip</strong> (<strong>SoC</strong>): an integrated circuit with all components of a computer, including CPU, memory, I/O devices and storage. They consume less power and take up less space than multi-chip design, and are common in embedded systems. &quot;System on chip&quot; is more of a marketing term than anything real. However, there are a lot more pins on SoC than a normal microprocessor for people to put additional logics on.
+<ul>
+<li><img src="https://i.imgur.com/WFEe0lz.png" alt="soc"></li>
+</ul>
+</li>
+<li><strong>Programmable Logic Device</strong> (<strong>PLD</strong>):  a digital logic chip that permits configurations and interconnection of internal logic blocks. (a computer chip that can be &quot;rewired&quot; to implement custom digital circuit using primitive building blocks) PLD includes flash which is non-volatile, but can only be rewritten a finite number of times. PLD also includes SRAM but volatile.
+<ul>
+<li><strong>System-on-a-Programmable Chip</strong> (<strong>SoPC</strong>) is a SoC that is implemented using high-density, reconfigurable PLD.</li>
+</ul>
+</li>
+</ul>
+<h2 id="software-and-synchronization">Software and Synchronization</h2>
+<ul>
+<li><strong>CPU Latency</strong>: CPU latency is the time between the receipt of a service request and the initiation of service.</li>
+<li><strong>Device Latency</strong>: the time between device requires service and device receives service.
+<ul>
+<li><img src="https://i.imgur.com/5yoaqee.png" alt="dev-latency"></li>
+</ul>
+</li>
+<li><strong>Real-Time System</strong>: a system that guarantees a worst-case latency for critical eents.</li>
+<li><strong>Latency</strong>: the delay between arrival of the request and the completion of service</li>
+<li><strong>Throughput</strong>: a measure of how many items can be processed per unit of time.</li>
+<li><strong>Device Driver</strong>:  the software associated with a particular device, including
+<ul>
+<li>Data structures: variables needed to access the device interface registers; variables associated with the state of the device; data buffers.</li>
+<li>Initialization functions: device initialization; synchronization initialization; initialization of driver variables.</li>
+<li>I/O functions: functions to take input from device or output to.</li>
+<li>Interrupt service routiines.</li>
+</ul>
+</li>
+</ul>
+<h3 id="synchronization-mechanisms">Synchronization Mechanisms</h3>
+<p><strong>CPU-Oriented</strong> mechanisms (waits for CPU to initiate sync):</p>
+<ul>
+<li><strong>Blind Cycle</strong>: software waits for some amount of time and then acts on the data whether or not the device is ready.</li>
+<li><strong>Occasional Polling</strong>: device status is checked at the convenience of the designer</li>
+<li><strong>Periodic Polling</strong>: device status is checked after a pre-determined amount of time and this repeats until the device is done. This is usually implemented with a timer interrupt.</li>
+</ul>
+<p><strong>Device-Oriented</strong> mechanisms (minimum device latency):</p>
+<ul>
+<li><strong>Tight polling loop</strong> (or <strong>Busy Waiting</strong>): software continuously checks the I/O status, waiting for hte device to be done. Although this is often implemented as a very tight loop, it could be implemented as a sequence of tests.</li>
+<li><strong>Interrupt Handling</strong>: device generates a hardware interrupt to request service immediately.</li>
+</ul>
+<p>Two options for polling loop synchronization data output:</p>
+<ul>
+<li><strong>Optimistic Option</strong>: assume device is initially ready, output the data, poll the device, and wait until device is ready.</li>
+<li><strong>Conservative option</strong>: assume the device is not initially ready, poll the device, wait until device is ready, and then output data.</li>
+</ul>
+<p>Interrupt synchronization procedure:</p>
+<ol>
+<li>A device notifies the CPU of interrupt request</li>
+<li>CPU completes execution of current instruction</li>
+<li>Suspend main program execution</li>
+<li>Disable interrupts (processor specific)</li>
+<li>Save internal registers include program counter</li>
+<li>Acknowledge device that sent the request</li>
+<li>Select interrupt service routine</li>
+<li>Execute interrupt service routine</li>
+<li>Restore registers including program counter</li>
+<li>Enable interrupts (processor specific)</li>
+<li>Resume main program execution</li>
+</ol>
+<p>CPU Notification:</p>
+<ul>
+<li><strong>Single interrupt request line</strong>, had to determine which device sent the IRQ</li>
+<li><strong>Multiple interrupt request line</strong></li>
+</ul>
+<p><img src="https://i.imgur.com/jaHxyeE.png" alt="cpu-notification"></p>
+<p>ISR Selection:</p>
+<ul>
+<li>Non-vectored interrupts:
+<ul>
+<li>Devices are polled to determine source, most suitable for single interrupt request line</li>
+<li>Priority must be determined in software</li>
+</ul>
+</li>
+<li>Vectored interrupts:
+<ul>
+<li>Specific interrupt routines are associated with interrupt request line, no need for general handler, and lower latency</li>
+<li>Requests are associated with an interrupt vector</li>
+<li>Fixed priority associated with the interrupt vector</li>
+<li>Interrupt service routine at vector address is executed</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://i.imgur.com/F1vvnv6.png" alt="vector-vs-nonvector"></p>
+<blockquote>
+<p>ISRs should be executed as fast as possible since they are interrupt other tasks, and must avoid blocking I/O functions.
+Printout should never be called in ISR (o snap)</p>
+</blockquote>
+<p>An ISR is usually structured as follows:</p>
+<ol>
+<li>save any registers modified by the ISR</li>
+<li>Acknowledge the device if required</li>
+<li>Re-enable interrupts to allow higher-priority interrupts if desired</li>
+<li>Test for a valid interrupt and determine the exact source of the interrupt</li>
+<li>Complete desired action</li>
+<li>Restore registers (may need to disable interrupt first)</li>
+<li>Return</li>
+</ol>
+<p>Interrupt initialization: steps while initializing a software system that uses interrupts. Step 2-4 may be performed in any order provided that all interrupts are disabled.</p>
+<ol>
+<li>Disable all interrupts</li>
+<li>Enable device interface interrupts by setting appropriate device interface registers</li>
+<li>Set interrupt mask to allow interrupts from device</li>
+<li>Initialize interrupt vector with address of ISR</li>
+<li>Enable interrupts as require.</li>
+</ol>
+<h3 id="interface-communication">Interface Communication</h3>
+<p>The two sides of the interface likely utilize different clocks and both sides are performing tasks independently except when communicating.</p>
+<p>A finite state machine model for interface communication:</p>
+<p><img src="https://i.imgur.com/d5ikXU5.png" alt="interface-communication"></p>
+<ul>
+<li><strong>Producer</strong>: a software/hardware component responsible for producing data and events for the consumer.</li>
+<li><strong>Consumer</strong>: a software/hardware component responsible for consuming data and events provided by the producer.</li>
+<li><strong>Data</strong>: state information transferred from producer to consumer</li>
+<li><strong>Event</strong>: control information transferred from producer to consumer to represent the occurrence of some activity</li>
+</ul>
+<p>Synchronization occurs at several levels:</p>
+<ul>
+<li><strong>Data Generation</strong>: how is the data creation controlled? Is it done spontaneously (no communication required), or did the consumer asked for it?</li>
+<li><strong>Data Notification</strong>/<strong>Initiation of Transfer</strong>: once the producer has the data, how does the producer notify the consumer? How does the consumer request the data?</li>
+<li><strong>Data Transfer</strong> (required synchronization): once the producer has the data and the consumer is ready for the data, how does timing of the transfer handled?</li>
+</ul>
+<p><img src="https://i.imgur.com/9e0hfhY.png" alt="synchronization scenario"></p>
+<p>Data Generation:</p>
+<ul>
+<li><strong>Spontaneous Sources</strong>: data is produced in the device independent of the actions of the consumer accepting the data. (blind cycle)</li>
+<li><strong>Consumer Sensitive Sources</strong>: data is produced by the device only after previous data has been consumed by consumer.</li>
+<li><strong>Consumer Responsive Sources</strong>: data is produced by the device only after requested by the consumer.</li>
+</ul>
+<p><img src="https://i.imgur.com/JMJ9UPN.png" alt="data-generation"></p>
+<p>Data Notification / Initiation of Transfer:</p>
+<ul>
+<li><strong>Consumer Initiated Scenario</strong>: the consumer requests data and then the data becomes ready and the request is completed.
+<ul>
+<li>Passive synchronization: Periodic polling for a key to be pressed, and once it's pressed, the data is consumed.</li>
+<li>Active synchronization: an interrupt from a printer to indicate that it is ready for the next item to be printed.</li>
+</ul>
+</li>
+<li><strong>Producer Initiated Scenario</strong>: data is available, and then the data is accepted by the consumer and the transfer is completed.
+<ul>
+<li>Passive synchronization: periodic polling for a printer to become ready for the next character and once it is ready the data is transferred and consumed.</li>
+<li>Active synchronization: an interrupt from a keyboard to indicate that it has the next character ready for consumption.</li>
+</ul>
+</li>
+</ul>
+<p>Data Transfer:</p>
+<ul>
+<li><strong>Data Persistence</strong>: how long data is valid for the purpose of transferring between communicating entities.
+<ul>
+<li><strong>Persistent Data</strong>: information remains valid until consumer signals that the data has been consumed.</li>
+<li><strong>Transient Data</strong>: information is made available to the consumer and only remains valid for a period of time. In most cases, the minimum period of time the data will remain valid is known by the designer. Most input data is transient.</li>
+</ul>
+</li>
+<li><strong>Time synchronization and clocking</strong>: how to signal to make a transfer happen</li>
+<li><strong>Controlling signal</strong>: how control information is exchanged between communicating entities.</li>
+</ul>
+<h3 id="synchronous-vs-asynchronous-systems">Synchronous vs Asynchronous Systems</h3>
+<p>Consider blind synchronization:</p>
+<ul>
+<li>The consumer just reads the data with no regard for the change at the producer.</li>
+<li>Errors could occur if the data changed too close to the sample time.</li>
+<li>Some data values may be missed and others may be read multiple times.</li>
+</ul>
+<p><img src="https://i.imgur.com/IKpNcS7.png" alt="blind-sync-system"></p>
+<p>Consider synchronous systems:</p>
+<ul>
+<li>Common clock used by the producer and consumer</li>
+<li>Producer and consumer use different edges to ensure data validity</li>
+<li>Data may be sampled multiple times unless transfer limited to one clock period.</li>
+</ul>
+<p><img src="https://i.imgur.com/z9GjzwF.png" alt="sync-system"></p>
+<p>Consider asynchronous systems:</p>
+<ul>
+<li>Producer informs consumer of data validity</li>
+<li>Timing can be inferred from data validity</li>
+<li>Data is only sampled once</li>
+</ul>
+<p><img src="https://i.imgur.com/gScJ8mX.png" alt="async-system"></p>
+<h3 id="generalized-io-operations">Generalized I/O Operations</h3>
+<p>Steps to perform I/O transfer:</p>
+<ul>
+<li><strong>Global Initialization</strong>: set processor and I/O interface parameters for overall system operation, e.g. initializing interrupt vector table, specifying port directions.</li>
+<li><strong>Transfer Initialization</strong>: set processor and I/O interface parameters to facilitate a specific type of transfer, e.g. set the memory location to accept the data for the transfer, set the block and track number for disk transfer, etc. These steps are executed once per transfer.</li>
+<li><strong>Data Transfer</strong>: transferring data includes synchronization before and after the transfer.</li>
+</ul>
+<p>Transfer assumptions:</p>
+<ul>
+<li><strong>Data Unit</strong>: refer to individual bus transaction</li>
+<li><strong>Block</strong>: describe sets of data units that require synchronization</li>
+</ul>
+<blockquote>
+<p>For example, the data transferred in 1 bus transaction is 1 data unit, where the size of the unit in bits is equal to the width of the data bus.
+Synchronization can occur for each sector of a disk, for each block transmitted using a synchronous communication channel, or for a single byte written to an I/O device.</p>
+</blockquote>
+<p><strong>Impact of data generation</strong>: Shown below are data transfer phases of back-to-back READ I/O operations.
+Each transfer communicates 1 data unit.</p>
+<p><img src="https://i.imgur.com/JM0eo1N.png" alt="impact-data-generation"></p>
+<p>Data Transfer Terminology:</p>
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>transfer producer</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{transfer producer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9011879999999999em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer producer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span>: time required by the producer to transfer one data unit. This limits the maximum rate at which data can be transferred</li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>transfer consumer</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{transfer consumer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer consumer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>: time required by the consumer to transfer one data unit. This may be longer or shorter than <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>transfer producer</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{transfer producer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9011879999999999em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer producer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span> but the actual transfer time will be the maximum of the two parameters</li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>wait</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{wait}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31750199999999995em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">wait</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>: the time required by the processor to synchronize with the target, usually a device, and recognize the availability of new data. If tight polling is not used, the processor will be available for other CPU activities during a portion of the time window.</li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>sync-poll</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{sync-poll}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9011879999999999em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">sync-poll</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span>: the time spent by the processor to actively poll and detect new data available at a target, usually a device.</li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>sync-intr</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{sync-intr}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9011879999999999em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.317502em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">sync-intr</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span>: the time spent by the processor to interrupt its execution in response to new data available at the target, usually a device.</li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>interdata</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{interdata}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">interdata</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>: the time interval between the generation of consecutive data blocks at the producer. This time interval is assumed to be fixed, although it may vary in practice.</li>
+</ul>
+<p><strong>Impact of notification/initiation</strong>: Shown below is the data transfer phase of a READ I/O operation.
+It assumes a consumer sensitive data source and that each block contains only 1 data unit.</p>
+<ul>
+<li>Since  <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>transfer producer</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{transfer producer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9011879999999999em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer producer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span> is less than <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>transfer consumer</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{transfer consumer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer consumer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>, the transfer time <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>transfer</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{transfer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>transfer consumer</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{transfer consumer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer consumer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></li>
+<li>Transfer is consumer initiated since <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>transfer consumer</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{transfer consumer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer consumer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> starts before and ends after <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>transfer producer</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{transfer producer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9011879999999999em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer producer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span></li>
+</ul>
+<p><img src="https://i.imgur.com/RcWibnF.png" alt="impact-data-notification"></p>
+<p>Block read transfers - 2 data units per synchronization: below figure shows the data transfer phase of a READ I/O operation. It assumes consumer sensitive data source and that each block contains 2 data units.</p>
+<ul>
+<li>Since  <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>transfer producer</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{transfer producer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9011879999999999em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer producer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span> is less than <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>transfer consumer</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{transfer consumer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer consumer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>, the transfer time <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>transfer</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{transfer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>transfer consumer</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{transfer consumer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer consumer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></li>
+<li>Transfer is consumer initiated since <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>transfer consumer</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{transfer consumer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer consumer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> starts before and ends after <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>transfer producer</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{transfer producer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9011879999999999em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer producer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span></li>
+</ul>
+<p><img src="https://i.imgur.com/RRSJRnF.png" alt="block-read-transfer"></p>
+<p>Estimation synchronization time for block transfers:
+Consider the transfer of a group of 256 data units.
+Let <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">n</span></span></span></span> be the number of data units that are in one block.
+Synchronization occurs after every block transfer.</p>
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n=1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">n</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span> implies that synchronization occurs once for the transfer of 1 data unit for a total of 256 synchronizations.</li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>256</mn></mrow><annotation encoding="application/x-tex">n=256</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">n</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">2</span><span class="mord">5</span><span class="mord">6</span></span></span></span> implies that synchronization occurs once for the transfer of a block of 256 data units for a total of 1 synchronization.</li>
+</ul>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo fence="true">{</mo><mtable rowspacing="0.3599999999999999em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><msub><mi>t</mi><mtext>transfer</mtext></msub><mo>=</mo><mi>max</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>t</mi><mtext>transfer producer</mtext></msub><mo separator="true">,</mo><msub><mi>t</mi><mtext>transfer consumer</mtext></msub><mo stretchy="false">)</mo></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><msub><mi>t</mi><mtext>wait</mtext></msub><mo>=</mo><mrow><mo fence="true">{</mo><mtable rowspacing="0.3599999999999999em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><msub><mi>t</mi><mtext>sync-poll</mtext></msub></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mtext>Polling</mtext></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><msub><mi>t</mi><mtext>sync-inter</mtext></msub><mo>+</mo><msub><mi>t</mi><mtext>interdata</mtext></msub></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mtext>Interrupts</mtext></mstyle></mtd></mtr></mtable></mrow></mrow></mstyle></mtd></mtr></mtable></mrow><annotation encoding="application/x-tex">\begin{cases}
+t_\textrm{transfer}=\max(t_\textrm{transfer producer},t_\textrm{transfer consumer})\\
+t_\textrm{wait} = \begin{cases}
+t_\textrm{sync-poll} &amp; \textrm{Polling}\\
+t_\textrm{sync-inter} + t_\textrm{interdata} &amp;\textrm{Interrupts}
+\end{cases}
+\end{cases}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:4.44003em;vertical-align:-1.970015em;"></span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.35002em;"><span style="top:-2.19999em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎩</span></span></span><span style="top:-2.19499em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-2.20499em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-3.15001em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎨</span></span></span><span style="top:-4.2950099999999996em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-4.30501em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-4.60002em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎧</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.8500199999999998em;"><span></span></span></span></span></span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.470015em;"><span style="top:-5.212015000000001em;"><span class="pstrut" style="height:3.75em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mop">max</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer producer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer consumer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span><span style="top:-3.0300149999999997em;"><span class="pstrut" style="height:3.75em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31750199999999995em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">wait</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">{</span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">sync-poll</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.317502em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">sync-inter</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">interdata</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:1em;"></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord text"><span class="mord textrm">Polling</span></span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord text"><span class="mord textrm">Interrupts</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.970015em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<blockquote>
+<p>Note that interrupt response time is slightly slower than tight polling.</p>
+</blockquote>
+<p>Estimating transfer time for a consumer sensitive device.</p>
+<table>
+<thead>
+<tr>
+<th>Items per sync</th>
+<th>CPU Time Required</th>
+<th>Minimum Total Time Per Transfer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>256</mn><mo>×</mo><mo stretchy="false">(</mo><msub><mi>t</mi><mtext>sync</mtext></msub><mo>+</mo><msub><mi>t</mi><mtext>transfer</mtext></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">256\times(t_\textrm{sync}+t_\textrm{transfer})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mord">5</span><span class="mord">6</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.036108em;vertical-align:-0.286108em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.15139200000000003em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">sync</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>256</mn><mo>×</mo><mo stretchy="false">(</mo><msub><mi>t</mi><mtext>wait</mtext></msub><mo>+</mo><msub><mi>t</mi><mtext>transfer</mtext></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">256\times(t_\textrm{wait}+t_\textrm{transfer})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mord">5</span><span class="mord">6</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31750199999999995em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">wait</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></td>
+</tr>
+<tr>
+<td>n</td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle scriptlevel="0" displaystyle="true"><mrow><mo fence="true">⌈</mo><mfrac><mn>256</mn><mi>n</mi></mfrac><mo fence="true">⌉</mo></mrow><mo>×</mo><msub><mi>t</mi><mtext>sync</mtext></msub><mo>+</mo><mn>256</mn><mo>×</mo><msub><mi>t</mi><mtext>transfer</mtext></msub></mstyle></mrow><annotation encoding="application/x-tex">\displaystyle \left\lceil\frac{256}{n}\right\rceil\times t_\textrm{sync}+256\times t_\textrm{transfer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.40003em;vertical-align:-0.95003em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">⌈</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.32144em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault">n</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span><span class="mord">5</span><span class="mord">6</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">⌉</span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.9011879999999999em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.15139200000000003em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">sync</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mord">5</span><span class="mord">6</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle scriptlevel="0" displaystyle="true"><mrow><mo fence="true">⌈</mo><mfrac><mn>256</mn><mi>n</mi></mfrac><mo fence="true">⌉</mo></mrow><mo>×</mo><msub><mi>t</mi><mtext>wait</mtext></msub><mo>+</mo><mn>256</mn><mo>×</mo><msub><mi>t</mi><mtext>transfer</mtext></msub></mstyle></mrow><annotation encoding="application/x-tex">\displaystyle \left\lceil\frac{256}{n}\right\rceil\times t_\textrm{wait}+256\times t_\textrm{transfer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.40003em;vertical-align:-0.95003em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">⌈</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.32144em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault">n</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span><span class="mord">5</span><span class="mord">6</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">⌉</span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31750199999999995em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">wait</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mord">5</span><span class="mord">6</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></td>
+</tr>
+<tr>
+<td>256</td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>sync</mtext></msub><mo>+</mo><mn>256</mn><mo>×</mo><msub><mi>t</mi><mtext>transfer</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{sync}+256\times t_\textrm{transfer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9011879999999999em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.15139200000000003em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">sync</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mord">5</span><span class="mord">6</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>wait</mtext></msub><mo>+</mo><mn>256</mn><mo>×</mo><msub><mi>t</mi><mtext>transfer</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{wait}+256\times t_\textrm{transfer}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31750199999999995em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">wait</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mord">5</span><span class="mord">6</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">transfer</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></td>
+</tr>
+</tbody>
+</table>
+<h2 id="computer-structure">Computer Structure</h2>
+<p><strong>Bus</strong> is a set of wires that are shared by several components, buses exchange information using a standardized protocol.</p>
+<p>Essential building blocks of system bus:</p>
+<ul>
+<li>A technique for selecting two or more communicating entities</li>
+<li>A set of wires/signals to transfer data</li>
+<li>A set of wires/signals to control the transfer</li>
+</ul>
+<p>Why is a bus used?</p>
+<ul>
+<li>Buses reduce the total number of wires required by the system</li>
+<li>Buses allow for easy expansion</li>
+</ul>
+<p><strong>Memory mapped I/O</strong>:
+I/O devices can be connected to the system in a manner similar to memory.
+All that CPU can see is an address, it cannot distinguish I/O device from regular memory addresses.</p>
+<p><img src="https://i.imgur.com/gPRkhRC.png" alt="mem-mapped-io"></p>
+<p><strong>Dedicated I/O buses</strong>:
+I/O devices can be connected to system using a separate I/O bus that does not connect to the main memory.
+The bus can be physically or logically separate.</p>
+<p><img src="https://i.imgur.com/EyDvdd7.png" alt="dedicated-io"></p>
+<p>Memory:</p>
+<ul>
+<li>Memory connects to a CPU using one or more buses.</li>
+<li>Both instructions and data are stored in memory. Instructions can only be distinguished from data by context.</li>
+<li>Stored memory values are accessed using their address</li>
+<li>ROM (read only memory) usually contains the sequence of instruction necessary to boot machine.</li>
+<li>RAM (random access memory) is used to store values and programs that may change</li>
+<li>There is no obvious distinction between ROM and RAM addresses</li>
+</ul>
+<p>Single wire signal representation:</p>
+<p><img src="https://i.imgur.com/H3lcj7N.png" alt="signal-edge"></p>
+<p>Multi-wire signal representations:</p>
+<p><img src="https://i.imgur.com/QXIO6Ac.png" alt="multi-edge"></p>
+<p>Control signals:
+Many operations are triggered by one or more control signals:</p>
+<ul>
+<li>Active high/low level triggered
+<ul>
+<li>Active high control signal indicates a certain condition when it has a value of 1</li>
+<li>Active low control signal indicates a certain condition when it has a value of 0</li>
+</ul>
+</li>
+<li>Rising/Falling edge triggered
+<ul>
+<li>Rising-edge signal changes from low voltage to high voltage</li>
+<li>Falling-edge signal changes from high voltage to low voltage</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://i.imgur.com/AlsHKGu.png" alt="control-signal"></p>
+<p>Clock signal:
+a clock signal is a special type of control signal that synchronizes two or more devices</p>
+<ul>
+<li>Characteristics: edge triggered clock signal, or periodic, fixed-duty-cycle (ratio of high time to low time) clock signal</li>
+<li>System clock signals are typically periodic with duty cycles approaching 50%:
+<ul>
+<li>Input signals are sampled at predictable time w.r.t. system clock</li>
+<li>Output signals change at a predictable time w.r.t. the system clock.</li>
+</ul>
+</li>
+<li>Some clock signals are aperiodic
+<ul>
+<li>Register clock signals are often not periodic</li>
+<li>Active edges only occur when needed to trigger an event</li>
+</ul>
+</li>
+</ul>
+<p>Multiphase clock signals: alternative clocking schemes have been proposed to increase opportunities for synchronization.</p>
+<p><img src="https://i.imgur.com/0LJzyW2.png" alt="multi-clock-signals"></p>
+<h3 id="cpu">CPU</h3>
+<p>CPU consists of:</p>
+<ul>
+<li><strong>Arithmetic and Logic Unit</strong>: performs operations required by the instruction sequence</li>
+<li><strong>Control Unit</strong>: interprete the instruction, and controls how information move both within the CPU and on the system bus</li>
+<li><strong>Registers</strong>: store the state of the system
+<ul>
+<li><strong>General Purpose Registers</strong>: provide internal storage for intermediate results, most systems have &lt;20 general purpose registers</li>
+<li><strong>Special Purpose Registers</strong>: store control/status information</li>
+</ul>
+</li>
+</ul>
+<p>Special purpose registers include:</p>
+<ul>
+<li><strong>Program Counter</strong> (PC): stores the address of next instruction to read</li>
+<li><strong>Instruction Register</strong> (IR): stores the current instruction</li>
+<li><strong>Program Status Register</strong> (PSW): stores the processor status (flags, etc.)</li>
+<li><strong>Stack Point</strong> (SP): stores the address of the top of the stack</li>
+<li><strong>Memory Address Register</strong> (MAR): the address that we'll feed to the system bus to say where we want to get our information from (e.g. retrieve next instruction) or write our information to.</li>
+<li><strong>Memory Data Register</strong> (MDR): store information that we receive from memory, or information we want to write to memory.</li>
+<li>Temporary Registers Y, Z: we need register Y to hold one of the operands to the ALU, and we need register Z to hold the output. These are required because there's only going to be one value on the bus at a time.</li>
+<li>MUX: 32 bit system, each instruction takes 4 bytes of memory. Every time we fetch a new instruction, we'll need to update the program counter incrementing it by 4.</li>
+</ul>
+<p>A simple 32-bit CPU:</p>
+<p><img src="https://i.imgur.com/itimy8U.png" alt="32-bit-cpu"></p>
+<hr>
+<p>Example of an instruction execution sequence: R1<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>←</mo></mrow><annotation encoding="application/x-tex">\leftarrow</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.36687em;vertical-align:0em;"></span><span class="mrel">←</span></span></span></span>R1+[R3] includes <strong>7 cycles</strong>, each cycle modifies the system bus exactly once, since system bus can only hold one 4-byte data:</p>
+<ol>
+<li>PC<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{out}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43055599999999994em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2805559999999999em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">o</span><span class="mord mathdefault mtight">u</span><span class="mord mathdefault mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> (the countent of the program counter becomes available on the internal CPU bus), we can then feed into the <strong>MAR</strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>i</mi><mi>n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{in}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.46166399999999996em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> and use its address to go retrieve the next instruction;  we'll also feed this input address into the ALU, the MUX on the ALU will select constant 4 to be one of the inputs, and we can tell the ALU to do an ADD operation, this will result in the next instruction address to be stored in Z<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>i</mi><mi>n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{in}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.46166399999999996em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>. The control unit will need to do a <strong>READ</strong>, so that the memory address we feed into the MAR can be read on the system bus.</li>
+<li>The content of Z<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{out}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43055599999999994em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2805559999999999em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">o</span><span class="mord mathdefault mtight">u</span><span class="mord mathdefault mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> (the updated PC value) will be loaded into PC<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>i</mi><mi>n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{in}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.46166399999999996em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>. At this point all we can do is wait for <strong>MFC</strong> (memory function complete) flag to be set, when the new address in program counter has been accessed, and we have that information in MDR.</li>
+<li>We now move the address from <strong>MDR</strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{out}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43055599999999994em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2805559999999999em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">o</span><span class="mord mathdefault mtight">u</span><span class="mord mathdefault mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> to IR<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>i</mi><mi>n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{in}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.46166399999999996em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> so that we can actually act on it.</li>
+<li>Put the value from R3<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{out}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43055599999999994em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2805559999999999em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">o</span><span class="mord mathdefault mtight">u</span><span class="mord mathdefault mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> into the <strong>MAR</strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>i</mi><mi>n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{in}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.46166399999999996em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>, and the control unit need to tell the system bus that we are doing a <strong>READ</strong></li>
+<li>Load R1<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{out}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43055599999999994em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2805559999999999em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">o</span><span class="mord mathdefault mtight">u</span><span class="mord mathdefault mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> into Y<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>i</mi><mi>n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{in}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.46166399999999996em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>, and wait for <strong>MFC</strong> flag to be set</li>
+<li>When <strong>MFC</strong> flag is set, the value from the address in R3 will be available in <strong>MDR</strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{out}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43055599999999994em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2805559999999999em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">o</span><span class="mord mathdefault mtight">u</span><span class="mord mathdefault mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> which we then load into the ALU as one of the operand; the MUX selects Y as the other operand, we tell ALU to perform an add, and Z<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>i</mi><mi>n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{in}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.46166399999999996em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> stores the result we want</li>
+<li>We take the content of Z<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{out}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43055599999999994em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2805559999999999em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">o</span><span class="mord mathdefault mtight">u</span><span class="mord mathdefault mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> and store back into R1<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>i</mi><mi>n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{in}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.46166399999999996em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>, END</li>
+</ol>
+<p>Steps 1-3 are executed for all instructions and are not specific to this example.</p>
+<p>Very important notes:</p>
+<ul>
+<li>Every single register is implemented using flip flops, we will need signals to clock in</li>
+<li>All register needs to have tri-state output driver to prevent conflict</li>
+<li>Only one register can put its content onto the bus at the same time</li>
+</ul>
+<p>The CPU/Memory Interface</p>
+<ul>
+<li>Signals involved in <strong>memory interface</strong> operations:
+<ul>
+<li>Clock enable signals (MDR<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>i</mi><mi>n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{in}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.46166399999999996em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>, MAR<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>i</mi><mi>n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{in}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.46166399999999996em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>), (note MAR is write-only from CPU's perspective and read-only from system bus perspective)</li>
+<li>Tri-state enable signals (MDR<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{out}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43055599999999994em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2805559999999999em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">o</span><span class="mord mathdefault mtight">u</span><span class="mord mathdefault mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>): put data stored in MDR to the internal CPU bus</li>
+<li>Direction control signals (READ, WRITE): dictates which way information is flowing on the system bus</li>
+<li>Acknowledgement signals (MFC): memory function complete (data lookup complete after address load to MAR)</li>
+</ul>
+</li>
+<li>Some of these signals may be virtual signals. In particular, MFC is often virtual, i.e. it may not physically exist in all designs. In synchronous system, we don't have a MFC signal, instead we have a clock, and dedicated actions on clock edges, which serve the same function.</li>
+</ul>
+<p>MAR Bus Connection:</p>
+<p><img src="https://i.imgur.com/UNjosLK.png" alt="mar-bus-connection"></p>
+<p>MDR Bus Connection:</p>
+<ul>
+<li>Internal CPU Bus can write to external system bus</li>
+<li>Internal CPU Bus can read from external system bus</li>
+</ul>
+<p><img src="https://i.imgur.com/TfOLkLZ.png" alt="mdr-bus"></p>
+<h3 id="cpu-memory-interface">CPU-Memory Interface</h3>
+<p>Notes regarding CPU-memory interface:</p>
+<ul>
+<li><strong>Read</strong> reads data from memory/devices</li>
+<li><strong>Write</strong> writes data to memory/devices</li>
+<li>MAR<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>i</mi><mi>n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{in}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.46166399999999996em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>, MDR<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>i</mi><mi>n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{in}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.46166399999999996em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>, MDR<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow></mrow><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">_{out}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43055599999999994em;vertical-align:-0.15em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2805559999999999em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">o</span><span class="mord mathdefault mtight">u</span><span class="mord mathdefault mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>, READ, WRITE are all controlled by the CPU</li>
+<li>Only MFC is controlled by the memory</li>
+<li>CPU has clock period 10 ns, whereas Memory has <strong>access time</strong> 50 ns</li>
+<li>CPU and memory often differ greatly in performance: for example, a factor of 5 performance difference existed assuming the nominal 50 ns access time for memory.</li>
+<li>During a normal read operation, the CPU asserts the address value causing the memory to eventually respond with the corresponding data value</li>
+</ul>
+<p><img src="https://i.imgur.com/GrvjY0k.png" alt="cpu-memory-interface"></p>
+<p>Synchronous Memory Timing Interactions:</p>
+<ul>
+<li>The clock is shared with memory.</li>
+<li>Consider a situation where a memory requires 6 clock periods to respond to a CPU's request to read data; using synchronous option the CPU would assume that data is valid after 6 clock periods</li>
+<li>The CPU indicates the start of a new memory operation using a <strong>synchronization pulse</strong></li>
+<li>Memory must provide valid data prior to the end of 6th clock period, data is <em>transient</em>.</li>
+<li>In this case MFC is implemented virtually by counting to the 6th clock edge.</li>
+</ul>
+<p>Asynchronous Memory Timing Interactions:</p>
+<ul>
+<li>The clock is not shared with memory.</li>
+<li>Consider a situation where a memory requires 6 clock periods to respond to a CPU's request to read data; using an asynchronous option, the CPU and memory would exchange timing synchronization signals.</li>
+<li>The CPU indicates the start of a new memory operation using a synchronization pulse.</li>
+<li>The memory responds to the CPU with a synchronization pulse when data is valid. Data is <em>persistent</em>.</li>
+<li>If CPU attempts to read from an unused address, there would be no response, bus would hang unless other mitigation techniques are used. This is where <strong>watchdog timer</strong> often come in: if certain amount of time elapsed, the transaction is cancelled.</li>
+</ul>
+<p><img src="https://i.imgur.com/DBMOpHH.png" alt="sync-async-mem-timing"></p>
+<h3 id="multiple-drivers">Multiple Drivers</h3>
+<p>Consider the design challenge of connecting two different memory devices to a CPU:</p>
+<ul>
+<li>Is synchronous, how does the CPU know how long to wait for memory to respond? By always assume the worst case scenario and wait for the period required by the slowest driver, because there is no way to distinguish address from device. Very inefficient.</li>
+<li>Asynchronous implementation is much more efficient.</li>
+<li>How do the shared data and bus lines avoid conflicts?
+<ul>
+<li>The address line is utilized by MAR and read by each memory device, thus no potential conflicts.</li>
+<li>The data on the other hand goes both ways, we need a mechanism to ensure that only one of the devices is driving the line at a time.</li>
+<li>Likewise, the MFC pulse from async device could be driven by either device and we need to make sure there is no conflict.</li>
+<li>Conflict means one device set the line to logic 1 and another device set the line to logic 0. This will cause short circuit.</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://i.imgur.com/xHfeQ5C.png" alt="memory-read-operation"></p>
+<p>How to share a bus line?</p>
+<ol>
+<li>Uniquely select at most one output driver to output at a time: use addressing, arbitration, or time-multiplexing to select one driver.</li>
+<li>Connect to output drivers such that conflicts do not result in large current flow: use resistances to limit current.</li>
+</ol>
+<p>Output drivers source and sink current to change the voltage in the bus line:</p>
+<ul>
+<li>When sourcing current, the output driver connects to voltage source</li>
+<li>When sinking current, the output driver connects to a voltage sink</li>
+<li>When in a high impedance state, no connection to a voltage source or voltage sink exists.</li>
+</ul>
+<p><img src="https://i.imgur.com/wSahWaa.png" alt="source-sink-current"></p>
+<p>Transistor theories: BJT inverter, nmos inverter, pmos inverter, cmos inverter</p>
+<p><img src="https://i.imgur.com/IdxKtgE.png" alt="transistor-theories"></p>
+<p>Active vs Passive driver:</p>
+<ul>
+<li><strong>Active</strong>: any path through a transistor</li>
+<li><strong>Passive</strong>: path through a resistor</li>
+</ul>
+<p><strong>Totem Pole output driver</strong>: provides large current output from small IC logic value.</p>
+<p><img src="https://i.imgur.com/dhR27Gj.png" alt="totem-pole"></p>
+<p>Totem Pole Bus Conflict: two totem pole output drivers cannot share a bus line</p>
+<p><img src="https://i.imgur.com/nQ6BTjI.png" alt="totem-pole-bus-conflict"></p>
+<p>Avoiding Large Current Flow:
+Logic must be designed to prevent active connections to both the power supply voltage and ground reference at the same time.
+This can be achieved in two ways:</p>
+<ol>
+<li>Permanently: use a passive pull-up/pull-down resistor to limit the current flow in all possible paths</li>
+<li>Temporarily: disable a device by turning off all of its transistor-controlled connections to the power supply</li>
+</ol>
+<p><strong>Open-Collector Output Driver</strong>:</p>
+<ul>
+<li>The permanent solution to avoid large current flow</li>
+<li>Introduces another problem: floating lines (high impedance), which could be solved by adding a passive pull-up driver</li>
+<li>Remember that pull-up driver is not part of open-collector drivers.</li>
+<li>Driver hierachy: active logic through transistor, passive logic through resistor, and high impedance Z</li>
+</ul>
+<p><img src="https://i.imgur.com/k2gwex4.png" alt="open-collector-output-driver"></p>
+<p>Shared Bus Conflict Resolution A:</p>
+<p><img src="https://i.imgur.com/Js7PmdP.png" alt="shared-bus"></p>
+<p><strong>Tri-State Output Driver</strong>:</p>
+<ul>
+<li>Shared Bus Conflict Resolution (temporary) by selecting one driver at a time.</li>
+<li>If the enable signal <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi></mrow><annotation encoding="application/x-tex">e</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">e</span></span></span></span> is high, the input value passes through, otherwise the output is at high impedance state</li>
+<li>Enable signals for two tri-state drivers sharing a bus line must be mutually exclusive, otherwise it's a fatal <em>design</em> error</li>
+<li>If both enable signals are off, the output is float, we can add a pull-up resistor to the output line.</li>
+</ul>
+<p><img src="https://i.imgur.com/kfNdjgn.png" alt="shared-bus-conflict-res"></p>
+<p>Comparison of driver resistance:</p>
+<ul>
+<li>When a transistor is on, it will not behave as a perfect short; output line also has an associated capacitor in reality</li>
+<li>Remember that the time constant <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>τ</mi><mo>=</mo><mi>R</mi><mi>C</mi></mrow><annotation encoding="application/x-tex">\tau=RC</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.1132em;">τ</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span></span></span></span>, we see that open collector output is slow when changing state and is unsuitable for bus line.</li>
+</ul>
+<p><img src="https://i.imgur.com/8a4FJvk.png" alt="comparison-driver-resistance"></p>
+<p>Driver Edge Timing:</p>
+<ul>
+<li>When using passive pull-up, the parasitic capacitance <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>C</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(C)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span><span class="mclose">)</span></span></span></span> of the bus wire is charged through the passive resistance <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>R</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(R)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="mclose">)</span></span></span></span></li>
+<li>When using a passive pull-down, the parasitic capacitance <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>C</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(C)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span><span class="mclose">)</span></span></span></span> of the bus wire is discharged through the passive resistance <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>R</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(R)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="mclose">)</span></span></span></span></li>
+<li>When <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span></span></span></span> is small, large (slow) transistors are needed to handle the current</li>
+<li>When <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span></span></span></span> is large, the bus charges and discharges slowly</li>
+<li>Note that you can never have a passive pull up and passive pull down (which turns it into a voltage devider)</li>
+</ul>
+<p><img src="https://i.imgur.com/geDX7Pb.png" alt="driver-edge-timing"></p>
+<p>The following table summarizes the behaviour of a shared bus line when conflicting values are output at the same time.</p>
+<table>
+<thead>
+<tr>
+<th>Driver Type</th>
+<th>Pull-up</th>
+<th>Pull-down</th>
+<th>Bus Value</th>
+<th>Resolution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Totem Pole</td>
+<td>Active</td>
+<td>Active</td>
+<td>Unknown</td>
+<td>Device will eventually fail if condition persists</td>
+</tr>
+<tr>
+<td>Open-Collector</td>
+<td>Passive</td>
+<td>Active</td>
+<td>0</td>
+<td>Stable - Wired AND</td>
+</tr>
+<tr>
+<td>Open-Emitter</td>
+<td>Active</td>
+<td>Passive</td>
+<td>1</td>
+<td>Stable - Wired OR</td>
+</tr>
+<tr>
+<td>Tri State</td>
+<td>Passive</td>
+<td>Active</td>
+<td>0</td>
+<td>Stable - Wired AND</td>
+</tr>
+<tr>
+<td>^</td>
+<td>Active</td>
+<td>Active</td>
+<td>Unknown</td>
+<td>Device will eventually fail if condition persists</td>
+</tr>
+<tr>
+<td>^</td>
+<td>Active</td>
+<td>Passive</td>
+<td>1</td>
+<td>Stable - Wired OR</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Conflicts between active pull-ups and active pull-downs always result in unknown bus values</li>
+<li>Active pull-ups dominate passive pull-downs resulting in a bus value of 1</li>
+<li>Active pull-downs dominate passive pull-ups resulting in a bus value of 0</li>
+<li>In the tri-state case, the only way to have both pull-up and pull-down be active is when enable signals are not mutually exclusive</li>
+</ul>
+<p>Types of Output Drivers:</p>
+<ul>
+<li><strong>Totem Pole Output Drivers</strong> are used by all digital gates unless stated otherwise:
+<ul>
+<li>A totem pole output is capable of actively during a value of 1 or 0</li>
+<li>Totem pole outputs are not capable of a high impedance state so these outputs are not suitable for bus sharing</li>
+</ul>
+</li>
+<li><strong>Open-collector output drivers</strong> are denoted by the letters o/c on a gate:
+<ul>
+<li>An open collector output driver is capable of actively driving a value of 0</li>
+<li>When not driving a value of 0, the output driver is in a high impedance state</li>
+<li>A high impedance state can be passively driven to a value of 1 using a pull-up resistor tied to a voltage supply</li>
+</ul>
+</li>
+<li><strong>Tri-state output drivers</strong> are denoted by the presence of an enable signal on a gate:
+<ul>
+<li>A tri-state output driver can actively drive a value of 1 or 0 when enabled</li>
+<li>When not enabled, the output driver is in a high impedance state</li>
+<li>Tri-state output drivers are ideal for bus sharing</li>
+</ul>
+</li>
+<li>Other types of output drivers (open-emitter, open-drain, open-source, etc.) exist.
+<ul>
+<li>Open-drain are the CMOS equivalent to the BJT-based open collector drivers</li>
+<li>Open-drain are more common than open-source in CMOS implementations.</li>
+</ul>
+</li>
+</ul>
+<h3 id="device-selection">Device Selection</h3>
+<p>If a bus line has more than one possible driver, a device be selected either explicitly or implicitly:</p>
+<ul>
+<li><strong>Explicit Selection</strong>
+<ul>
+<li>Select a unique device using available bus signals: a range of address values; an arbitration signal; a timing signal; an event signal</li>
+<li>Used for general purpose buses</li>
+</ul>
+</li>
+<li><strong>Implicit Selection</strong>
+<ul>
+<li>Resolves bus conflicts in a predictable manner using wired logic: Wired AND logic produces a 1 if all drivers output a 1; wired OR logic produces a 1 if any driver outputs a 1.</li>
+<li>Used for special application such as interrupt request lines</li>
+</ul>
+</li>
+</ul>
+<p>Explicit Device Selection with open collector output driver and tri-state output driver:</p>
+<p><img src="https://i.imgur.com/kwT119o.png" alt="explicit-device-selection"></p>
+<h4 id="device-selection-with-synchronous-bus">Device Selection with Synchronous Bus</h4>
+<p>Assume that the system uses a synchronous bus with the following signals for data transfer,</p>
+<ul>
+<li>Clock signal (CLOCK)</li>
+<li>Address bus signals (A[15..0])</li>
+<li>Data bus signals (D[15..0])</li>
+<li>Read/write signal (R/W)</li>
+</ul>
+<p>Since the address bus is 16 bits wide, the system supports <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>16</mn></msup><mo>=</mo><mn>65536</mn></mrow><annotation encoding="application/x-tex">2^{16}=65536</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141079999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mtight">6</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">6</span><span class="mord">5</span><span class="mord">5</span><span class="mord">3</span><span class="mord">6</span></span></span></span> addresses.
+Since the data bus is 16 bits wide, the word size of the system is 16 bits.</p>
+<p>Address decoding circuitry can be designed several different ways:</p>
+<ul>
+<li>Centralized vs. Decentralized
+<ul>
+<li>System may have a centralized address and timing decoder to enable devices</li>
+<li>System may embed all address and timing decode circuitry into devices, i.e. the device has to decide whether it is selected by itself.</li>
+</ul>
+</li>
+<li><strong>Address Aliasing</strong>
+<ul>
+<li>All address bus signals can be considered by the system (no aliasing option)</li>
+<li>A portion of the address bus signals can be ignored by the system (aliasing option)</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://i.imgur.com/hiU77h1.png" alt="centralized-v-decentralized"></p>
+<p>Address decoding - general structure:</p>
+<ul>
+<li>The centralized decoder can look at the upper address lines (A[15..e]) and select the device to enable</li>
+<li>The lower address bits (A[(e-1)..0]) are still fed to the device, allowing the device's internal register selection unit to determine which of its memory locations are involved in the transaction</li>
+</ul>
+<p><img src="https://i.imgur.com/B0Zdlld.png" alt="address-decoding"></p>
+<p>Address aliasing implementation:</p>
+<p><img src="https://i.imgur.com/b5Yuf6O.png" alt="addr-alias-impl"></p>
+<h3 id="metastability">Metastability</h3>
+<p><strong>Metastability</strong> occurs when setup times or hold times of registers are violated.
+Metastability can never be completely eliminated from a computer system because external inputs are unpredictable.</p>
+<ul>
+<li>During <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>setup</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{setup}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9011879999999999em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.28055599999999997em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">setup</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span> and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>hold</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{hold}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">hold</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> of a rising edge, the data input into the flop must not change. If the input changes before this time, output will be the new value, and if the input changes after this time, the output will be the old value.</li>
+<li>If data input to the flip flop changes during this short window, there is potential for metastability.</li>
+</ul>
+<p><img src="https://i.imgur.com/Cw80Y2N.png" alt="metastability"></p>
+<p><strong>Synchronization chain</strong> can reduce the probability of metastable signals. The trade off of one extra cycle of latency is worth it.</p>
+<p><img src="https://i.imgur.com/Pz1uESo.png" alt="sync-chain"></p>
+<h3 id="synchronous-bus-characteristics">Synchronous Bus Characteristics</h3>
+<ul>
+<li><strong>Bus clock source</strong> is shared to all attached devices, this bus clock source is assumed to come from an external source, but in reality it can be the processor clock source as well.</li>
+<li>A <strong>control line</strong> (R/W) indicates if the operation is a read or a write: read when the signal is 1, and write when the signal is 0</li>
+<li>All operations are assumed to require the same amount of time to complete</li>
+<li>There is no feedback from the consumer to the producer to alter the rate of transfer or to alter the duration that data is valid</li>
+<li>Note that memory devices can only read all the lines, but can only write to the <strong>data line</strong>.</li>
+<li></li>
+</ul>
+<p><img src="https://i.imgur.com/gu5n0vA.png" alt="sync-bus-characteristics"></p>
+<p>Model of bus timing for a read operation</p>
+<ul>
+<li>The interval between A and B is the <strong>Master Phase</strong></li>
+<li>The interval between B and D is the <strong>Slave Phace</strong></li>
+</ul>
+<p><img src="https://i.imgur.com/vwCZADp.png" alt="bus-timing-for-read"></p>
+<p>Model of bus timing for a write operation</p>
+<p><img src="https://i.imgur.com/pTkeRtI.png" alt="bus-timing-for-write"></p>
+<ul>
+<li><strong>Address Propagation Delay</strong> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mrow><mi>P</mi><mi>A</mi></mrow></msub></mrow><annotation encoding="application/x-tex">t_{PA}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.13889em;">P</span><span class="mord mathdefault mtight">A</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>: the time of the address to propagate from the bus master to all of the potential slaves. Note the slight delay for &quot;Valid Address&quot; to appear on the address line.</li>
+<li><strong>Data Propagation Delay</strong> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mrow><mi>P</mi><mi>D</mi></mrow></msub></mrow><annotation encoding="application/x-tex">t_{PD}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.13889em;">P</span><span class="mord mathdefault mtight" style="margin-right:0.02778em;">D</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>: the time for the data to propagate from the data source to all of the potential data receivers. It represents a small delay at the beginning of Data Valid.</li>
+<li><strong>Bus Propagation Delay</strong> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>P</mi></msub></mrow><annotation encoding="application/x-tex">t_P</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.13889em;">P</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> (WRITE): the maximum of the propagation delays for all bus signals.<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>P</mi></msub><mo>=</mo><mtext>Max propagation delay for all signals</mtext><mo>=</mo><mi>max</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>t</mi><mrow><mi>P</mi><mi>A</mi></mrow></msub><mo separator="true">,</mo><msub><mi>t</mi><mrow><mi>P</mi><mi>D</mi></mrow></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">t_P=\textrm{Max propagation delay for all signals}=\max(t_{PA}, t_{PD})
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.13889em;">P</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord text"><span class="mord textrm">Max propagation delay for all signals</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop">max</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.13889em;">P</span><span class="mord mathdefault mtight">A</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.13889em;">P</span><span class="mord mathdefault mtight" style="margin-right:0.02778em;">D</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span></p>
+</li>
+<li><strong>Setup Time</strong> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>setup</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{setup}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9011879999999999em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.28055599999999997em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">setup</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span>: the minimum time that a signal has to be available at the input to the buffer before the active clock edge arrives. Specified at the slave for a write and at the master for a read.</li>
+<li><strong>Hold Time</strong> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>hold</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{hold}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">hold</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>: the minimum time that data has to be held stable after the clock edge that triggers the transfer. Specified at the slave during a write and at the master during a read.</li>
+<li><strong>Select Time</strong> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>S</mi></msub><mo separator="true">,</mo><msub><mi>t</mi><mtext>select</mtext></msub></mrow><annotation encoding="application/x-tex">t_S, t_\textrm{select}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.80952em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.05764em;">S</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">select</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>: the time required for a device interface attached to a bus to detect that the current transfer involves the device interface. This does not include the time required by the device interface to perform register selection.</li>
+<li><strong>Access Time</strong> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>access</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{access}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">access</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> (READ): the time required for the device interface to access the required information after the device interface has been selected.</li>
+<li><strong>Store Time</strong> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>store</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{store}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2805559999999999em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">store</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> (STORE): the time required for the device interface to capture and store data after the device interface has been selected. Note that nothing is &quot;stored&quot; during this time (but will happen in the next rising edge).</li>
+<li><strong>Skew Time</strong> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext>skew</mtext></msub></mrow><annotation encoding="application/x-tex">t_\textrm{skew}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">skew</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>: the maximum difference in signal propagation time. Although various sets of signals could have different values of skew time (e.g. the address bus signals or the data bus signals), the largest measure of skew is used. A more general definition would be the magnitude of the difference between two events that ideally would occur simultaneously. This definition allows for skew on a single signal with multiple endpoints.</li>
+<li><strong>Margin Time</strong>: the time reserved to allow for unexpected variations in performance. Some examples of margin time include <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mrow><mi>M</mi><mn>1</mn></mrow></msub><mo separator="true">,</mo><msub><mi>t</mi><mtext>Margin1</mtext></msub></mrow><annotation encoding="application/x-tex">t_{M1}, t_\textrm{Margin1}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9011879999999999em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.10903em;">M</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.328331em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">Margin1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span> and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mrow><mi>M</mi><mn>2</mn></mrow></msub><mo separator="true">,</mo><msub><mi>t</mi><mtext>Margin2</mtext></msub></mrow><annotation encoding="application/x-tex">t_{M2}, t_\textrm{Margin2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9011879999999999em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.10903em;">M</span><span class="mord mtight">2</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.328331em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">Margin2</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span>. A margin time is an amount of extra time that a designer includes to ensure reliable operation.</li>
+</ul>
+<p><img src="https://i.imgur.com/UOIEiFV.png" alt="bus-transfer"></p>
+<p><strong>Skew</strong>: wires are not infinitely fast nor are they created equal, sources of skew include</p>
+<ul>
+<li>Minor differences in propagation delays due to wire length</li>
+<li>Differences in logic gate delays</li>
+<li>Differences in rise and fall times due to capacitive effects.</li>
+</ul>
+<p><img src="https://i.imgur.com/PRCrNgl.png" alt="skew"></p>
+<h4 id="synchronous-bus-transfer">Synchronous Bus Transfer</h4>
+<p>Synchronous bus read/write - block diagram:</p>
+<p><img src="https://i.imgur.com/7HgnDTB.png" alt="sync-bus-block"></p>
+<p>Synchronous bus read/write - ladder diagram:</p>
+<p><img src="https://i.imgur.com/BbHGqns.png" alt="sync-bus-ladder"></p>
+<p>Synchronous bus read/write - timing diagram:</p>
+<p><img src="https://i.imgur.com/HC5RAew.png" alt="sync-bus-timing"></p>
+<p>Synchronous bus write <strong>register clock derivation</strong>:</p>
+<p><img src="https://i.imgur.com/kAJ8k4V.png" alt="register-clock-derivation"></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo fence="true">{</mo><mtable rowspacing="0.3599999999999999em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mtext>Normal Clock</mtext><mo>=</mo><mover accent="true"><mtext>Clock</mtext><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mtext>Address Decoded</mtext><mo>⋅</mo><mover accent="true"><mtext>R/W</mtext><mo stretchy="true">‾</mo></mover></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mtext>Register Clock</mtext><mo>=</mo><mover accent="true"><mrow><mover accent="true"><mtext>Clock</mtext><mo stretchy="true">‾</mo></mover><mo>⋅</mo><mtext>Address Decoded</mtext><mo>⋅</mo><mover accent="true"><mtext>R/W</mtext><mo stretchy="true">‾</mo></mover></mrow><mo stretchy="true">‾</mo></mover></mrow></mstyle></mtd></mtr></mtable></mrow><annotation encoding="application/x-tex">\begin{cases}
+\textrm{Normal Clock} = \overline\textrm{Clock}\cdot \textrm{Address Decoded}\cdot \overline\textrm{R/W}\\
+\textrm{Register Clock} =\overline{\overline\textrm{Clock}\cdot \textrm{Address Decoded}\cdot \overline\textrm{R/W}}
+\end{cases}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:3.0220000000000002em;vertical-align:-1.2610000000000001em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">{</span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.7610000000000001em;"><span style="top:-3.9030000000000005em;"><span class="pstrut" style="height:3.1500000000000004em;"></span><span class="mord"><span class="mord text"><span class="mord textrm">Normal Clock</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.89444em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord text"><span class="mord textrm">Clock</span></span></span><span style="top:-3.81444em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord text"><span class="mord textrm">Address Decoded</span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord overline"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9500000000000001em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord text"><span class="mord textrm">R/W</span></span></span><span style="top:-3.87em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.25em;"><span></span></span></span></span></span></span></span><span style="top:-2.321em;"><span class="pstrut" style="height:3.1500000000000004em;"></span><span class="mord"><span class="mord text"><span class="mord textrm">Register Clock</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mord overline"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.1500000000000004em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord overline"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.89444em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord text"><span class="mord textrm">Clock</span></span></span><span style="top:-3.81444em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord text"><span class="mord textrm">Address Decoded</span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord overline"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9500000000000001em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord text"><span class="mord textrm">R/W</span></span></span><span style="top:-3.87em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.25em;"><span></span></span></span></span></span></span></span><span style="top:-4.07em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.25em;"><span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.2610000000000001em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<h2 id="error-detection-and-correction">Error Detection and Correction</h2>
+<p>Error may occur when one device tries to transfer or store data to another device.
+This include registers, memory, buses, I/O devices, and communication channels.</p>
+<p>Error classification:</p>
+<ul>
+<li><strong>Hard Error</strong>: persistent/repeatable error, e.g. a memory bit stuck at 0 will always return 0</li>
+<li><strong>Soft Error</strong>: transient/non-repeatable error, e.g. the 4th bit of a transmission failed due to noise but is corrected in subsequent transmission</li>
+</ul>
+<p>System goals:</p>
+<ul>
+<li><strong>Error Detection (ED)</strong>: add redundant information such that data receiver can tell received data is not the same as original data</li>
+<li><strong>Error Correction (EC)</strong>: add redundant information such that corrupted data can be recovered at the receiving end</li>
+</ul>
+<p>Error rate and overhead:</p>
+<ul>
+<li><strong>Error Rate</strong>: rate of errors on the channel, e.g. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><msup><mn>0</mn><mrow><mo>−</mo><mn>6</mn></mrow></msup></mrow><annotation encoding="application/x-tex">10^{-6}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141079999999999em;vertical-align:0em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">6</span></span></span></span></span></span></span></span></span></span></span></span> indicates that on average one bit in a million is in error. Note that occurrence of some error may increase the likelihood of subsequent errors.</li>
+<li><strong>Overhead</strong>: the number of non-data bits divided by the total number of bits transferred</li>
+</ul>
+<p>Block recovery vs Byte/Word recovery:</p>
+<ul>
+<li>If recovery is at the byte level, the system only needs to retransmit few bytes</li>
+<li>If recovery is at block level, large group of bits are corrupted and retransmission of the entire group is required.</li>
+<li><strong>Block</strong> in the context of error handling is a group of bits.</li>
+</ul>
+<p>For a given set of bits transmitted, let <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi></mrow><annotation encoding="application/x-tex">B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span></span></span></span> be # <em>data</em> bits and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi></mrow><annotation encoding="application/x-tex">C</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span></span></span></span> be # <em>check</em> bits required to handle error:</p>
+<ul>
+<li><strong>Data Word</strong>: has <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi></mrow><annotation encoding="application/x-tex">B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span></span></span></span> bits of data. Data word is the smallest unit for error correction or detection</li>
+<li><strong>Code Word</strong>: the combination of <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi></mrow><annotation encoding="application/x-tex">B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span></span></span></span> data bits and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi></mrow><annotation encoding="application/x-tex">C</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span></span></span></span> check bits; the exact order is specific to the error handling algorithm.</li>
+<li>Data transmitted: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>+</mo><mi>C</mi></mrow><annotation encoding="application/x-tex">B+C</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span></span></span></span> bits,<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">o</mi><mi mathvariant="normal">v</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">h</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">d</mi></mrow><mo>=</mo><mfrac><mi>C</mi><mrow><mi>B</mi><mo>+</mo><mi>C</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">\mathrm{overhead}= \frac{C}{B+C}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord"><span class="mord mathrm">o</span><span class="mord mathrm" style="margin-right:0.01389em;">v</span><span class="mord mathrm">e</span><span class="mord mathrm">r</span><span class="mord mathrm">h</span><span class="mord mathrm">e</span><span class="mord mathrm">a</span><span class="mord mathrm">d</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:2.1296600000000003em;vertical-align:-0.7693300000000001em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05017em;">B</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.07153em;">C</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.7693300000000001em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+</li>
+<li>In an event of an uncorrectable error, all <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>+</mo><mi>C</mi></mrow><annotation encoding="application/x-tex">B+C</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span></span></span></span> bits must be retransmitted.</li>
+</ul>
+<p><img src="https://i.imgur.com/WASNSO5.png" alt="data-word"></p>
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false">(</mo><msub><mi>B</mi><mtext>in</mtext></msub><mo stretchy="false">)</mo><mo>=</mo><mi>F</mi><mo stretchy="false">(</mo><msub><mi>B</mi><mtext>out</mtext></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">F(B_\textrm{in})=F(B_\textrm{out})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31750199999999995em;"><span style="top:-2.5500000000000003em;margin-left:-0.05017em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">in</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2805559999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.05017em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">out</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>: no detectable error</li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false">(</mo><msub><mi>B</mi><mtext>in</mtext></msub><mo stretchy="false">)</mo><mo mathvariant="normal">≠</mo><mi>F</mi><mo stretchy="false">(</mo><msub><mi>B</mi><mtext>out</mtext></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">F(B_\textrm{in})\neq F(B_\textrm{out})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31750199999999995em;"><span style="top:-2.5500000000000003em;margin-left:-0.05017em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">in</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel"><span class="mrel"><span class="mord"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.69444em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="rlap"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="inner"><span class="mrel"></span></span><span class="fix"></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.19444em;"><span></span></span></span></span></span></span><span class="mrel">=</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2805559999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.05017em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">out</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>, then
+<ul>
+<li>ED only: F detected some errors</li>
+<li>EC only: F can provide sufficient information to correct errors</li>
+<li>EC-ED: F can provide sufficient information to correct errors and detect other errors</li>
+</ul>
+</li>
+</ul>
+<p>Detection failures:</p>
+<ul>
+<li>Error handling algorithm was designed to handle fewer errors than actually observed:
+<ul>
+<li>Erroneous code word yields same result from error-handling algorithm <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi></mrow><annotation encoding="application/x-tex">F</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span></span></span></span> as original code word.</li>
+<li>Erroneous code is detected, but the correction convert it into another erroneous code that evades further detection</li>
+</ul>
+</li>
+<li>Timing or signalling errors that prevents the recovery of sufficient information to successfully handle an error.</li>
+</ul>
+<p><strong>Parity Check</strong>:</p>
+<ul>
+<li>Add 1 bit per <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi></mrow><annotation encoding="application/x-tex">B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span></span></span></span> bits (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">C=1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>) so that the code word always has the following property:
+<ul>
+<li><strong>Even Parity</strong>: the parity bit is set to 0 if there is an even number of 1's in the data word</li>
+<li><strong>Odd Parity</strong>: the parity bit is set to 1 if there is an even number of 1's in the data word</li>
+</ul>
+</li>
+<li>Detects an odd number of bit errors</li>
+<li>Minimum distance between &quot;valid&quot; code words is 2.</li>
+</ul>
+<p><img src="https://i.imgur.com/jPJhcY5.png" alt="parity-check"></p>
+<p><strong>Hamming Distance</strong>: <strong>distance</strong> the minimum number of bits that must change to go from one valid code word to another valid code word</p>
+<p><img src="https://i.imgur.com/BQbv8AR.png" alt="ec-ed"></p>
+<p>Where ED is the maximum number of bit errors we can detect if we don't care about error correction;
+EC-ED represent maximum # bit we can correct on the assumption, and maximum # bit we can detect if we want correction (i.e. # bit to flip to reach the error).</p>
+<p>Every time we increase the distance, we need more bits in our transmission so that we get the same number of valid code words, which means more overhead.</p>
+<h3 id="hamming-code">Hamming Code</h3>
+<p>Consider the case of 4 data bits <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>B</mi><mo>=</mo><mn>4</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(B=4)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">4</span><span class="mclose">)</span></span></span></span>, we define 3 overlapping sets P,Q,R to construct the code word.
+Each set uses 1 check bits (for a total of 3 check bits); usually we use many more checing bits for each set.
+In this case, hamming code is a distance-3 scheme that's only able to do a single-bit error correction.</p>
+<p>Hamming code says we should calculate our check bit so that the parity of within each set is even.
+We assume the data bits and check bits are arranged as shown in the figure below.</p>
+<p><img src="https://i.imgur.com/bDjcRaI.png" alt="hamming-code-intro"></p>
+<p><img src="https://i.imgur.com/vfgiVGb.png" alt="hamming-code-additional"></p>
+<p>If 7 bits (4 data bits + 3 check bits) were to be transmitted, and we assume there is at most 1 bit with an erroneous value, there will be 8 possible error conditions to consider.
+The table below lists the expected parity for hte 3 sets of values at the receiver for every possible error condition.</p>
+<p><img src="https://i.imgur.com/Mp9O56y.png" alt="hamming-code-table"></p>
+<p>Observations:</p>
+<ol>
+<li>Each number corresponding to the binary string RQP is unique</li>
+<li>All check bits are powers of 2</li>
+<li>Explains the bit ordering we did</li>
+</ol>
+<p>What is the mininmum length of the code word for <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi></mrow><annotation encoding="application/x-tex">B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span></span></span></span> bits of data?
+Considering <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi></mrow><annotation encoding="application/x-tex">C</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span></span></span></span> check bits, there are <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>C</mi></msup><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">2^C-1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.924661em;vertical-align:-0.08333em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8413309999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.07153em;">C</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span> error representations and 1 correct representation.
+Therefore, to correct 1 erroneous bit out of B+C bits of information, we require</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>C</mi></msup><mo>−</mo><mn>1</mn><mo>≥</mo><mi>B</mi><mo>+</mo><mi>C</mi></mrow><annotation encoding="application/x-tex">2^C-1\ge B+C
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9746609999999999em;vertical-align:-0.08333em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8913309999999999em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.07153em;">C</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.78041em;vertical-align:-0.13597em;"></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span></span></span></span></span></p>
+<p><img src="https://i.imgur.com/RVnF9MF.png" alt="hamming-overhead-drop"></p>
+<p><strong>Syndrome</strong>: a syndrome combines the check bit values received with the check bit values calculated at hte receiver to determine the location of a single bit error in a received code word.</p>
+<p>The <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.65952em;vertical-align:0em;"></span><span class="mord mathdefault">i</span></span></span></span>th bit of the syndrome <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">S_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.05764em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> is calculated as <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>C</mi><mi>i</mi><mtext>recv</mtext></msubsup><mo>⊕</mo><msubsup><mi>C</mi><mi>i</mi><mtext>calc</mtext></msubsup></mrow><annotation encoding="application/x-tex">C_i^\textrm{recv}\oplus C_i^\textrm{calc}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.941994em;vertical-align:-0.258664em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.664392em;"><span style="top:-2.441336em;margin-left:-0.07153em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">recv</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.258664em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⊕</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.107772em;vertical-align:-0.258664em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.849108em;"><span style="top:-2.441336em;margin-left:-0.07153em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord textrm mtight">calc</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.258664em;"><span></span></span></span></span></span></span></span></span></span>,</p>
+<ul>
+<li>If <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">S=0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span></span></span></span>, the code word is correct</li>
+<li>If <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi></mrow><annotation encoding="application/x-tex">S</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span></span></span></span> has only one 1, a check bit is in error</li>
+<li>If <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi></mrow><annotation encoding="application/x-tex">S</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span></span></span></span> has more than one 1, a data bit is in error</li>
+<li>The syndrome value indictes the osition of the bit in error.</li>
+</ul>
+<p><img src="https://i.imgur.com/5p6sRbl.png" alt="num-syndrome-bit"></p>
+<hr>
+<p>How does computer calculate parity?
+<strong>XOR</strong> all the bits gives even parity.</p>
+<p>How to algorithmically determine the ordering of data bits and check bits?</p>
+<ol>
+<li>Draw a table with 4 columns: num, binary, data, and check, where num goes from 1 to N, binary goes from 0001 to xxxx, for example.</li>
+<li>Fill in the &quot;check&quot; column from <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">C_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.07153em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> to <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">C_n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.07153em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> first</li>
+<li>Fill in the &quot;data&quot; column for all vacant leftover from step 2.</li>
+<li>Determine which data bits needs to be checked: for <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">C_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.07153em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>, select binary strings from all whose <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.65952em;vertical-align:0em;"></span><span class="mord mathdefault">i</span></span></span></span>th bit is 1.</li>
+</ol>
+<p><img src="https://i.imgur.com/FKfFJ4q.png" alt="hamming-code-table-generic"></p>
+<p>Finding the syndrome bit:</p>
+<ol>
+<li>Draw table computing check bits of sent data word</li>
+<li>Separate data bits and check bits for the received code word</li>
+<li>Compute syndrome</li>
+<li>Arrive at the erroneous bit</li>
+</ol>
+<p><img src="https://i.imgur.com/eyTU6F3.png" alt="find-syndrome-bit"></p>
+<h2 id="parallel-interface">Parallel Interface</h2>
+<p>Parallel interface functionality:</p>
+<ul>
+<li>Synchronize device with system</li>
+<li>Alter signal levels</li>
+<li>Encodes data appropriately</li>
+<li>Buffers data as required</li>
+</ul>
+<p><img src="https://i.imgur.com/MSpisjc.png" alt="parallel-interface"></p>
+<p>Recall the system structure:</p>
+<p><img src="https://i.imgur.com/boEnU62.png" alt="register-selection-unit"></p>
+<p>Register selection logic (a very generic model):</p>
+<ul>
+<li>Use a tri-state to write to data line.</li>
+<li><strong>Data-In Register</strong>: a D-flip-flop writing potentially transient data to data line.</li>
+<li><strong>Data-Out Register</strong>: a D-flip-flop reading transient data from the data line. The data coming off the system bus is always transient, assuming an synchronous bus.</li>
+<li><strong>Status Register</strong>: We often need status information from the device that we'll use on the CPU side. This is a <em>read-only</em> register and could be optional.</li>
+<li><strong>Control Register</strong>: We need to share control information from the CPU to the device, to configure the device, for example.</li>
+<li>Note how all registers are connected to the data line.</li>
+</ul>
+<p><img src="https://i.imgur.com/SU5ISuZ.png" alt="register-selection-logic"></p>
+<blockquote>
+<p>GPIO interface fits all the registers in this model. However, it has multiple control registers, and more than one status register.</p>
+</blockquote>
+<p>How many addresses do we need to select the register uniquely?
+If we have 4 registers, we'll need 4 addresses; we could do that with the lowest two bits of the address line. Or, we could use the lowest bit of the address line, and notice we have pairs of register here:</p>
+<ul>
+<li>Control is write-only</li>
+<li>Status is read-only</li>
+<li>Data-out is write-only</li>
+<li>Data-in is read-only</li>
+</ul>
+<p>We can use the R/W line to act as our other bit in the address line.</p>
+<hr>
+<p>Summary of procesing domain and device domain:</p>
+<p><img src="https://i.imgur.com/boZhUVT.png" alt="processing-device-domain"></p>
+<blockquote>
+<p>processing domain is very well specified whereas device domain is very flexible.</p>
+</blockquote>
+<h3 id="system-bus-side-review">System Bus Side (review)</h3>
+<p>Recall general signal grouops within a bus:</p>
+<ul>
+<li>Data: bi-directional between the processor and device (include memory)</li>
+<li>Selection/Addressing: memory location or I/O device must be uniquely selected</li>
+<li>Control: transfer must be synchronized
+<ul>
+<li>Data transfer synchronization signals (e.g. R/W, CLOCK, ...)</li>
+<li><strong>Bus control signals</strong> (e.g. REQUEST, GRANT, ...) often associated with choosing multiple masters</li>
+<li><strong>Process arbitration signals</strong> (e.g. IRQ)</li>
+</ul>
+</li>
+</ul>
+<p>At this point we make the following assumptions about our system:</p>
+<ul>
+<li>A memory-mapped I/O device</li>
+<li>An interface with more than 1 register memory-mapped (assume 4 registers)</li>
+<li>A synchronous bus with a global clock</li>
+<li>Timing similar to that illustrated below (review)</li>
+</ul>
+<p><img src="https://i.imgur.com/yl15x2B.png" alt="sample-system-bus"></p>
+<p>Interface Classes:</p>
+<p><strong>Unidirectional</strong> buses are simple and low cost.
+<strong>Bi-directional</strong> interfaces can have:</p>
+<ul>
+<li>Direction control type:
+<ul>
+<li>Explicit: data direction register</li>
+<li>Implicit: no data direction register</li>
+</ul>
+</li>
+<li>Bus driver implementation:
+<ul>
+<li>Passive pull-up (open collector): explicit or implicit</li>
+<li>Tri-state: explicit only</li>
+<li>Pseudo bi-directional: implicit only</li>
+</ul>
+</li>
+<li>Direction control frequency:
+<ul>
+<li>Static: port direction is configured once during initialization</li>
+<li>Dynamic: port direction changes frequently during operation</li>
+</ul>
+</li>
+</ul>
+<p>Uni-directional interface:</p>
+<ul>
+<li>The control signal is ReadData, once the signal is set, data is read from DeviceData to Data bus D[15..0]. Notice how the ReadData turns on/off the tri-state drivers.</li>
+<li>If device data is persistant, there is no need for registers because</li>
+<li>For the transient data input case, we need another signal DeviceEvent to load the data to register.</li>
+<li>For the transient data output case, WriteData signal's rising edge loads the data from data bus D[15..0] to DeviceData[15..0]</li>
+</ul>
+<p><img src="https://i.imgur.com/43FT0ir.png" alt="uni-directional-input"></p>
+<p><img src="https://i.imgur.com/ecMr6m8.png" alt="uni-directional-transient"></p>
+<p><img src="https://i.imgur.com/0UEeUh2.png" alt="uni-directional-transient-output"></p>
+<p>Bi-directional interface:</p>
+<ul>
+<li>Unsynchronized interface means data is persistent, i.e. don't need register on the read path.</li>
+<li>If Data Direction Register DDR[0]=0, then for that particular data line, the tri state will not be enabled, that means we're reading the DeviceData[0] back onto the data bus.</li>
+<li>By setting data direction register, we can control which lines are inputs and which lines are outputs</li>
+<li>What should the reset default be for the DDR register? All zeros. Because floating lines are better than conflicts.</li>
+<li>Note that explicit bidirectional data does not have to mean using a tri-state driver between the Device-Out register and the DeviceData lines.</li>
+<li>In the explicit passive case, data direction register controls input/output mode. The safe reset default should also be DDR at zeros, which puts the device in Input Mode so device interface will not try to actively drive the lines. Floating is better than conflict.</li>
+</ul>
+<p>Bi-directional Explicit case:</p>
+<p><img src="https://i.imgur.com/dc2TT1T.png" alt="bi-drectional-explicit"></p>
+<p><img src="https://i.imgur.com/kg58nj7.png" alt="bidirectional-explicit-passive"></p>
+<p>Bi-directional Implicit Case:</p>
+<ul>
+<li>Data Out Register is only capable of driving zeros to the DeviceData line; if we want to write a one to the DeviceData line, the passive pull-up resistor will do the job for us.</li>
+<li>Cooperate means if we want to read certain lines in DeviceData, we need to set thse bits in the data out register to 1s to make sure the open collector driver is in high impedance state. Hence the name &quot;pseudo bidirectional.&quot;</li>
+</ul>
+<p><img src="https://i.imgur.com/0IeVkGk.png" alt="bi-direction-implicit"></p>
+<h4 id="data-characteristics">Data characteristics</h4>
+<p>Two general techniques to pass control information between two entities:</p>
+<ul>
+<li><strong>In-Band</strong>: some or all control information is communicated in the same way the data is transferred, e.g. a control-C in text string resembles ordinary data, but it may be interpreted as a special control character.</li>
+<li><strong>Out-of-Band</strong>: control information is not communicated in the same way data is transferred, e.g. wireless control information may be transmitted using a different frequency. Control information may be transmitted on the data lines of a bus at a time when data is never present, or control information may be transmitted on signal lines dedicated to the transmission of control information.</li>
+</ul>
+<p>For example, how to tell the difference between the transmission of two 0x76's and one 0x76?
+Using in-band approach we use delimiter; using out-of-band approach we use an extra signal line to indicate presense of valid data and its duration.</p>
+<p>Data Persistence:</p>
+<ul>
+<li>Persistent data may be accepted at the convenience of consumer. After the data has been consumed, the producer is notified. Handshaking required.</li>
+<li>Transient data must be accepted within a fixed time after being produced. The consumer does not notify the producer of data consumption. It's common to buffer the data on the receiver side, so that receiver doesn't have to act on it right away.</li>
+</ul>
+<p><img src="https://i.imgur.com/gfATgfm.png" alt="data-persistence"></p>
+<p>Handling Persistent Data:</p>
+<ul>
+<li>A fully-interlocked protocol can be implemented with out-of-band signalling.</li>
+<li>The data is loaded from Data Source to data bus first, and then the Valid signal is set through Status register, and the system bus will acknowledge that CPU has received data and signals Accept.</li>
+<li>When CPU sees Valid is high, it sets Accept to high to acknowledge data reception; device then turn off Valid bit when it sees the data is accepted; CPU watches that Valid is turned off, and turns off Accept in response. Transaction is over. This is a consumer sensitive approach to data generation; and we are using tight polling for synchronization.</li>
+</ul>
+<p><img src="https://i.imgur.com/Qn5QG7P.png" alt="persistent-data"></p>
+<p>Handling Transient Data:</p>
+<ul>
+<li>Out-of-band signalling can be used to detect changes in data</li>
+<li>Double-buffering can be used to extend the time window for data to be consumed (i.e. read by the system bus)</li>
+<li>Spontaneous data generation.</li>
+</ul>
+<p><img src="https://i.imgur.com/9fNpdZ4.png" alt="transient-data"></p>
+<p>Debouncing Noisy Input Data via mechanical:</p>
+<ul>
+<li>Software: Wait a fixed amount of time using a delay loop, or wait until the signal is stable.</li>
+<li>Hardware: Wait a fixed amount of time using a counter of shift register, and only sample the data after the timer expires.</li>
+<li>Hardware: Slow down the signal transition using a one-shot capacitor.</li>
+<li>Hardware: Use a more expansive switch attached to an S-:R Latch Debounced switch can be built using more expensive <strong>Single-Pole Double Throw (SPDT)</strong> switches using a S-R latch instead of <strong>Single-Pole Single Throw (SPST)</strong> switches. The SPDT solution assumes that a switch will not bounce from one throw to another.</li>
+</ul>
+<p><img src="https://i.imgur.com/w1V8YFC.png" alt="debouncing-switch"></p>
+
+    </body>
+    </html>
