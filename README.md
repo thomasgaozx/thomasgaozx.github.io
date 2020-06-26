@@ -30,6 +30,7 @@ My name is Thomas Gao. I am a second-year Mechatronics Engineering Undergrad at 
 
 ## [Mechanical Wiki](/content/mech)
 
+- Thermodynamics
 - Kinematics and Dynamics of Machines
 - Mechanics of Deformable Solids
 - Dynamics
