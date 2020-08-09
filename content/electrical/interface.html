@@ -1631,8 +1631,8 @@ Secondary goals include:</p>
 <p>Again, we only work with non-pre-emptive arbitration.</p>
 <p>Method 1: using DMA Arbitration, asserts the ID in parallel and check</p>
 <ul>
-<li><code>0000</code> is reserved for an idle bus</li>
-<li><code>1111</code> is highest priority (note the bar over the DMA#)</li>
+<li><code>ID[3..0]=0000</code> is reserved for an idle bus</li>
+<li><code>ID[3..0]=1111</code> is highest priority (note the bar over the DMA#)</li>
 <li>When a request is asserted, the bus arbiter attempts to place a complement of its unique device ID on the bus.</li>
 <li><strong>Grant signal</strong> is asserted when the device is granted use of the bus.</li>
 </ul>
