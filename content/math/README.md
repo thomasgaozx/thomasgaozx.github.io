@@ -8,15 +8,13 @@ This page contains the overviews of undergraduate mathematics fundamentals.
 
 ## [Combinatorics](combinatorics.html)
 
+## [Optimization](optimization.html)
+
 Under construction.
 
 ## [Graph Theory](graph.html)
 
-Under Construction.
-
 ## [Linear Graph Analysis](lgraph.html)
-
-Under Construction
 
 ## [Multivariable Calculus](multivariable_calculus.html)
 
