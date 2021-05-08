@@ -12,7 +12,7 @@ This page contains the overviews of undergraduate mathematics fundamentals.
 
 ## [Optimization](optimization.html)
 
-Under construction.
+## [Convex Optimization and Analysis](convex.pdf)
 
 ## [Graph Theory](graph.html)
 
