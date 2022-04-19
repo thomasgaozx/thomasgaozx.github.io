@@ -42,4 +42,6 @@ Under construction.
 
 ## [Differential Equations](differential_equations.html)
 
+## [STAT 341](stat341.html)
+
 ## [Statistics](statistics.html)
