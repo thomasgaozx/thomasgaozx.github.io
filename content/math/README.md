@@ -44,4 +44,6 @@ Under construction.
 
 ## [STAT 341](stat341.html)
 
+## [Game Theory](CO456Notes.html)
+
 ## [Statistics](statistics.html)
