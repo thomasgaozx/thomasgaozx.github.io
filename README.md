@@ -1,34 +1,28 @@
-# Welcome
+# 15909414 Canada Inc.
 
-## [Software Wiki](/content/software)
+Hello. My name is Thomas Gao.
+I am a Data Scientist that has extensive academic and industry background in applied math, machine learning and statistics.
 
-- Networking
-- Database Design
-- Kubernetes
-- Concurrency
-- Git, Bash, Python!
+## Services
 
-## [Mathematics](/content/math)
+I offer consulting services in the following areas:
 
-- Linear Algebra
-- Multivariable Calculus
-- Fourier Analysis
-- Algorithms
-- Automata
-- Statistics
+1. Data Science
+2. Computer Vision
+3. Machine Learning
+4. LLM
+5. Backend Development
 
-## [Electrical Wiki](/content/electrical)
+---
 
-- Advanced Circuits
-- Filter Design
-- Sensors and Instrumentation
-- Linear Signals and Systems
-- Integral Transforms
-- PLC, Assembly Programming
+Whether you are a start up, individual, company or VC, I am more than happy to discuss projects or collaborations to help achieve your business goal.
 
-## [Mechanical Wiki](/content/mech)
+If interested, please do not hesitate to reach out to me at thomasgaozx@gmail.com
 
-- Thermodynamics
-- Kinematics and Dynamics of Machines
-- Mechanics of Deformable Solids
-- Dynamics
+### Customer Service
+
+If any issue arise during or after my project delivery, please contact me at thomasgaozx@gmail.com
+
+### Refund Policy
+
+May depend on the specific project. It will be agreed upon in the contract.
